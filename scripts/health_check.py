@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""
+SG Platform Native Health Checker
+Checks availability, response latency, and status across:
+- 13 Backend Microservices (ports 8001-8013)
+- MLflow Tracking Server (port 5000)
+- Next.js Web Dashboard (port 3000)
+- Native PostgreSQL (port 5432)
+- WSL2 Redis (port 6379)
+"""
+
+import sys
+import time
+import socket
+import urllib.request
+import urllib.error
+
+SERVICES = [
+    ("PostgreSQL", "localhost", 5432, "tcp"),
+    ("Redis (WSL2)", "localhost", 6379, "tcp"),
+    ("MLflow Server", "localhost", 5000, "http://localhost:5000/health"),
+    ("Auth Service", "localhost", 8001, "http://localhost:8001/health"),
+    ("Market Data Service", "localhost", 8002, "http://localhost:8002/health"),
+    ("Broker Service", "localhost", 8003, "http://localhost:8003/health"),
+    ("Strategy Service", "localhost", 8004, "http://localhost:8004/health"),
+    ("Regime Detection Service", "localhost", 8005, "http://localhost:8005/health"),
+    ("Execution Orchestrator", "localhost", 8006, "http://localhost:8006/health"),
+    ("Risk Engine Service", "localhost", 8007, "http://localhost:8007/health"),
+    ("Execution Engine Service", "localhost", 8008, "http://localhost:8008/health"),
+    ("Portfolio Management", "localhost", 8009, "http://localhost:8009/health"),
+    ("Backtesting Engine", "localhost", 8010, "http://localhost:8010/health"),
+    ("ML Platform Service", "localhost", 8011, "http://localhost:8011/health"),
+    ("AI Analyst Service", "localhost", 8012, "http://localhost:8012/health"),
+    ("Signal Aggregation Service", "localhost", 8013, "http://localhost:8013/health"),
+    ("Next.js Dashboard", "localhost", 3000, "http://localhost:3000"),
+]
+
+def check_tcp(host: str, port: int, timeout: float = 1.5) -> tuple[bool, float, str]:
+    start = time.perf_counter()
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            latency = (time.perf_counter() - start) * 1000
+            return True, latency, "OPEN"
+    except Exception as e:
+        latency = (time.perf_counter() - start) * 1000
+        return False, latency, str(e)
+
+def check_http(url: str, timeout: float = 2.0) -> tuple[bool, float, str]:
+    start = time.perf_counter()
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "SG-HealthCheck/1.0"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            latency = (time.perf_counter() - start) * 1000
+            return True, latency, f"HTTP {resp.status}"
+    except urllib.error.HTTPError as e:
+        latency = (time.perf_counter() - start) * 1000
+        # If the endpoint returned 401 or 404, the server process is still alive and listening
+        if e.code in (200, 204, 301, 302, 307, 308, 401, 403, 404):
+            return True, latency, f"HTTP {e.code}"
+        return False, latency, f"HTTP {e.code}"
+    except Exception as e:
+        latency = (time.perf_counter() - start) * 1000
+        return False, latency, "DOWN"
+
+def main():
+    print("=" * 75)
+    print(f"{'SG Platform Health Check (Native Windows)':^75}")
+    print("=" * 75)
+    print(f"{'Target Service':<30} | {'Port':<6} | {'Status':<8} | {'Latency':<9} | {'Details'}")
+    print("-" * 75)
+
+    all_passed = True
+    for name, host, port, check_type in SERVICES:
+        if check_type == "tcp":
+            ok, lat, details = check_tcp(host, port)
+        else:
+            ok, lat, details = check_http(check_type)
+
+        status_str = "[ PASS ]" if ok else "[ FAIL ]"
+        if not ok:
+            all_passed = False
+
+        print(f"{name:<30} | {port:<6} | {status_str:<8} | {lat:>6.1f}ms | {details}")
+
+    print("=" * 75)
+    if all_passed:
+        print("ALL SERVICES OPERATIONAL")
+        sys.exit(0)
+    else:
+        print("SOME SERVICES ARE OFFLINE OR UNREACHABLE")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

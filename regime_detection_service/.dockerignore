@@ -1,8 +1,0 @@
-__pycache__/
-*.pyc
-.pytest_cache/
-.env
-.git/
-tests/
-README.md
-docker-compose.service.yml
