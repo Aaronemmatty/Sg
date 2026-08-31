@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sg-market-data-service"
+version = "1.0.0"
+description = "SG Trading Platform — Market Data Service (NSE Equities)"
+requires-python = ">=3.13"
+dependencies = [
+    # Web framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    # Database
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14.0",
+    "asyncpg>=0.30.0",
+    # Pydantic
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    # Redis
+    "redis[hiredis]>=5.2.0",
+    # Kite Connect
+    "kiteconnect>=5.0.0",
+    # Yahoo Finance fallback
+    "yfinance>=0.2.50",
+    "pandas>=2.2.0",
+    "numpy>=2.1.0",
+    # HTTP client
+    "httpx>=0.28.0",
+    # Scheduling (market open/close triggers)
+    "apscheduler>=3.10.0",
+    "pytz>=2024.1",
+    # Observability
+    "structlog>=24.4.0",
+    "prometheus-fastapi-instrumentator>=7.0.0",
+    "opentelemetry-sdk>=1.27.0",
+    "opentelemetry-instrumentation-fastapi>=0.48b0",
+    # Retry
+    "tenacity>=9.0.0",
+    # Shared DB models
+    "sg-db",
+    "sg-security",
+]
+
+[project.optional-dependencies]
+clickhouse = [
+    "clickhouse-driver==0.2.9",
+    "clickhouse-connect==0.8.9",
+]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==6.0.0",
+    "httpx==0.28.1",
+    "freezegun==1.5.1",
+    "factory-boy==3.3.1",
+    "respx==0.21.1",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "--cov=app --cov-report=term-missing --cov-fail-under=80"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.hatch.metadata]
+allow-direct-references = true

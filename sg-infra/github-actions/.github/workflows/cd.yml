@@ -1,0 +1,177 @@
+name: CD — Deploy to Local
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Deploy single service (leave empty for all)'
+        required: false
+        default: ''
+      force:
+        description: 'Force deploy even if CI skipped'
+        type: boolean
+        default: false
+
+# Only one deploy at a time
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ─── Gate: CI must pass first ──────────────────────────────────
+  ci-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify CI passed for this SHA
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.payload.inputs?.force === 'true') {
+              console.log('Force deploy — skipping CI gate');
+              return;
+            }
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              check_name: 'ci-gate',
+            });
+            const passed = checks.data.check_runs.some(
+              c => c.conclusion === 'success'
+            );
+            if (!passed) {
+              core.setFailed('CI gate has not passed for this SHA. Deploy blocked.');
+            }
+
+  # ─── Build & push images to local Docker registry ─────────────
+  build:
+    needs: ci-check
+    # Runs on YOUR LAPTOP via self-hosted runner
+    runs-on: self-hosted
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version tag
+        id: version
+        run: |
+          VERSION="${GITHUB_SHA::8}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Deploying version: $VERSION"
+
+      - name: Build Docker images
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SERVICE: ${{ github.event.inputs.service }}
+        run: |
+          cd sg-infra
+
+          if [[ -n "$SERVICE" ]]; then
+            echo "Building single service: $SERVICE"
+            docker compose \
+              -p sg_green \
+              -f docker/docker-compose.yml \
+              --env-file .env \
+              build "$SERVICE"
+          else
+            echo "Building all services..."
+            docker compose \
+              -p sg_green \
+              -f docker/docker-compose.yml \
+              --env-file .env \
+              build --parallel
+          fi
+
+      - name: Tag images with version
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          SERVICES=(
+            auth_service market_data_service broker_service strategy_service
+            regime_detection_service execution_orchestrator_service
+            risk_engine_service execution_engine_service portfolio_management_service
+            backtesting_engine ml_platform_service ai_analyst_service dashboard
+          )
+          for svc in "${SERVICES[@]}"; do
+            docker tag "sg/${svc}:latest" "sg/${svc}:${VERSION}" 2>/dev/null || true
+          done
+
+  # ─── Blue-green deploy ─────────────────────────────────────────
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run blue-green deploy
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          cd sg-infra
+          chmod +x scripts/blue_green_deploy.sh
+          bash scripts/blue_green_deploy.sh ${SERVICE:-}
+
+      - name: Run health checks
+        run: |
+          cd sg-infra
+          chmod +x scripts/health_check.sh
+          bash scripts/health_check.sh
+
+      - name: Post deployment summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}';
+            const version = '${{ needs.build.outputs.version }}';
+            const emoji = status === 'success' ? '✅' : '❌';
+            const body = `${emoji} **Deploy ${status}** — \`${version}\`\n\n` +
+              `- Branch: \`${context.ref}\`\n` +
+              `- SHA: \`${context.sha.substring(0,8)}\`\n` +
+              `- Service: \`${{ github.event.inputs.service || 'all' }}\`\n` +
+              `- Time: ${new Date().toISOString()}`;
+
+            // Create deployment record
+            await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              description: `Deploy ${version}`,
+              auto_merge: false,
+              required_contexts: [],
+            }).then(d => github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: d.data.id,
+              state: status === 'success' ? 'success' : 'failure',
+              description: body,
+            })).catch(console.error);
+
+  # ─── Rollback on failure ───────────────────────────────────────
+  rollback-on-failure:
+    needs: deploy
+    if: failure()
+    runs-on: self-hosted
+    steps:
+      - name: Auto-rollback
+        run: |
+          cd sg-infra
+          echo "Deploy failed — triggering automatic rollback"
+          bash scripts/blue_green_deploy.sh --rollback
+
+      - name: Notify rollback
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue?.number || 1,
+              body: '🔄 **Auto-rollback triggered** — deploy failed, platform reverted to previous version.'
+            }).catch(() => {});

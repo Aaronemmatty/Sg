@@ -1,0 +1,65 @@
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 15s
+
+    relabel_configs:
+      # Only ship logs from containers carrying our platform's compose
+      # project label (set automatically by docker compose); keeps
+      # unrelated host containers out of Loki.
+      - source_labels: [__meta_docker_container_label_com_docker_compose_project]
+        regex: "sg.*"
+        action: keep
+
+      - source_labels: [__meta_docker_container_name]
+        regex: "/(.*)"
+        target_label: container
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        target_label: service
+      - source_labels: [__meta_docker_container_log_stream]
+        target_label: stream
+
+    pipeline_stages:
+      # All 12 services use structlog with JSON rendering in production
+      # (configure_logging() pattern). Parse the JSON line, promote a few
+      # fields to labels/structured metadata for fast filtering, and leave
+      # the rest queryable via Loki's JSON parser at query time.
+      - json:
+          expressions:
+            level: level
+            event: event
+            logger: logger
+            timestamp: timestamp
+            # If a service's OTel FastAPI/HTTPX instrumentation injects
+            # trace context into the log record (not confirmed across all
+            # 12 services this session — verify per-service), this captures
+            # it so Grafana's Loki->Tempo derived field can jump straight
+            # from a log line to its trace.
+            trace_id: trace_id
+            span_id: span_id
+
+      - labels:
+          level:
+          logger:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+          fallback_formats: ["RFC3339", "UnixMs"]
+
+      # Redact anything structlog's own redaction processor missed before
+      # it ever leaves the host — defence in depth, not a replacement for
+      # the app-level redaction documented in 8012.
+      - replace:
+          expression: '(?i)("(api_key|token|password|secret)"\s*:\s*")[^"]*(")'
+          replace: '${1}***REDACTED***${3}'

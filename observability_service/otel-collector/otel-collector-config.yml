@@ -1,0 +1,82 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+
+  resource:
+    attributes:
+      - key: platform
+        value: sg-trading-platform
+        action: insert
+
+connectors:
+  # Derives RED metrics (rate/errors/duration) from spans so Grafana panels
+  # can show request-rate/error-rate/latency by service.name even for any
+  # endpoint not already covered by prometheus-fastapi-instrumentator's
+  # own /metrics (e.g. outbound httpx calls between services).
+  spanmetrics:
+    dimensions:
+      - name: http.method
+      - name: http.status_code
+    histogram:
+      explicit:
+        buckets: [100us, 1ms, 2ms, 6ms, 10ms, 100ms, 250ms]
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+exporters:
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # Collector's own internal telemetry, scraped by Prometheus job
+  # "otel-collector" (port 8888) defined in prometheus.yml.
+  logging:
+    verbosity: basic
+
+service:
+  extensions: [health_check, pprof]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [otlp/tempo, logging]
+
+    traces/spanmetrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [spanmetrics]
+
+    metrics/spanmetrics:
+      receivers: [spanmetrics]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus]
+
+  telemetry:
+    metrics:
+      address: 0.0.0.0:8888
+    logs:
+      level: info

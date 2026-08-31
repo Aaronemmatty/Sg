@@ -1,0 +1,81 @@
+groups:
+  - name: infra.generic
+    rules:
+
+      - alert: ServiceDown
+        expr: up{job=~"auth_service|market_data_service|broker_service|strategy_service|regime_detection_service|execution_orchestrator_service|risk_engine_service|execution_engine_service|portfolio_management_service|backtesting_engine_service|ml_platform_service|ai_analyst_service"} == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.job }} is down"
+          description: "Prometheus has failed to scrape {{ $labels.job }} ({{ $labels.instance }}) for 1m."
+
+      - alert: HighHttp5xxRate
+        expr: |
+          sum by (job) (rate(http_requests_total{status=~"5.."}[5m]))
+          /
+          sum by (job) (rate(http_requests_total[5m]))
+          > 0.05
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.job }} 5xx rate > 5%"
+          description: "{{ $labels.job }} has returned 5xx for more than 5% of requests over the last 5 minutes."
+
+      - alert: HighHttpLatencyP99
+        expr: |
+          histogram_quantile(0.99, sum by (job, le) (rate(http_request_duration_seconds_bucket[5m]))) > 2
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.job }} p99 latency > 2s"
+          description: "{{ $labels.job }} p99 request latency has exceeded 2s for 5 minutes."
+
+      - alert: DBConnectionPoolNearExhaustion
+        # Per-service asyncpg pool gauges are not currently exposed by the
+        # platform, so this rule is intentionally disabled until that
+        # instrumentation lands in the shared DB/session layer.
+        expr: vector(0) > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.job }} asyncpg pool >90% utilised"
+          description: "{{ $labels.job }} is close to exhausting its asyncpg connection pool (min_size=5, max_size=20 by platform convention)."
+
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "PostgreSQL (sg_db) is unreachable"
+          description: "postgres-exporter cannot reach sg_db. Every service depends on this."
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "Redis is unreachable"
+          description: "Redis pub/sub backs the entire live trading pipeline (sg:* channels). All signal/order flow stalls."
+
+      - alert: HighHostCpuUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Host CPU usage > 90% on {{ $labels.instance }}"
+          description: "Sustained high CPU could delay order routing or risk checks on the live path."
+
+      - alert: HighHostMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.9
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Host memory usage > 90% on {{ $labels.instance }}"
+
+      - alert: ContainerRestartingFrequently
+        expr: increase(container_last_seen[10m]) == 0 and rate(container_start_time_seconds[10m]) > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Container {{ $labels.name }} restarting repeatedly"

@@ -1,0 +1,120 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    platform: sg-trading-platform
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - /workspace/prometheus/rules/infra_alerts.yml
+  - /workspace/prometheus/rules/domain_alerts.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: node-exporter
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  - job_name: redis
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  # All 12 SG platform services expose GET /metrics via
+  # prometheus-fastapi-instrumentator on their own port. One job per service
+  # (rather than one job with 12 targets) so each gets its own `job` label
+  # cleanly and per-service scrape overrides are trivial to add later.
+  - job_name: auth_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["auth_service:8001"]
+        labels: { service: auth_service, port: "8001" }
+
+  - job_name: market_data_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["market_data_service:8002"]
+        labels: { service: market_data_service, port: "8002" }
+
+  - job_name: broker_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["broker_service:8003"]
+        labels: { service: broker_service, port: "8003" }
+
+  - job_name: strategy_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["strategy_service:8004"]
+        labels: { service: strategy_service, port: "8004" }
+
+  - job_name: regime_detection_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["regime_detection_service:8005"]
+        labels: { service: regime_detection_service, port: "8005" }
+
+  - job_name: execution_orchestrator_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["execution_orchestrator_service:8006"]
+        labels: { service: execution_orchestrator_service, port: "8006" }
+
+  - job_name: risk_engine_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["risk_engine_service:8007"]
+        labels: { service: risk_engine_service, port: "8007" }
+
+  - job_name: execution_engine_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["execution_engine_service:8008"]
+        labels: { service: execution_engine_service, port: "8008" }
+
+  - job_name: portfolio_management_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["portfolio_management_service:8009"]
+        labels: { service: portfolio_management_service, port: "8009" }
+
+  - job_name: backtesting_engine_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["backtesting_engine_service:8010"]
+        labels: { service: backtesting_engine_service, port: "8010" }
+
+  - job_name: ml_platform_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ml_platform_service:8011"]
+        labels: { service: ml_platform_service, port: "8011" }
+
+  - job_name: ai_analyst_service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ai_analyst_service:8012"]
+        labels: { service: ai_analyst_service, port: "8012" }
+
+  - job_name: otel-collector
+    static_configs:
+      - targets: ["otel-collector:8888"]
+
+  - job_name: otel-collector-spanmetrics
+    static_configs:
+      - targets: ["otel-collector:8889"]
+        labels: { source: spanmetrics }

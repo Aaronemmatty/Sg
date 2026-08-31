@@ -1,0 +1,72 @@
+{
+  "title": "Risk Engine (8007) — Exposure & Breakers",
+  "uid": "sg-risk-engine",
+  "tags": ["sg-platform", "domain", "risk"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Kill Switch",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(risk_engine_kill_switch_state{state=~\"HALTED_.*|EMERGENCY_STOP\"}) > 0", "refId": "A" }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "CLEAR", "color": "green" } } },
+            { "type": "value", "options": { "1": { "text": "ACTIVE", "color": "red" } } }
+          ]
+        }
+      },
+      "options": { "colorMode": "background" }
+    },
+    {
+      "id": 2,
+      "title": "Rejection Rate (15m)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(risk_engine_rejections_total[15m])) / (sum(rate(risk_engine_intents_evaluated_total[15m])) + 1e-9)", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.3 }, { "color": "red", "value": 0.5 }] } } }
+    },
+    {
+      "id": 3,
+      "title": "Last Risk Score by Symbol",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "risk_engine_last_risk_score", "legendFormat": "{{symbol}}", "refId": "A" }]
+    },
+    {
+      "id": 4,
+      "title": "Rejection Reasons (15m)",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by (reason) (increase(risk_engine_rejections_total[15m]))", "legendFormat": "{{reason}}", "refId": "A" }]
+    },
+    {
+      "id": 5,
+      "title": "Circuit Breakers Tripped",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "risk_engine_circuit_breaker_tripped", "legendFormat": "{{symbol}}", "refId": "A" }]
+    },
+    {
+      "id": 6,
+      "title": "Margin Fallbacks (15m)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by (reason) (increase(risk_engine_margin_fallback_total[15m]))", "legendFormat": "{{reason}}", "refId": "A" }]
+    }
+  ]
+}

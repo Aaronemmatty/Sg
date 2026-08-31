@@ -1,0 +1,1 @@
+"""SG Auth Service."""

@@ -1,0 +1,24 @@
+[project]
+name = "sg-db"
+version = "0.1.0"
+description = "PostgreSQL data layer for the SG quantitative trading platform"
+requires-python = ">=3.13"
+dependencies = [
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14.0",
+    "psycopg[binary]>=3.2.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sg_db*"]

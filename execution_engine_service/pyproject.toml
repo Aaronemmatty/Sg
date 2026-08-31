@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "execution-engine-service"
+version = "0.1.0"
+description = "Order Execution Engine (8008) - SG Trading Platform"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+    "asyncpg>=0.30",
+    "redis[hiredis]>=5.1",
+    "httpx>=0.27",
+    "structlog>=24.4",
+    "prometheus-fastapi-instrumentator>=7.0",
+    "opentelemetry-api>=1.27",
+    "opentelemetry-sdk>=1.27",
+    "opentelemetry-instrumentation-fastapi>=0.48b0",
+    "opentelemetry-instrumentation-httpx>=0.48b0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.27",
+    "tenacity>=9.0",
+    "pyjwt[crypto]>=2.9",
+    "python-dotenv>=1.0",
+    "sse-starlette>=2.1",
+    "prometheus-client>=0.21",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

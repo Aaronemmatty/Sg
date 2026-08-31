@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# SG Trading Platform — repo-root entrypoint (delegates to sg-infra/sg)
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$ROOT/sg-infra/sg" "$@"

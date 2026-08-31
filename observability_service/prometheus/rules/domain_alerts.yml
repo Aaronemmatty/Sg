@@ -1,0 +1,106 @@
+groups:
+  - name: domain.trading_pipeline
+    rules:
+
+      # ── risk_engine (8007) ──────────────────────────────────────────
+      - alert: RiskKillSwitchActive
+        expr: sum(risk_engine_kill_switch_state{state=~"HALTED_.*|EMERGENCY_STOP"}) > 0
+        for: 0m
+        labels: { severity: critical }
+        annotations:
+          summary: "Risk engine kill switch is ACTIVE"
+          description: "All new trade intents are being blocked platform-wide. Immediate attention required."
+
+      - alert: RiskRejectionRateSpike
+        expr: |
+          sum(rate(risk_engine_rejections_total[15m]))
+          /
+          (sum(rate(risk_engine_intents_evaluated_total[15m])) + 1e-9)
+          > 0.5
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Risk engine is rejecting >50% of intents over 15m"
+          description: "Could indicate a misconfigured strategy, a regime shift, or a risk-limit breach worth investigating before it masks a real bug."
+
+      # ── execution_engine (8008) ─────────────────────────────────────
+      - alert: OrderFailureRateSpike
+        expr: |
+          sum(rate(execution_orders_terminal_total{state=~"FAILED|REJECTED"}[10m]))
+          /
+          (sum(rate(execution_orders_terminal_total[10m])) + 1e-9)
+          > 0.1
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Order failure rate > 10% over 10m"
+          description: "execution_engine_service is failing a high proportion of orders. Check broker connectivity (8003) and circuit breaker state."
+
+      - alert: BrokerCircuitBreakerOpen
+        expr: sum(risk_engine_circuit_breaker_tripped) > 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "Risk engine circuit breaker is tripped"
+          description: "Risk checks are currently blocking new orders while one or more circuit breakers remain active."
+
+      # ── ml_platform_service (8011) ──────────────────────────────────
+      - alert: MLModelDriftBreach
+        expr: max(ml_feature_drift_score) > 0.2
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "Feature drift (PSI>0.2) on {{ $labels.symbol }}/{{ $labels.feature }}"
+          description: "8011 is reporting drift above the configured threshold. Review model inputs before relying on the current champion."
+
+      - alert: MLChampionAccuracyDegraded
+        expr: min(ml_model_accuracy) < 0.45
+        for: 30m
+        labels: { severity: warning }
+        annotations:
+          summary: "ML champion model {{ $labels.symbol }}/{{ $labels.model_type }} rolling accuracy < 45%"
+
+      # ── backtesting_engine_service (8010) ───────────────────────────
+      - alert: BacktestJobStuckRunning
+        # The current backtesting service exposes active-run counters but no
+        # per-job age gauge yet, so this rule remains disabled until such a
+        # metric is implemented.
+        expr: vector(0) > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Backtest job has been RUNNING for over 1h"
+          description: "Enable this alert once a per-run age gauge is exported by 8010."
+
+      # ── ai_analyst_service (8012) ───────────────────────────────────
+      - alert: AIAnalystRateLimiterFailOpen
+        # The current service exposes rate-limit rejections and LLM call counts,
+        # but not a dedicated fail-open counter yet, so this rule is disabled
+        # until that instrumentation is added.
+        expr: vector(0) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "ai_analyst_service rate limiter failed open (Redis outage)"
+          description: "Rate limiting and caching are both unenforced while this persists — LLM cost exposure is uncapped. Restore Redis."
+
+      - alert: AIAnalystLLMErrorRateHigh
+        expr: |
+          sum(rate(ai_llm_calls_total{status="error"}[10m]))
+          /
+          (sum(rate(ai_llm_calls_total[10m])) + 1e-9)
+          > 0.2
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "ai_analyst_service LLM call error rate > 20% over 10m"
+
+      # ── portfolio reconciliation ─────────────────────────────────────
+      - alert: PortfolioEventLagHigh
+        # Portfolio event lag is not exported as a Prometheus gauge yet, so this
+        # alert is disabled until that instrumentation is added.
+        expr: vector(0) > 0
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "portfolio_management_service has not processed an execution event in >2m"
+          description: "Could mean the consumer has stalled, or simply no fills occurred (check market hours before paging)."

@@ -1,0 +1,46 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: telegram-default
+  group_by: ["alertname", "severity", "service"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    # Critical alerts page immediately with shorter repeat interval.
+    - matchers:
+        - severity = "critical"
+      receiver: telegram-critical
+      group_wait: 10s
+      repeat_interval: 30m
+      continue: false
+
+    # Everything else (warnings) goes to the default, slower-paced route.
+    - matchers:
+        - severity = "warning"
+      receiver: telegram-default
+      repeat_interval: 4h
+
+inhibit_rules:
+  # If a service is fully down, suppress its own latency/error-rate noise —
+  # those are symptoms of the same root cause.
+  - source_matchers: [alertname = "ServiceDown"]
+    target_matchers: [alertname =~ "HighHttp5xxRate|HighHttpLatencyP99"]
+    equal: ["job"]
+
+  # Kill switch firing implies risk rejections will spike — don't double-page.
+  - source_matchers: [alertname = "RiskKillSwitchActive"]
+    target_matchers: [alertname = "RiskRejectionRateSpike"]
+
+receivers:
+  # alertmanager-bot (metalmatze/alertmanager-bot) polls Alertmanager's API
+  # directly rather than via a webhook receiver block, so these receiver
+  # entries exist mainly for routing/grouping semantics + future webhook
+  # receivers (e.g. if you later add a second channel). The bot container
+  # is configured with ALERTMANAGER_URL + TELEGRAM_TOKEN/TELEGRAM_ADMIN in
+  # docker-compose.observability.yml and delivers all firing/resolved
+  # alerts to the configured Telegram chat automatically — no webhook_configs
+  # needed for the basic case.
+  - name: telegram-critical
+  - name: telegram-default

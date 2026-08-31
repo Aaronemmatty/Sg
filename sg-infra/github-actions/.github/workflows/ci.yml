@@ -1,0 +1,248 @@
+name: CI — Build & Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+
+jobs:
+  # ─── Detect which services changed ─────────────────────────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      auth:         ${{ steps.filter.outputs.auth }}
+      market_data:  ${{ steps.filter.outputs.market_data }}
+      broker:       ${{ steps.filter.outputs.broker }}
+      strategy:     ${{ steps.filter.outputs.strategy }}
+      regime:       ${{ steps.filter.outputs.regime }}
+      orchestrator: ${{ steps.filter.outputs.orchestrator }}
+      risk:         ${{ steps.filter.outputs.risk }}
+      execution:    ${{ steps.filter.outputs.execution }}
+      portfolio:    ${{ steps.filter.outputs.portfolio }}
+      backtesting:  ${{ steps.filter.outputs.backtesting }}
+      ml:           ${{ steps.filter.outputs.ml }}
+      analyst:      ${{ steps.filter.outputs.analyst }}
+      dashboard:    ${{ steps.filter.outputs.dashboard }}
+      infra:        ${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            auth:         ['auth_service/**']
+            market_data:  ['market_data_service/**']
+            broker:       ['broker_service/**']
+            strategy:     ['strategy_service/**']
+            regime:       ['regime_detection_service/**']
+            orchestrator: ['execution_orchestrator_service/**']
+            risk:         ['risk_engine_service/**']
+            execution:    ['execution_engine_service/**']
+            portfolio:    ['portfolio_management_service/**']
+            backtesting:  ['backtesting_engine/**']
+            ml:           ['ml_platform_service/**']
+            analyst:      ['ai_analyst_service/**']
+            dashboard:    ['sg-dashboard/**']
+            infra:        ['sg-infra/**', 'docker-compose*.yml']
+
+  # ─── Python service tests (matrix) ────────────────────────────
+  test-python:
+    needs: changes
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: auth_service
+            changed: ${{ needs.changes.outputs.auth }}
+            port: 8001
+          - service: market_data_service
+            changed: ${{ needs.changes.outputs.market_data }}
+            port: 8002
+          - service: broker_service
+            changed: ${{ needs.changes.outputs.broker }}
+            port: 8003
+          - service: strategy_service
+            changed: ${{ needs.changes.outputs.strategy }}
+            port: 8004
+          - service: regime_detection_service
+            changed: ${{ needs.changes.outputs.regime }}
+            port: 8005
+          - service: execution_orchestrator_service
+            changed: ${{ needs.changes.outputs.orchestrator }}
+            port: 8006
+          - service: risk_engine_service
+            changed: ${{ needs.changes.outputs.risk }}
+            port: 8007
+          - service: execution_engine_service
+            changed: ${{ needs.changes.outputs.execution }}
+            port: 8008
+          - service: portfolio_management_service
+            changed: ${{ needs.changes.outputs.portfolio }}
+            port: 8009
+          - service: backtesting_engine
+            changed: ${{ needs.changes.outputs.backtesting }}
+            port: 8010
+          - service: ml_platform_service
+            changed: ${{ needs.changes.outputs.ml }}
+            port: 8011
+          - service: ai_analyst_service
+            changed: ${{ needs.changes.outputs.analyst }}
+            port: 8012
+
+    # Skip if service didn't change (unless it's a forced full run)
+    if: ${{ matrix.changed == 'true' || github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sg_db_test
+          POSTGRES_USER: sg_user
+          POSTGRES_PASSWORD: test_password_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ matrix.service }}/pyproject.toml
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service }}
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]" 2>/dev/null || pip install -e .
+          pip install pytest pytest-asyncio pytest-cov httpx
+
+      - name: Run tests
+        working-directory: ${{ matrix.service }}
+        env:
+          DATABASE_URL: postgresql://sg_user:test_password_ci@localhost:5432/sg_db_test
+          REDIS_URL: redis://localhost:6379/0
+          SERVICE_ENV: test
+          JWT_PUBLIC_KEY: ""   # dev stub active in test mode
+        run: |
+          pytest tests/ \
+            -v \
+            --tb=short \
+            --cov=app \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            -x
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ${{ matrix.service }}/coverage.xml
+          flags: ${{ matrix.service }}
+          fail_ci_if_error: false
+
+  # ─── Dashboard (Next.js) ───────────────────────────────────────
+  test-dashboard:
+    needs: changes
+    if: ${{ needs.changes.outputs.dashboard == 'true' || github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: sg-dashboard/package-lock.json
+
+      - name: Install
+        working-directory: sg-dashboard
+        run: npm ci
+
+      - name: Type check
+        working-directory: sg-dashboard
+        run: npm run type-check
+
+      - name: Lint
+        working-directory: sg-dashboard
+        run: npm run lint
+
+      - name: Build
+        working-directory: sg-dashboard
+        env:
+          # Dummy values for build-time validation
+          SESSION_SECRET: ci_session_secret_32_chars_minimum
+          JWT_PUBLIC_KEY: ""
+        run: npm run build
+
+  # ─── Docker build validation ───────────────────────────────────
+  docker-build:
+    needs: [test-python, test-dashboard]
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - auth_service
+          - market_data_service
+          - broker_service
+          - strategy_service
+          - regime_detection_service
+          - execution_orchestrator_service
+          - risk_engine_service
+          - execution_engine_service
+          - portfolio_management_service
+          - backtesting_engine
+          - ml_platform_service
+          - ai_analyst_service
+          - sg-dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  # ─── CI summary gate ──────────────────────────────────────────
+  ci-gate:
+    needs: [test-python, test-dashboard, docker-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.test-python.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-dashboard.result }}" == "failure" ]] || \
+             [[ "${{ needs.docker-build.result }}" == "failure" ]]; then
+            echo "CI FAILED"
+            exit 1
+          fi
+          echo "CI PASSED"

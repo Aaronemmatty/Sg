@@ -1,0 +1,205 @@
+# observability_service — standalone compose file.
+# Run alongside the existing service stack (does NOT replace or merge into
+# any per-service compose file, and is intentionally NOT part of the master
+# docker-compose.yml — that comes last per platform rules).
+#
+# Usage:
+#   cp .env.example .env   # fill in TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID / DATA_SOURCE_NAME
+#   docker compose -f docker-compose.observability.yml --env-file .env up -d
+#
+# Assumes sg_trading_net is the external network already used by the other
+# 12 services (rename to match your actual network if different — see README).
+
+networks:
+  sg_trading_net:
+    external: true
+  observability_internal:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  alertmanager_data:
+  grafana_data:
+  loki_data:
+  tempo_data:
+
+services:
+
+  # ──────────────────────────────────────────────────────────────────────
+  # METRICS
+  # ──────────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: sg_prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}
+      - --web.enable-lifecycle
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks: [sg_trading_net, observability_internal]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: sg_node_exporter
+    restart: unless-stopped
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    networks: [observability_internal]
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: sg_cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks: [observability_internal]
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: sg_postgres_exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: ${DATA_SOURCE_NAME}
+    networks: [sg_trading_net, observability_internal]
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.62.0
+    container_name: sg_redis_exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: ${REDIS_ADDR:-redis://redis:6379}
+    networks: [sg_trading_net, observability_internal]
+
+  # ──────────────────────────────────────────────────────────────────────
+  # ALERTING
+  # ──────────────────────────────────────────────────────────────────────
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: sg_alertmanager
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "9093:9093"
+    networks: [observability_internal]
+
+  # Bridges Alertmanager webhooks -> Telegram. Alertmanager has no native
+  # Telegram receiver, so this uses the established open-source bridge
+  # (metalmatze/alertmanager-bot) rather than a hand-rolled service.
+  alertmanager-telegram-bot:
+    image: metalmatze/alertmanager-bot:0.4.3
+    container_name: sg_alertmanager_telegram_bot
+    restart: unless-stopped
+    environment:
+      ALERTMANAGER_URL: http://alertmanager:9093
+      BOLT_PATH: /data/bot.db
+      STORE: bolt
+      TELEGRAM_ADMIN: ${TELEGRAM_CHAT_ID}
+      TELEGRAM_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - alertmanager_data:/data
+    networks: [observability_internal]
+    depends_on: [alertmanager]
+
+  # ──────────────────────────────────────────────────────────────────────
+  # TRACING
+  # ──────────────────────────────────────────────────────────────────────
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: sg_tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/var/tempo
+    networks: [observability_internal]
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.110.0
+    container_name: sg_otel_collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC — all 12 services point OTEL_EXPORTER_OTLP_ENDPOINT here
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # collector's own internal telemetry (scraped by prometheus)
+      - "8889:8889"   # span-derived RED metrics (scraped by prometheus)
+    networks: [sg_trading_net, observability_internal]
+    depends_on: [tempo]
+
+  # ──────────────────────────────────────────────────────────────────────
+  # LOGGING
+  # ──────────────────────────────────────────────────────────────────────
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: sg_loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+    networks: [observability_internal]
+
+  promtail:
+    image: grafana/promtail:3.2.1
+    container_name: sg_promtail
+    restart: unless-stopped
+    command: ["-config.file=/etc/promtail/promtail-config.yaml"]
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [observability_internal]
+    depends_on: [loki]
+
+  # ──────────────────────────────────────────────────────────────────────
+  # VISUALIZATION
+  # ──────────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: sg_grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme-on-first-login}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks: [observability_internal]
+    depends_on: [prometheus, loki, tempo]

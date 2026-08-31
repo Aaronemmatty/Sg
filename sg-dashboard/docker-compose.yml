@@ -1,0 +1,50 @@
+services:
+  dashboard:
+    build: .
+    container_name: sg_dashboard
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://auth_service:8001
+      - MARKET_DATA_SERVICE_URL=http://market_data_service:8002
+      - BROKER_SERVICE_URL=http://broker_service:8003
+      - STRATEGY_SERVICE_URL=http://strategy_service:8004
+      - REGIME_SERVICE_URL=http://regime_detection_service:8005
+      - ORCHESTRATOR_SERVICE_URL=http://execution_orchestrator_service:8006
+      - RISK_ENGINE_URL=http://risk_engine_service:8007
+      - EXECUTION_ENGINE_URL=http://execution_engine_service:8008
+      - PORTFOLIO_SERVICE_URL=http://portfolio_management_service:8009
+      - BACKTESTING_SERVICE_URL=http://backtesting_engine:8010
+      - ML_PLATFORM_URL=http://ml_platform_service:8011
+      - AI_ANALYST_URL=http://ai_analyst_service:8012
+      - SESSION_SECRET=${SESSION_SECRET:-change_me_in_production_32chars}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY:-}
+      - NEXT_PUBLIC_SSE_BASE_URL=http://localhost
+    networks:
+      - sg_network
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/auth/me"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: sg_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      dashboard:
+        condition: service_healthy
+    networks:
+      - sg_network
+
+networks:
+  sg_network:
+    external: true
+    name: sg_network

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.env
+*.joblib
+models/*.joblib
+models/*.pkl
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg-info/

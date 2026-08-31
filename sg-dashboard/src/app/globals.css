@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #0A0E1A;
+    --color-surface: #111827;
+    --color-surface-2: #1A2235;
+    --color-surface-3: #1F2D45;
+    --color-border: #1E2D45;
+    --color-border-strong: #2A3F5F;
+    --color-accent: #F59E0B;
+    --color-bull: #10B981;
+    --color-bear: #EF4444;
+    --color-text-primary: #F1F5F9;
+    --color-text-secondary: #94A3B8;
+    --color-text-muted: #475569;
+  }
+
+  * {
+    box-sizing: border-box;
+    border-color: #1E2D45;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3A5070;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--color-text-primary);
+  }
+}
+
+@layer components {
+  /* Card component */
+  .card {
+    @apply bg-surface border border-border rounded-lg;
+  }
+
+  .card-header {
+    @apply px-5 py-4 border-b border-border flex items-center justify-between;
+  }
+
+  .card-title {
+    @apply text-sm font-semibold text-text-primary tracking-wide uppercase;
+  }
+
+  .card-body {
+    @apply px-5 py-4;
+  }
+
+  /* Metric display */
+  .metric-value {
+    @apply text-2xl font-bold text-text-primary font-mono tabular-nums;
+  }
+
+  .metric-label {
+    @apply text-xs text-text-secondary uppercase tracking-wider;
+  }
+
+  /* Status badge */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-bull {
+    @apply badge bg-bull/10 text-bull border border-bull/20;
+  }
+
+  .badge-bear {
+    @apply badge bg-bear/10 text-bear border border-bear/20;
+  }
+
+  .badge-neutral {
+    @apply badge bg-neutral/10 text-neutral border border-neutral/20;
+  }
+
+  .badge-accent {
+    @apply badge bg-accent/10 text-accent border border-accent/20;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning/10 text-warning border border-warning/20;
+  }
+
+  /* Table */
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table th {
+    @apply text-2xs text-text-muted uppercase tracking-wider px-4 py-3 text-left border-b border-border font-medium;
+  }
+
+  .data-table td {
+    @apply px-4 py-3 border-b border-border/50 text-text-secondary;
+  }
+
+  .data-table tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .data-table tr:hover td {
+    @apply bg-surface-2/50;
+  }
+
+  /* Button */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded px-4 py-2 text-sm font-medium transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent text-text-inverse hover:bg-accent-glow active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply btn bg-surface-2 text-text-primary border border-border hover:border-border-strong hover:bg-surface-3;
+  }
+
+  .btn-ghost {
+    @apply btn text-text-secondary hover:text-text-primary hover:bg-surface-2;
+  }
+
+  .btn-danger {
+    @apply btn bg-bear/10 text-bear border border-bear/20 hover:bg-bear/20;
+  }
+
+  /* Input */
+  .input {
+    @apply w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/50 transition-colors;
+  }
+
+  /* Stat diff indicator */
+  .stat-up {
+    @apply text-bull text-xs font-medium tabular-nums;
+  }
+
+  .stat-down {
+    @apply text-bear text-xs font-medium tabular-nums;
+  }
+
+  /* Pulse dot */
+  .live-dot {
+    @apply inline-block w-2 h-2 rounded-full bg-bull animate-pulse-slow;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-mono-nums {
+    @apply font-mono tabular-nums;
+  }
+
+  /* Chart container */
+  .chart-container {
+    @apply w-full;
+  }
+
+  /* Gradient borders */
+  .border-gradient-accent {
+    border-image: linear-gradient(135deg, #F59E0B, transparent) 1;
+  }
+
+  /* Text clamp */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

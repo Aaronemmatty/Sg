@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sg-security"
+version = "0.1.0"
+description = "Shared security helpers for SG trading services"
+requires-python = ">=3.13"
+dependencies = ["fastapi>=0.115", "PyJWT>=2.8", "redis>=5.0", "structlog>=24.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

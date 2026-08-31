@@ -1,0 +1,82 @@
+name: Scheduled — Backup & Maintenance
+
+on:
+  schedule:
+    # Daily backup at 2 AM IST (8:30 PM UTC)
+    - cron: '30 20 * * *'
+    # Weekly maintenance check on Sunday 3 AM IST
+    - cron: '30 21 * * 0'
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Task to run'
+        required: true
+        default: 'backup'
+        type: choice
+        options: [backup, health-report, prune]
+
+jobs:
+  backup:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'backup' || github.event_name == 'schedule'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run backup
+        run: |
+          cd sg-infra
+          chmod +x scripts/backup.sh
+          bash scripts/backup.sh full
+
+      - name: Report backup result
+        if: always()
+        run: |
+          if [[ -d "sg-infra/backups" ]]; then
+            echo "Latest backups:"
+            ls -lah sg-infra/backups/ | tail -5
+          fi
+
+  health-report:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate health report
+        id: health
+        run: |
+          cd sg-infra
+          chmod +x scripts/health_check.sh
+          REPORT=$(bash scripts/health_check.sh --json 2>/dev/null || echo '{"overall":"error"}')
+          echo "report=$REPORT" >> "$GITHUB_OUTPUT"
+
+      - name: Check for degraded services
+        uses: actions/github-script@v7
+        env:
+          REPORT: ${{ steps.health.outputs.report }}
+        with:
+          script: |
+            const report = JSON.parse(process.env.REPORT || '{}');
+            if (report.overall !== 'healthy') {
+              const degraded = (report.services || [])
+                .filter(s => s.state !== 'ok')
+                .map(s => `- ${s.label || s.service}: ${s.state}`)
+                .join('\n');
+              core.warning(`Platform degraded:\n${degraded}`);
+            } else {
+              console.log('All services healthy ✓');
+            }
+
+  prune:
+    if: github.event.inputs.task == 'prune'
+    runs-on: self-hosted
+    steps:
+      - name: Prune Docker resources
+        run: |
+          echo "Pruning stopped containers..."
+          docker container prune -f
+          echo "Pruning dangling images..."
+          docker image prune -f
+          echo "Pruning build cache older than 7d..."
+          docker builder prune --filter until=168h -f
+          echo "Disk usage after prune:"
+          docker system df

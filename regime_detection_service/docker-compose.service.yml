@@ -1,0 +1,50 @@
+# Merge this service block into the platform's root docker-compose.yml (alongside
+# auth_service, market_data_service, broker_service, strategy_service).
+services:
+  regime_detection_service:
+    build:
+      context: ./regime_detection_service
+      dockerfile: Dockerfile
+    image: sg-trading/regime_detection_service:latest
+    container_name: regime_detection_service
+    ports:
+      - "8005:8005"
+    environment:
+      SERVICE_NAME: regime_detection_service
+      SERVICE_PORT: 8005
+      ENV: ${ENV:-dev}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql+asyncpg://sg:sg@postgres:5432/sg_db
+      REDIS_URL: redis://redis:6379/0
+      MARKET_DATA_SERVICE_URL: http://market_data_service:8002
+      PRIMARY_SYMBOL: NIFTY50
+      PRIMARY_EXCHANGE: NSE
+      DEFAULT_TIMEFRAME: 5m
+      AUTH_REQUIRED: "true"
+      JWT_PUBLIC_KEY_PATH: /run/secrets/auth_public_key.pem
+    secrets:
+      - auth_public_key.pem
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      market_data_service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - sg-net
+
+secrets:
+  auth_public_key.pem:
+    file: ./secrets/auth_public_key.pem
+
+networks:
+  sg-net:
+    external: true

@@ -1,0 +1,937 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# SG Trading Platform — Master Docker Compose
+# ═══════════════════════════════════════════════════════════════════════════
+# Single-file, one-command startup for every platform component:
+#   infra (Postgres/Redis/MLflow) + 13 platform services + dashboard + nginx
+#   + full observability stack (Prometheus/Grafana/Loki/Promtail/Tempo/
+#   Alertmanager/OTel Collector, merged in from observability_service/).
+#
+# USAGE (prefer the `sg` wrapper script — it sets -p/--env-file for you):
+#   ./sg up                                   # start everything
+#   ./sg up auth_service market_data_service  # start a subset
+#   ./sg logs market_data_service
+#   ./sg down                                 # stop (volumes preserved)
+#
+# Raw compose equivalent:
+#   docker compose -p sg_blue -f docker/docker-compose.yml --env-file .env up -d
+#
+# ─── BLUE/GREEN NOTES (see docs/STARTUP_ORDER.md + docs/DEPLOYMENT_NOTES.md)──
+#   This file is invoked under TWO possible project names: sg_blue / sg_green
+#   (set via `docker compose -p`). Infra + observability + nginx are
+#   SINGLETON services — they run once, under whichever project started them
+#   first, and are intentionally excluded from blue/green swaps (see
+#   scripts/blue_green_deploy.sh APP_SERVICES list). Only the 13 platform
+#   services + dashboard are duplicated per-slot. This file uses
+#   ${COMPOSE_PROJECT_NAME} interpolation so each slot's app containers and
+#   internal URLs are slot-scoped (sg_blue_auth_service vs sg_green_auth_
+#   service) without colliding, while both slots still share the same
+#   Postgres/Redis/MLflow data via the external `sg_network` and fixed
+#   (non-project-scoped) volume names below.
+#
+#   Network is declared `external: true` for this exact reason: Compose
+#   namespaces a non-external network per project, which would make
+#   sg_blue's containers invisible to sg_green's and to nginx/observability.
+#   `./sg up` creates the network automatically if it doesn't exist yet.
+# ═══════════════════════════════════════════════════════════════════════════
+
+networks:
+  sg_network:
+    name: sg_network
+    external: true
+
+volumes:
+  pg_data:           { name: sg_pg_data }
+  redis_data:        { name: sg_redis_data }
+  mlflow_data:       { name: sg_mlflow_data }
+  prometheus_data:   { name: sg_prometheus_data }
+  grafana_data:      { name: sg_grafana_data }
+  loki_data:         { name: sg_loki_data }
+  tempo_data:        { name: sg_tempo_data }
+  alertmanager_data: { name: sg_alertmanager_data }
+
+# ─── Shared defaults ──────────────────────────────────────────────────────
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks: [sg_network]
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "5"
+
+# Platform services ship without curl in their runtime images (verified
+# against every Dockerfile in this repo — none of the 13 services apt-get
+# installs curl in the final stage). The literal `curl -f .../health`
+# healthcheck the spec asks for would therefore fail with "executable file
+# not found" on every single service. python3 + urllib IS guaranteed (it's
+# the interpreter running the app), and is exactly the pattern auth_service,
+# market_data_service, broker_service, regime_detection_service and
+# signal_aggregation_service already bake into their own Dockerfile
+# HEALTHCHECK lines — so this anchor standardizes on that proven approach
+# instead. See docs/DEPLOYMENT_NOTES.md "Healthcheck mechanism" for the full
+# write-up and the alternative (add curl to each Dockerfile) if you'd rather
+# have literal curl semantics.
+x-py-healthcheck: &py-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+services:
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # INFRASTRUCTURE (singleton — never duplicated across blue/green slots)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  postgres:
+    <<: *service-defaults
+    image: postgres:17-alpine
+    container_name: sg_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sg_db}
+      POSTGRES_USER: ${POSTGRES_USER:-sg_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sg_user} -d ${POSTGRES_DB:-sg_db}"]
+      start_period: 20s
+
+  redis:
+    <<: *service-defaults
+    image: redis:7.4-alpine
+    container_name: sg_redis
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      start_period: 10s
+
+  mlflow:
+    <<: *service-defaults
+    image: ghcr.io/mlflow/mlflow:v2.17.0
+    container_name: sg_mlflow
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        pip install --no-cache-dir psycopg[binary] >/dev/null 2>&1
+        mlflow server \
+          --backend-store-uri postgresql+psycopg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db} \
+          --default-artifact-root /mlflow/artifacts \
+          --host 0.0.0.0 --port 5000
+    volumes:
+      - mlflow_data:/mlflow/artifacts
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      start_period: 30s
+
+  # One-shot core-schema migration (shared `database` package — tenants,
+  # users, roles, portfolios, etc.). Run explicitly: `./sg migrate`.
+  # NOTE: several services also ship their OWN alembic dirs / sql/ folders
+  # (auth_service, execution_orchestrator_service, regime_detection_service,
+  # signal_aggregation_service use alembic; risk_engine_service ships raw
+  # .sql files; ml_platform_service ships no migration tooling at all in its
+  # Dockerfile). This one-shot only covers the shared core schema — see
+  # docs/DEPLOYMENT_NOTES.md "Migrations" for the full per-service status
+  # and what we recommend you verify before going live.
+  migrate:
+    image: python:3.12-slim
+    container_name: sg_migrate
+    working_dir: /app
+    volumes:
+      - ../../database:/app:ro
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+    command: ["sh", "-c", "pip install --no-cache-dir . >/dev/null && alembic upgrade head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [sg_network]
+    profiles: ["migrate"]
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # PLATFORM SERVICES (13 — blue/green-scoped via ${COMPOSE_PROJECT_NAME})
+  # ═══════════════════════════════════════════════════════════════════════
+
+  auth_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: auth_service/Dockerfile, target: runtime }
+    image: sg/auth_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_auth_service
+    environment:
+      APP_ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY required}
+      JWT_ALGORITHM: RS256
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?JWT_PRIVATE_KEY required}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:?JWT_PUBLIC_KEY required}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-30}
+      MAX_LOGIN_ATTEMPTS: ${MAX_LOGIN_ATTEMPTS:-5}
+      LOCKOUT_DURATION_MINUTES: ${LOCKOUT_DURATION_MINUTES:-15}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@sg-trading.local}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-SG Trading Platform}
+      MFA_REQUIRED: ${MFA_REQUIRED:-false}
+      EMAIL_VERIFICATION_REQUIRED: ${EMAIL_VERIFICATION_REQUIRED:-false}
+      DEVICE_TRACKING_ENABLED: "true"
+      PROMETHEUS_ENABLED: "true"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: auth_service
+    ports: ["127.0.0.1:8001:8001"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+
+  market_data_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: market_data_service/Dockerfile }
+    image: sg/market_data_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_market_data_service
+    environment:
+      APP_ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      KITE_API_KEY: ${KITE_API_KEY:-}
+      KITE_API_SECRET: ${KITE_API_SECRET:-}
+      KITE_ACCESS_TOKEN: ${KITE_ACCESS_TOKEN:-}
+      KITE_MODE: ${KITE_MODE:-mock}
+      YAHOO_ENABLED: "true"
+      CLICKHOUSE_ENABLED: "false"
+      ALLOWED_ORIGINS: http://localhost
+      PROMETHEUS_ENABLED: "true"
+      AUTH_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_auth_service:8001
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: market_data_service
+    ports: ["127.0.0.1:8002:8002"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+
+  broker_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: broker_service/Dockerfile }
+    image: sg/broker_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_broker_service
+    environment:
+      APP_ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      BROKER_MODE: ${BROKER_MODE:-paper}
+      KITE_API_KEY: ${KITE_API_KEY:-}
+      KITE_API_SECRET: ${KITE_API_SECRET:-}
+      KITE_ACCESS_TOKEN: ${KITE_ACCESS_TOKEN:-}
+      MAX_ORDER_VALUE_INR: ${MAX_ORDER_VALUE_INR:-500000}
+      MAX_POSITION_VALUE_INR: ${MAX_POSITION_VALUE_INR:-2000000}
+      MAX_DAILY_LOSS_INR: ${MAX_DAILY_LOSS_INR:-50000}
+      MAX_ORDERS_PER_SYMBOL_PER_DAY: ${MAX_ORDERS_PER_SYMBOL_PER_DAY:-50}
+      PAPER_INITIAL_CAPITAL_INR: ${PAPER_INITIAL_CAPITAL_INR:-1000000}
+      PAPER_SLIPPAGE_PCT: ${PAPER_SLIPPAGE_PCT:-0.05}
+      PAPER_FILL_DELAY_MS: ${PAPER_FILL_DELAY_MS:-100}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      AUTH_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_auth_service:8001
+      ALLOWED_ORIGINS: http://localhost
+      PROMETHEUS_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: broker_service
+    ports: ["127.0.0.1:8003:8003"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      market_data_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+
+  strategy_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: strategy_service/Dockerfile }
+    image: sg/strategy_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_strategy_service
+    environment:
+      APP_ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      TRADING_MODE: ${TRADING_MODE:-paper}
+      USER_STRATEGIES_DIR: /app/strategies
+      STRATEGY_EXECUTION_TIMEOUT_S: ${STRATEGY_EXECUTION_TIMEOUT_S:-5.0}
+      STRATEGY_MAX_RESTARTS: ${STRATEGY_MAX_RESTARTS:-5}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/3
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      AUTH_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_auth_service:8001
+      ALLOWED_ORIGINS: http://localhost
+      PROMETHEUS_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: strategy_service
+    volumes:
+      - ../../strategy_service/strategies:/app/strategies
+    ports: ["127.0.0.1:8004:8004"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      market_data_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+
+  regime_detection_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: regime_detection_service/Dockerfile }
+    image: sg/regime_detection_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_regime_detection_service
+    environment:
+      SERVICE_NAME: regime_detection_service
+      SERVICE_PORT: "8005"
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-00000000-0000-0000-0000-000000000001}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/4
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      PRIMARY_SYMBOL: ${PRIMARY_SYMBOL:-NIFTY50}
+      PRIMARY_EXCHANGE: NSE
+      DEFAULT_TIMEFRAME: ${DEFAULT_TIMEFRAME:-5m}
+      WATCHLIST_SYMBOLS: ${WATCHLIST_SYMBOLS:-RELIANCE,HDFCBANK,ICICIBANK,INFY,TCS,TATAMOTORS,SBIN,ITC,LT,AXISBANK}
+      VIX_SYMBOL: INDIAVIX
+      MIN_CONFIDENCE_FOR_TRANSITION: 0.55
+      PER_SYMBOL_DIVERGENCE_THRESHOLD: 0.6
+      RECALC_INTERVAL_SECONDS: 300
+      TRANSITION_CONFIRM_BARS: 2
+      AUTH_REQUIRED: "true"
+      JWT_PUBLIC_KEY_PATH: /run/secrets/auth_public_key.pem
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: regime_detection_service
+    secrets:
+      - source: auth_public_key
+        target: auth_public_key.pem
+    ports: ["127.0.0.1:8005:8005"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      market_data_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+
+  execution_orchestrator_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: execution_orchestrator_service/Dockerfile }
+    image: sg/execution_orchestrator_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_execution_orchestrator_service
+    environment:
+      APP_ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      HOST: 0.0.0.0
+      PORT: "8006"
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/5
+      BROKER_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_broker_service:8003
+      RISK_ENGINE_URL: http://${COMPOSE_PROJECT_NAME}_risk_engine_service:8007
+      AUTH_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_auth_service:8001
+      MIN_CONFIDENCE: 0.60
+      MIN_LIQUIDITY_VALUE_INR: 100000.0
+      MAX_POSITION_PCT: 0.10
+      MAX_SECTOR_EXPOSURE_PCT: 0.30
+      MAX_CORRELATION_SCORE: 0.80
+      DEFAULT_RISK_PCT: 1.0
+      MAX_ALLOCATION_INR: ${MAX_ALLOCATION_INR:-500000.0}
+      MIN_ALLOCATION_INR: 1000.0
+      DAILY_LOSS_LIMIT_INR: ${MAX_DAILY_LOSS_INR:-50000.0}
+      DAILY_LOSS_LIMIT_PCT: 0.05
+      MAX_PORTFOLIO_DRAWDOWN_PCT: 0.15
+      MAX_OPEN_INTENTS: 20
+      PROMETHEUS_ENABLED: "true"
+      ALLOWED_ORIGINS: http://localhost
+      AUDIT_LOG_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: execution-orchestrator
+    ports: ["127.0.0.1:8006:8006"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/health')"]
+
+  risk_engine_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: risk_engine_service/Dockerfile }
+    image: sg/risk_engine_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_risk_engine_service
+    environment:
+      SERVICE_NAME: risk_engine_service
+      SERVICE_PORT: "8007"
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      POSTGRES_DSN: postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/6
+      BROKER_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_broker_service:8003
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      EXECUTION_ORCHESTRATOR_URL: http://${COMPOSE_PROJECT_NAME}_execution_orchestrator_service:8006
+      AUTH_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_auth_service:8001
+      AUTH_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key.pem
+      MARGIN_CHECK_MODE: resilient
+      MARGIN_CACHE_TTL_SECONDS: 30
+      VAR_METHOD: parametric
+      VAR_CONFIDENCE: 0.95
+      VAR_HORIZON_DAYS: 1
+      KILL_SWITCH_AUTO_RESET_REQUIRES_ROLE: risk_officer
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: risk_engine_service
+    secrets:
+      - source: auth_public_key
+        target: jwt_public_key.pem
+    ports: ["127.0.0.1:8007:8007"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8007/health')"]
+
+  execution_engine_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: execution_engine_service/Dockerfile }
+    image: sg/execution_engine_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_execution_engine_service
+    environment:
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SERVICE_PORT: "8008"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/7
+      REDIS_RISK_APPROVED_PATTERN: "sg:risk_approved:*"
+      REDIS_EXECUTION_CHANNEL_PREFIX: "sg:executions"
+      REDIS_EXECUTION_EVENTS_CHANNEL: "sg:execution:events"
+      AUTH_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key.pem
+      AUTH_JWT_ALGORITHM: RS256
+      AUTH_JWT_ISSUER: auth_service
+      BROKER_SERVICE_BASE_URL: http://${COMPOSE_PROJECT_NAME}_broker_service:8003
+      DEFAULT_EXECUTION_STYLE: AGGRESSIVE
+      PASSIVE_LIMIT_BAND_BPS: 15
+      ORDER_VALIDITY: DAY
+      POST_SUBMIT_POLL_INTERVAL_SECONDS: 2
+      POST_SUBMIT_POLL_TIMEOUT_SECONDS: 60
+      RECONCILIATION_INTERVAL_SECONDS: 30
+      HOLD_SWEEP_INTERVAL_SECONDS: 15
+      HOLD_MAX_AGE_SECONDS: 900
+      IDEMPOTENCY_KEY_TTL_SECONDS: 86400
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: execution_engine_service
+    secrets:
+      - source: auth_public_key
+        target: jwt_public_key.pem
+    ports: ["127.0.0.1:8008:8008"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      broker_service: { condition: service_healthy }
+      risk_engine_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8008/health')"]
+
+  portfolio_management_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: portfolio_management_service/Dockerfile }
+    image: sg/portfolio_management_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_portfolio_management_service
+    environment:
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SERVICE_PORT: "8009"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      DB_POOL_MIN_SIZE: 5
+      DB_POOL_MAX_SIZE: 20
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/8
+      REDIS_EXECUTIONS_PATTERN: "sg:executions:*"
+      REDIS_EXECUTION_EVENTS_CHANNEL: "sg:execution:events"
+      REDIS_PORTFOLIO_EVENTS_CHANNEL: "sg:portfolio:events"
+      AUTH_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key.pem
+      AUTH_JWT_ALGORITHM: RS256
+      AUTH_JWT_ISSUER: auth_service
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      MTM_REFRESH_INTERVAL_SECONDS: 5
+      MTM_MARKET_HOURS_ONLY: "true"
+      SNAPSHOT_INTERVAL_SECONDS: 60
+      BENCHMARK_SYMBOL: ${PRIMARY_SYMBOL:-NIFTY50}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: portfolio_management_service
+    secrets:
+      - source: auth_public_key
+        target: jwt_public_key.pem
+    ports: ["127.0.0.1:8009:8009"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      market_data_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8009/health')"]
+
+  backtesting_engine_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: backtesting_engine_service/Dockerfile }
+    image: sg/backtesting_engine_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_backtesting_engine_service
+    environment:
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PORT: "8010"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      DB_POOL_MIN_SIZE: 5
+      DB_POOL_MAX_SIZE: 20
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/9
+      AUTH_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key.pem
+      AUTH_JWT_ALGORITHM: RS256
+      AUTH_JWT_ISSUER: auth_service
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      STRATEGY_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_strategy_service:8004
+      PORTFOLIO_MANAGEMENT_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_portfolio_management_service:8009
+      MAX_CONCURRENT_BACKTESTS: 3
+      BACKTEST_JOB_TTL_DAYS: 90
+      DEFAULT_INITIAL_CAPITAL_INR: ${PAPER_INITIAL_CAPITAL_INR:-1000000}
+      DEFAULT_COMMISSION_BPS: 3
+      DEFAULT_SLIPPAGE_BPS: 5
+      BENCHMARK_SYMBOL: ${PRIMARY_SYMBOL:-NIFTY50}
+      MONTE_CARLO_DEFAULT_ITERATIONS: 2000
+      HTTP_CLIENT_TIMEOUT_SECONDS: 15
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: backtesting_engine_service
+    secrets:
+      - source: auth_public_key
+        target: jwt_public_key.pem
+    ports: ["127.0.0.1:8010:8010"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      market_data_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8010/health')"]
+
+  ml_platform_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: ml_platform_service/Dockerfile }
+    image: sg/ml_platform_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_ml_platform_service
+    environment:
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SERVICE_PORT: "8011"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      DB_POOL_MIN_SIZE: 3
+      DB_POOL_MAX_SIZE: 10
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/10
+      REDIS_CANDLE_PATTERN: "sg:market:candle:*"
+      REDIS_ML_SIGNALS_CHANNEL_PREFIX: "sg:ml:signals"
+      REDIS_ML_REGIME_CHANNEL_PREFIX: "sg:ml:regime"
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      PORTFOLIO_MANAGEMENT_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_portfolio_management_service:8009
+      AUTH_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key.pem
+      AUTH_JWT_ALGORITHM: RS256
+      AUTH_JWT_ISSUER: auth_service
+      FEATURE_LOOKBACK_BARS: 500
+      FEATURE_CACHE_TTL_SECONDS: 30
+      TRAIN_SCHEDULE_CRON: "0 18 * * 1-5"
+      TRAIN_MIN_SAMPLES: 1000
+      TRAIN_TEST_SPLIT: 0.2
+      TRAIN_VALIDATION_SPLIT: 0.1
+      PREDICTION_CACHE_TTL_SECONDS: 60
+      SERVING_CONFIDENCE_THRESHOLD: 0.55
+      MODEL_ARTIFACTS_PATH: /var/ml_platform/models
+      MODEL_CHAMPION_AUTO_PROMOTE: "true"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_EXPERIMENT_NAME: sg_trading
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: ml_platform_service
+    secrets:
+      - source: auth_public_key
+        target: jwt_public_key.pem
+    ports: ["127.0.0.1:8011:8011"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      market_data_service: { condition: service_healthy }
+      mlflow: { condition: service_started }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8011/health')"]
+
+  ai_analyst_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: ai_analyst_service/Dockerfile }
+    image: sg/ai_analyst_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_ai_analyst_service
+    environment:
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PORT: "8012"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      DB_POOL_MIN_SIZE: 5
+      DB_POOL_MAX_SIZE: 20
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/11
+      AUTH_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key.pem
+      AUTH_JWT_ALGORITHM: RS256
+      AUTH_JWT_ISSUER: auth_service
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      RISK_ENGINE_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_risk_engine_service:8007
+      EXECUTION_ENGINE_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_execution_engine_service:8008
+      PORTFOLIO_MANAGEMENT_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_portfolio_management_service:8009
+      HTTP_CLIENT_TIMEOUT_SECONDS: 15
+      LLM_PROVIDER: anthropic
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_BASE_URL: https://api.anthropic.com
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-6}
+      ANTHROPIC_API_VERSION: "2023-06-01"
+      LLM_MAX_TOKENS: 1024
+      LLM_TEMPERATURE: 0.3
+      LLM_REQUEST_TIMEOUT_SECONDS: 30
+      LLM_MAX_RETRIES: 3
+      CACHE_ENABLED: "true"
+      CACHE_TTL_SECONDS_DEFAULT: 300
+      CACHE_TTL_SECONDS_MARKET_SUMMARY: 120
+      CACHE_TTL_SECONDS_PORTFOLIO_REVIEW: 180
+      RATE_LIMIT_ENABLED: "true"
+      RATE_LIMIT_PER_USER_PER_MINUTE: 10
+      RATE_LIMIT_GLOBAL_PER_MINUTE: 120
+      MAX_CONTEXT_CHARS: 12000
+      MAX_USER_NOTE_CHARS: 500
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: ai_analyst_service
+    secrets:
+      - source: auth_public_key
+        target: jwt_public_key.pem
+    ports: ["127.0.0.1:8012:8012"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8012/health')"]
+
+  # signal_aggregation_service — port resolved from source as 8006, which
+  # COLLIDES with execution_orchestrator_service (also 8006, confirmed via
+  # both services' .env.example AND their Dockerfile EXPOSE/HEALTHCHECK
+  # lines). Two containers cannot both publish host port 8006. Re-homed to
+  # 8013 (next free slot after ai_analyst_service/8012) via SERVICE_PORT
+  # override — the app reads its own bind port from this env var
+  # (app/config.py: SERVICE_PORT: int = 8006 default), so no code change is
+  # needed, only this env override. See docs/DEPLOYMENT_NOTES.md "Port
+  # conflict" for detail and the alternative (renumber
+  # execution_orchestrator_service instead) if you'd rather keep
+  # signal_aggregation_service's port literally matching its own repo.
+  signal_aggregation_service:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: signal_aggregation_service/Dockerfile }
+    image: sg/signal_aggregation_service:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_signal_aggregation_service
+    environment:
+      SERVICE_NAME: signal_aggregation_service
+      SERVICE_PORT: "8013"
+      ENV: ${SERVICE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-00000000-0000-0000-0000-000000000001}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sg_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/12
+      DEFAULT_TIMEFRAME: ${DEFAULT_TIMEFRAME:-5m}
+      PRIMARY_SYMBOL: ${PRIMARY_SYMBOL:-NIFTY50}
+      WATCHLIST_SYMBOLS: ${WATCHLIST_SYMBOLS:-RELIANCE,HDFCBANK,ICICIBANK,INFY,TCS,TATAMOTORS,SBIN,ITC,LT,AXISBANK}
+      STRATEGY_REGISTRY: trend_following,mean_reversion,breakout,momentum,ml_prediction,rsi
+      BUY_THRESHOLD: 0.20
+      SELL_THRESHOLD: -0.20
+      MIN_STRATEGIES_REQUIRED: 2
+      MIN_INDIVIDUAL_CONFIDENCE_FOR_CONTRIBUTOR: 0.50
+      SIGNAL_STALENESS_SECONDS: 900
+      DEFAULT_UNMAPPED_STRATEGY_WEIGHT: 0.05
+      AGREEMENT_DAMPENING_FLOOR: 0.5
+      RECALC_INTERVAL_SECONDS: 300
+      STALE_AFTER_SECONDS: 600
+      WEIGHT_CACHE_TTL_SECONDS: 60
+      AUTH_REQUIRED: "true"
+      JWT_PUBLIC_KEY_PATH: /run/secrets/auth_public_key.pem
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: signal_aggregation_service
+    secrets:
+      - source: auth_public_key
+        target: auth_public_key.pem
+    ports: ["127.0.0.1:8013:8013"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      auth_service: { condition: service_healthy }
+      regime_detection_service: { condition: service_started }
+      strategy_service: { condition: service_started }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8013/health')"]
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # FRONTEND
+  # ═══════════════════════════════════════════════════════════════════════
+
+  dashboard:
+    <<: *service-defaults
+    build: { context: ../.., dockerfile: sg-dashboard/Dockerfile }
+    image: sg/dashboard:${VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_dashboard
+    environment:
+      NODE_ENV: production
+      AUTH_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_auth_service:8001
+      MARKET_DATA_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_market_data_service:8002
+      BROKER_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_broker_service:8003
+      STRATEGY_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_strategy_service:8004
+      REGIME_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_regime_detection_service:8005
+      ORCHESTRATOR_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_execution_orchestrator_service:8006
+      RISK_ENGINE_URL: http://${COMPOSE_PROJECT_NAME}_risk_engine_service:8007
+      EXECUTION_ENGINE_URL: http://${COMPOSE_PROJECT_NAME}_execution_engine_service:8008
+      PORTFOLIO_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_portfolio_management_service:8009
+      BACKTESTING_SERVICE_URL: http://${COMPOSE_PROJECT_NAME}_backtesting_engine_service:8010
+      ML_PLATFORM_URL: http://${COMPOSE_PROJECT_NAME}_ml_platform_service:8011
+      AI_ANALYST_URL: http://${COMPOSE_PROJECT_NAME}_ai_analyst_service:8012
+      SIGNAL_AGGREGATION_URL: http://${COMPOSE_PROJECT_NAME}_signal_aggregation_service:8013
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET required}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      NEXT_PUBLIC_APP_NAME: "SG Trading"
+      NEXT_PUBLIC_APP_ENV: ${SERVICE_ENV:-production}
+      NEXT_PUBLIC_SSE_BASE_URL: http://localhost
+    expose: ["3000"]
+    depends_on:
+      auth_service: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # REVERSE PROXY (singleton — see nginx/conf.d/00-upstreams.conf, which
+  # blue_green_deploy.sh regenerates on every slot switch)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  nginx:
+    <<: *service-defaults
+    image: nginx:1.27-alpine
+    container_name: sg_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      dashboard: { condition: service_healthy }
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "nginx", "-t"]
+      start_period: 10s
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # OBSERVABILITY (merged in from observability_service/ — singleton,
+  # not duplicated, per the spec. Configs/versions are read verbatim from
+  # that already-delivered, already-tested stack; only the network model
+  # changes, collapsing its two networks into the platform's single
+  # sg_network per requirement #1.)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  prometheus:
+    <<: *service-defaults
+    image: prom/prometheus:v2.55.1
+    container_name: sg_prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}
+      - --web.enable-lifecycle
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ../../observability_service/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../observability_service/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    ports: ["127.0.0.1:9090:9090"]
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      start_period: 15s
+
+  node-exporter:
+    <<: *service-defaults
+    image: prom/node-exporter:v1.8.2
+    container_name: sg_node_exporter
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+
+  cadvisor:
+    <<: *service-defaults
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: sg_cadvisor
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  postgres-exporter:
+    <<: *service-defaults
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: sg_postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: ${DATA_SOURCE_NAME:?Set DATA_SOURCE_NAME in .env (read-only Postgres role -- see docs)}
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  redis-exporter:
+    <<: *service-defaults
+    image: oliver006/redis_exporter:v1.62.0
+    container_name: sg_redis_exporter
+    environment:
+      REDIS_ADDR: ${REDIS_ADDR:-redis://redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      redis: { condition: service_healthy }
+
+  alertmanager:
+    <<: *service-defaults
+    image: prom/alertmanager:v0.27.0
+    container_name: sg_alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ../../observability_service/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports: ["127.0.0.1:9093:9093"]
+
+  alertmanager-telegram-bot:
+    <<: *service-defaults
+    image: metalmatze/alertmanager-bot:0.4.3
+    container_name: sg_alertmanager_telegram_bot
+    environment:
+      ALERTMANAGER_URL: http://alertmanager:9093
+      BOLT_PATH: /data/bot.db
+      STORE: bolt
+      TELEGRAM_ADMIN: ${TELEGRAM_CHAT_ID:-}
+      TELEGRAM_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    volumes:
+      - alertmanager_data:/data
+    depends_on: [alertmanager]
+
+  tempo:
+    <<: *service-defaults
+    image: grafana/tempo:2.6.1
+    container_name: sg_tempo
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ../../observability_service/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/var/tempo
+
+  otel-collector:
+    <<: *service-defaults
+    image: otel/opentelemetry-collector-contrib:0.110.0
+    container_name: sg_otel_collector
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ../../observability_service/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml:ro
+    ports:
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+      - "127.0.0.1:8888:8888"
+      - "127.0.0.1:8889:8889"
+    depends_on: [tempo]
+
+  loki:
+    <<: *service-defaults
+    image: grafana/loki:3.2.1
+    container_name: sg_loki
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    volumes:
+      - ../../observability_service/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+
+  promtail:
+    <<: *service-defaults
+    image: grafana/promtail:3.2.1
+    container_name: sg_promtail
+    command: ["-config.file=/etc/promtail/promtail-config.yaml"]
+    volumes:
+      - ../../observability_service/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on: [loki]
+
+  grafana:
+    <<: *service-defaults
+    image: grafana/grafana:11.3.0
+    container_name: sg_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor
+      GF_SERVER_ROOT_URL: http://localhost/grafana
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - ../../observability_service/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../observability_service/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    # Exception per requirement #6 — exposed beyond localhost, same as nginx:80.
+    ports: ["3001:3000"]
+    depends_on: [prometheus, loki, tempo]
+    healthcheck:
+      <<: *py-healthcheck
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      start_period: 20s
+
+secrets:
+  auth_public_key:
+    file: ${AUTH_PUBLIC_KEY_FILE:-./secrets/auth_public_key.pem}

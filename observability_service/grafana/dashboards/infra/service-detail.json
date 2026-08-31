@@ -1,0 +1,138 @@
+{
+  "title": "SG Platform — Service Detail",
+  "uid": "sg-service-detail",
+  "tags": ["sg-platform", "infra"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-3h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "query": "label_values(up{job=~\"auth_service|market_data_service|broker_service|strategy_service|regime_detection_service|execution_orchestrator_service|risk_engine_service|execution_engine_service|portfolio_management_service|backtesting_engine_service|ml_platform_service|ai_analyst_service\"}, job)",
+        "multi": false,
+        "includeAll": false,
+        "current": { "text": "portfolio_management_service", "value": "portfolio_management_service" },
+        "refresh": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "$service status",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "up{job=\"$service\"}", "refId": "A" }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } },
+            { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } }
+          ]
+        }
+      },
+      "options": { "colorMode": "background" }
+    },
+    {
+      "id": 2,
+      "title": "Request rate",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(rate(http_requests_total{job=\"$service\"}[5m]))", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "id": 3,
+      "title": "Error rate (5xx)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{job=\"$service\", status=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"$service\"}[5m]))", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 0.05 }] } } }
+    },
+    {
+      "id": 4,
+      "title": "p99 latency",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$service\"}[5m])))", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 2 }] } } }
+    },
+    {
+      "id": 5,
+      "title": "Requests by route + status",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (handler, status) (rate(http_requests_total{job=\"$service\"}[5m]))", "legendFormat": "{{handler}} [{{status}}]", "refId": "A" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Latency heatmap",
+      "type": "heatmap",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$service\"}[5m]))", "format": "heatmap", "legendFormat": "{{le}}", "refId": "A" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "CPU & memory (container)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(container_cpu_usage_seconds_total{name=~\".*$service.*\"}[5m])", "legendFormat": "cpu {{name}}", "refId": "A" },
+        { "expr": "container_memory_usage_bytes{name=~\".*$service.*\"}", "legendFormat": "mem {{name}}", "refId": "B" }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "asyncpg pool utilisation",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "description": "ASSUMED metric names — confirm against this service's source before trusting this panel.",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "db_pool_in_use_connections{job=\"$service\"} / db_pool_max_size{job=\"$service\"}", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0 } }
+    },
+    {
+      "id": 9,
+      "title": "Live logs ($service) — click a trace_id to jump to Tempo",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 20 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        { "expr": "{service=\"$service\"} | json", "refId": "A" }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true }
+    },
+    {
+      "id": 10,
+      "title": "Error-level log rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 30 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        { "expr": "sum(rate({service=\"$service\"} | json | level=\"error\" [5m]))", "refId": "A" }
+      ]
+    }
+  ]
+}

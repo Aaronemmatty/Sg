@@ -1,0 +1,90 @@
+{
+  "title": "ML Platform (8011) — Models, Drift, Training",
+  "uid": "sg-ml-platform",
+  "tags": ["sg-platform", "domain", "ml"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Champion Model Accuracy by Symbol/Model",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "ml_model_accuracy", "legendFormat": "{{symbol}} / {{model_type}}", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0, "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 0.45 }, { "color": "green", "value": 0.55 }] } } }
+    },
+    {
+      "id": 2,
+      "title": "Feature Drift (current)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "ml_feature_drift_score", "format": "table", "instant": true, "refId": "A" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "cellOptions": { "type": "color-background" }
+          },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.1 }, { "color": "red", "value": 0.2 }] }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Prediction Latency (p50/p95/p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(ml_prediction_latency_seconds_bucket[5m])))", "legendFormat": "p50", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(ml_prediction_latency_seconds_bucket[5m])))", "legendFormat": "p95", "refId": "B" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(ml_prediction_latency_seconds_bucket[5m])))", "legendFormat": "p99", "refId": "C" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } }
+    },
+    {
+      "id": 4,
+      "title": "Training Run Volume (24h)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(increase(ml_training_runs_total[24h]))", "legendFormat": "started", "refId": "A" },
+        { "expr": "sum(increase(ml_training_success_total[24h]))", "legendFormat": "successful", "refId": "B" },
+        { "expr": "sum(increase(ml_training_errors_total[24h]))", "legendFormat": "failed", "refId": "C" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Auto-Promotions (24h)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "increase(ml_model_promotions_total[24h])", "refId": "A" }]
+    },
+    {
+      "id": 6,
+      "title": "Active Champion Models",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "ml_champion_models_active", "refId": "A" }]
+    },
+    {
+      "id": 7,
+      "title": "ML Signal Publish Rate (sg:ml:signals)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(rate(ml_signals_published_total[5m]))", "refId": "A" }]
+    }
+  ]
+}
