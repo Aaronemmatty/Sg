@@ -42,8 +42,11 @@ for item in test_dirs:
     if not os.path.isdir(tests_path):
         continue
 
+    run_env = env.copy()
+    run_env["PYTHONPATH"] = item_dir
+
     cmd = [PYTEST_EXE, "tests", "-v", "--tb=short"]
-    res = subprocess.run(cmd, cwd=item_dir, env=env, capture_output=True, text=True)
+    res = subprocess.run(cmd, cwd=item_dir, env=run_env, capture_output=True, text=True)
     
     stdout = res.stdout
     stderr = res.stderr

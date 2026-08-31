@@ -18,6 +18,11 @@ def _redact_sensitive(_logger, _method_name, event_dict):
 
 
 def configure_logging() -> None:
+    logging.basicConfig(
+        format="%(message)s",
+        stream=sys.stdout,
+        level=logging.INFO,
+    )
     shared_processors = [
         structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
@@ -37,7 +42,7 @@ def configure_logging() -> None:
         processors=shared_processors + [renderer],
         wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(file=sys.stdout),
+        logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )
 
