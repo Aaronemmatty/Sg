@@ -1,12 +1,10 @@
-**/.venv/
 .venv/
-**/node_modules/
+venv/
 node_modules/
-**/__pycache__/
+
 __pycache__/
-*.pyc
-**/.pytest_cache/
-.pytest_cache/
+*.py[cod]
 *.egg-info/
+
 .env
-*.env
+.env.*
