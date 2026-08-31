@@ -102,8 +102,9 @@ switch ($Command) {
         $PsqlExe = "psql.exe"
         $Candidates = @(
             "psql.exe",
-            "C:\Program Files\PostgreSQL\16\bin\psql.exe",
+            "C:\Program Files\PostgreSQL\18\bin\psql.exe",
             "C:\Program Files\PostgreSQL\17\bin\psql.exe",
+            "C:\Program Files\PostgreSQL\16\bin\psql.exe",
             "C:\Program Files\PostgreSQL\15\bin\psql.exe"
         )
         foreach ($c in $Candidates) {
