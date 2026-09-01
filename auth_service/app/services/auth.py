@@ -452,8 +452,8 @@ class AuthService:
             user_id=user.id,
             refresh_jti=jti,
             device_id=device.id if device else None,
-            ip_address=request.client.host if request.client else None,
-            user_agent=request.headers.get("user-agent"),
+            ip_address=request.client.host if (request and request.client) else None,
+            user_agent=request.headers.get("user-agent") if request else None,
             expires_at=expires_at,
             last_active_at=datetime.now(UTC),
         )

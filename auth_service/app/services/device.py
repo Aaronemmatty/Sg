@@ -18,7 +18,9 @@ class DeviceService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    def _fingerprint(self, request: Request) -> str:
+    def _fingerprint(self, request: Request | None) -> str:
+        if not request:
+            return "system_client"
         ua = request.headers.get("user-agent", "")
         ip = request.client.host if request.client else ""
         # Stable fingerprint: hash of UA + /24 subnet
@@ -30,11 +32,11 @@ class DeviceService:
         self,
         *,
         user: User,
-        request: Request,
+        request: Request | None,
         device_name: str | None = None,
     ) -> UserDevice:
         fingerprint = self._fingerprint(request)
-        ua_string = request.headers.get("user-agent", "")
+        ua_string = request.headers.get("user-agent", "") if request else ""
         parsed = parse_ua(ua_string)
 
         result = await self.db.execute(
@@ -46,8 +48,9 @@ class DeviceService:
         )
         device = result.scalar_one_or_none()
 
+        ip = request.client.host if (request and request.client) else None
         if device:
-            device.last_seen_ip = request.client.host if request.client else None
+            device.last_seen_ip = ip
             device.last_seen_at = datetime.now(UTC)
             device.login_count += 1
         else:
@@ -59,7 +62,7 @@ class DeviceService:
                 device_type="mobile" if parsed.is_mobile else "tablet" if parsed.is_tablet else "desktop",
                 os=f"{parsed.os.family} {parsed.os.version_string}".strip(),
                 browser=f"{parsed.browser.family} {parsed.browser.version_string}".strip(),
-                last_seen_ip=request.client.host if request.client else None,
+                last_seen_ip=ip,
                 last_seen_at=datetime.now(UTC),
                 login_count=1,
             )

@@ -16,7 +16,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, foreign, mapped_column, relationship
 
 from sg_db.base import Base
 from sg_db.enums import OrderSide, OrderStatus, OrderType, StrategyStatus, TradingMode
@@ -130,7 +130,11 @@ class Order(Base, TenantMixin, SoftDeleteMixin):
     cancelled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     strategy: Mapped[Optional["Strategy"]] = relationship(back_populates="orders")
-    trades: Mapped[list["Trade"]] = relationship(back_populates="order")
+    trades: Mapped[list["Trade"]] = relationship(
+        "Trade",
+        primaryjoin="Order.id == foreign(Trade.order_id)",
+        back_populates="order",
+    )
 
 
 class Trade(Base, TenantMixin, TimestampMixin):
@@ -179,7 +183,11 @@ class Trade(Base, TenantMixin, TimestampMixin):
     broker_trade_id: Mapped[str] = mapped_column(String(128), nullable=False)
     correlation_id: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    order: Mapped["Order"] = relationship(back_populates="trades")
+    order: Mapped[Optional["Order"]] = relationship(
+        "Order",
+        primaryjoin="foreign(Trade.order_id) == Order.id",
+        back_populates="trades",
+    )
 
 
 class Position(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):

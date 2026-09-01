@@ -53,6 +53,12 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
+def _clean_key(k: str) -> str:
+    if not k:
+        return ""
+    return k.strip().strip('"').strip("'").replace("\\n", "\n")
+
+
 def create_access_token(
     *,
     sub: str,
@@ -79,7 +85,7 @@ def create_access_token(
     }
     if extra:
         payload.update(extra)
-    return jwt.encode(payload, settings.JWT_PRIVATE_KEY, algorithm=settings.JWT_ALGORITHM)
+    return jwt.encode(payload, _clean_key(settings.JWT_PRIVATE_KEY), algorithm=settings.JWT_ALGORITHM)
 
 
 def create_refresh_token(
@@ -101,14 +107,14 @@ def create_refresh_token(
         "exp": now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         "type": "refresh",
     }
-    return jwt.encode(payload, settings.JWT_PRIVATE_KEY, algorithm=settings.JWT_ALGORITHM)
+    return jwt.encode(payload, _clean_key(settings.JWT_PRIVATE_KEY), algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_token(token: str) -> dict[str, Any]:
     """Raises JWTError on any validation failure."""
     return jwt.decode(
         token,
-        settings.JWT_PUBLIC_KEY,
+        _clean_key(settings.JWT_PUBLIC_KEY),
         algorithms=[settings.JWT_ALGORITHM],
         options={"verify_exp": True, "verify_nbf": True},
     )

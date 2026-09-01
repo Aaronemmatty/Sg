@@ -55,7 +55,7 @@ class Settings(BaseSettings):
 
     # ── Email ────────────────────────────────────────────────────────────────
     SENDGRID_API_KEY: str = ""
-    EMAIL_FROM: EmailStr = "noreply@sg-trading.local"
+    EMAIL_FROM: EmailStr = "noreply@sg-trading.com"
     EMAIL_FROM_NAME: str = "SG Trading Platform"
 
     # ── OAuth2 providers ─────────────────────────────────────────────────────
