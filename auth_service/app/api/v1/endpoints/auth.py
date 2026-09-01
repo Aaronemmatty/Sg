@@ -319,3 +319,11 @@ async def get_me(current: AuthRequired) -> UserProfile:
         email_verified=u.preferences.get("email_verified", False),
         created_at=u.created_at,
     )
+
+
+@router.get("/public-key", summary="Get RSA public key for token verification")
+async def get_public_key() -> dict[str, str]:
+    from app.core.config import get_settings
+    from app.core.security import _clean_key
+    settings = get_settings()
+    return {"public_key": _clean_key(settings.JWT_PUBLIC_KEY), "algorithm": settings.JWT_ALGORITHM}

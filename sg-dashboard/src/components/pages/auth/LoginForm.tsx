@@ -44,8 +44,7 @@ export function LoginForm() {
       }
 
       toast.success("Signed in");
-      router.replace("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } catch {
       setError("Network error. Check that auth service is running.");
       setLoading(false);

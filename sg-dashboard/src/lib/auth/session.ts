@@ -77,7 +77,8 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
     const key = await getPublicKey();
     const { payload } = await jwtVerify(token, key, { algorithms: ["RS256"] });
     return payload;
-  } catch {
+  } catch (err) {
+    console.error("verifyToken error:", err);
     return null;
   }
 }
