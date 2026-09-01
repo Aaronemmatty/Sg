@@ -118,11 +118,11 @@ export function Sidebar() {
         {user && (
           <div className="flex items-center gap-2.5 px-2 mb-2">
             <div className="w-7 h-7 rounded-full bg-surface-3 border border-border flex items-center justify-center text-xs font-bold text-accent">
-              {user.username[0].toUpperCase()}
+              {(user.username?.[0] || user.email?.[0] || "A").toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-text-primary truncate">{user.username}</div>
-              <div className="text-2xs text-text-muted truncate">{user.roles[0]}</div>
+              <div className="text-xs font-medium text-text-primary truncate">{user.username || user.email || "Admin User"}</div>
+              <div className="text-2xs text-text-muted truncate">{user.roles?.[0] ?? "trader"}</div>
             </div>
           </div>
         )}

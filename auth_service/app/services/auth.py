@@ -434,6 +434,7 @@ class AuthService:
             permissions=permissions,
             session_id=session_id,
             jti=jti,
+            extra={"username": user.display_name or user.email.split("@")[0], "email": user.email},
         )
         refresh_token = create_refresh_token(
             sub=str(user.id),
