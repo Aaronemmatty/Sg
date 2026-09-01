@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     default_execution_style: Literal["AGGRESSIVE", "PASSIVE"] = Field(
         default="AGGRESSIVE", alias="DEFAULT_EXECUTION_STYLE"
     )
+    product_type: str = Field(default="MIS", alias="PRODUCT_TYPE")
     passive_limit_band_bps: float = Field(default=15.0, alias="PASSIVE_LIMIT_BAND_BPS")
     order_validity: Literal["DAY", "IOC"] = Field(default="DAY", alias="ORDER_VALIDITY")
 

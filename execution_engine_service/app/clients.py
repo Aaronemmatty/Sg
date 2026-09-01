@@ -54,6 +54,7 @@ class BrokerOrderRequest:
         limit_price: float | None,
         validity: str,
         idempotency_key: str,
+        product: str = "MIS",
     ):
         self.order = order
         self.order_type = order_type
@@ -61,6 +62,7 @@ class BrokerOrderRequest:
         self.limit_price = limit_price
         self.validity = validity
         self.idempotency_key = idempotency_key
+        self.product = product or getattr(order, "product", "MIS") or "MIS"
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -69,6 +71,7 @@ class BrokerOrderRequest:
             "symbol": self.order.symbol,
             "action": self.order.action.value,
             "order_type": self.order_type.value,
+            "product": self.product,
             "quantity": self.quantity,
             "limit_price": self.limit_price,
             "validity": self.validity,

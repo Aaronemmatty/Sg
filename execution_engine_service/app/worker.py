@@ -148,6 +148,7 @@ class ExecutionWorker:
             correlation_id=decision.correlation_id,
             symbol=decision.symbol,
             action=decision.action,
+            product=getattr(decision, "product", "MIS") or settings.product_type,
             state=OrderState.PENDING,
             approved_allocation_inr=decision.approved_allocation_inr,
             execution_style=ExecutionStyle.AGGRESSIVE,  # overwritten once routed
@@ -215,6 +216,7 @@ class ExecutionWorker:
             limit_price=order.limit_price,
             validity=order.validity.value,
             idempotency_key=order.idempotency_key,
+            product=order.product,
         )
 
         order = await db.update_order_state(

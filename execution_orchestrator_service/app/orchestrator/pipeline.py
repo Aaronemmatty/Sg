@@ -156,6 +156,7 @@ class OrchestratorPipeline:
             intent = TradeIntent(
                 symbol=signal.symbol,
                 action=signal.final_signal,
+                product=settings.PRODUCT_TYPE,
                 confidence=signal.confidence,
                 allocation_inr=allocation.allocation_inr,
                 risk_percent=allocation.risk_percent,

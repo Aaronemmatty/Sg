@@ -65,6 +65,7 @@ class Settings(BaseSettings):
 
     # ── Capital allocation ────────────────────────────────────────────────────
     DEFAULT_RISK_PCT: float = 1.0           # % of portfolio risked per trade
+    PRODUCT_TYPE: str = "MIS"               # MIS (intraday) | CNC (delivery) | NRML
     MAX_ALLOCATION_INR: float = 500_000.0   # hard cap per single intent (5 lakh)
     MIN_ALLOCATION_INR: float = 1_000.0     # below this → not worth executing
 

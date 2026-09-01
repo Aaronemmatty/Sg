@@ -176,6 +176,7 @@ class TradeIntent(BaseModel):
     intent_id: str = Field(default_factory=lambda: str(uuid4()))
     symbol: str
     action: TradeAction
+    product: str = "MIS"
     confidence: float
     allocation_inr: float
     risk_percent: float
@@ -195,15 +196,16 @@ class TradeIntent(BaseModel):
     def to_contract_dict(self) -> dict:
         """Matches the brief's canonical output shape."""
         return {
-            "symbol": self.symbol,
-            "action": self.action.value,
-            "confidence": round(self.confidence, 4),
-            "allocation": round(self.allocation_inr, 2),
-            "risk_percent": round(self.risk_percent, 2),
-            "market_regime": self.market_regime,
-            "status": self.status.value,
             "intent_id": self.intent_id,
             "correlation_id": self.correlation_id,
+            "symbol": self.symbol,
+            "action": self.action.value,
+            "product": self.product,
+            "confidence": round(self.confidence, 4),
+            "allocation_inr": round(self.allocation_inr, 2),
+            "risk_percent": round(self.risk_percent, 4),
+            "market_regime": self.market_regime,
+            "status": self.status.value,
             "rejection_reasons": [r.value for r in self.rejection_reasons],
             "rejection_detail": self.rejection_detail,
             "created_at": self.created_at.isoformat(),

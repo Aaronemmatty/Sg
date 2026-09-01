@@ -17,21 +17,19 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-_pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto",
-    bcrypt__rounds=12,
-)
-
+import bcrypt
 
 # ── Password ──────────────────────────────────────────────────────────────────
 
 def hash_password(plain: str) -> str:
-    return _pwd_context.hash(plain)
+    return bcrypt.hashpw(plain.encode("utf-8")[:72], bcrypt.gensalt(12)).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return _pwd_context.verify(plain, hashed)
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8")[:72], hashed.encode("utf-8"))
+    except Exception:
+        return False
 
 
 def password_strength_ok(password: str) -> tuple[bool, str]:

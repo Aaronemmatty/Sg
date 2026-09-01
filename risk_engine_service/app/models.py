@@ -20,6 +20,7 @@ class TradeIntent(BaseModel):
     intent_id: uuid.UUID
     symbol: str
     action: str  # BUY | SELL
+    product: str = "MIS"
     confidence: float
     allocation_inr: float
     risk_percent: float
@@ -69,6 +70,7 @@ class RiskDecision(BaseModel):
     intent_id: uuid.UUID
     symbol: str
     action: str
+    product: str = "MIS"
     original_allocation_inr: float
     approved_allocation_inr: float | None
     risk_score: float

@@ -14,10 +14,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const authRes = await fetch(`${SERVICES.auth}/api/v1/auth/login`, {
+    const authRes = await fetch(`${SERVICES.auth}/v1/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, totp_code }),
+      body: JSON.stringify({
+        email: username,
+        password,
+        tenant_slug: "default",
+        device_name: "Web Browser",
+      }),
     });
 
     if (!authRes.ok) {
@@ -33,7 +38,7 @@ export async function POST(req: NextRequest) {
     );
 
     // Fetch user profile
-    const profileRes = await fetch(`${SERVICES.auth}/api/v1/auth/me`, {
+    const profileRes = await fetch(`${SERVICES.auth}/v1/auth/me`, {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
     const user = profileRes.ok ? await profileRes.json() : null;

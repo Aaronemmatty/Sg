@@ -40,6 +40,7 @@ class RiskDecision(BaseModel):
     intent_id: uuid.UUID
     symbol: str
     action: TradeAction
+    product: str = "MIS"
     original_allocation_inr: float
     approved_allocation_inr: float
     risk_score: float
@@ -99,6 +100,7 @@ class Order(BaseModel):
     correlation_id: uuid.UUID
     symbol: str
     action: TradeAction
+    product: str = "MIS"
     state: OrderState = OrderState.PENDING
 
     approved_allocation_inr: float

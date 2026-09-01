@@ -249,6 +249,7 @@ class RiskEvaluator:
             intent_id=intent.intent_id,
             symbol=intent.symbol,
             action=intent.action,
+            product=getattr(intent, "product", "MIS") or "MIS",
             original_allocation_inr=intent.allocation_inr,
             approved_allocation_inr=approved_allocation,
             risk_score=risk_score,
