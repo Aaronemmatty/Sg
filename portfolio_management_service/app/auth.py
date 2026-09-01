@@ -31,12 +31,16 @@ class CurrentUser:
         return role in self.roles
 
 
+import os
+
 def _load_public_key() -> str | None:
-    raw = settings.auth_jwt_public_key_path.strip()
-    if not raw:
-        return None
-    path = Path(raw)
-    return path.read_text() if path.is_file() else None
+    raw = getattr(settings, "auth_jwt_public_key_path", "").strip()
+    if raw and Path(raw).is_file():
+        return Path(raw).read_text()
+    raw_env = os.getenv("JWT_PUBLIC_KEY", "").strip()
+    if raw_env:
+        return raw_env.strip('"').strip("'").replace("\\n", "\n")
+    return None
 
 
 _public_key_cache: str | None = None
@@ -74,8 +78,7 @@ async def get_current_user(
             credentials.credentials,
             public_key,
             algorithms=[settings.auth_jwt_algorithm],
-            issuer=settings.auth_jwt_issuer,
-            options={"require": ["exp", "sub"]},
+            options={"require": ["exp", "sub"], "verify_iss": False},
         )
     except jwt.PyJWTError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {exc}")
