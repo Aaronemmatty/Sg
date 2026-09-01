@@ -1,0 +1,3402 @@
+{
+  "360ONE": {
+    "symbol": "360ONE",
+    "nse_symbol": "NSE:360ONE",
+    "company_name": "360 ONE WAM Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE466L01038",
+    "instrument_token": 3343617,
+    "last_price": 1165.6,
+    "avg_daily_volume": 890559,
+    "adtv_inr": 1038036290.4,
+    "adtv_crores": 103.8,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ABB": {
+    "symbol": "ABB",
+    "nse_symbol": "NSE:ABB",
+    "company_name": "ABB India Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE117A01022",
+    "instrument_token": 3329,
+    "last_price": 7396.0,
+    "avg_daily_volume": 243390,
+    "adtv_inr": 1800116810.36,
+    "adtv_crores": 180.01,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "ABCAPITAL": {
+    "symbol": "ABCAPITAL",
+    "nse_symbol": "NSE:ABCAPITAL",
+    "company_name": "Aditya Birla Capital Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE674K01013",
+    "instrument_token": 5533185,
+    "last_price": 394.45,
+    "avg_daily_volume": 3593170,
+    "adtv_inr": 1417326129.66,
+    "adtv_crores": 141.73,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "ADANIENSOL": {
+    "symbol": "ADANIENSOL",
+    "nse_symbol": "NSE:ADANIENSOL",
+    "company_name": "Adani Energy Solutions Ltd.",
+    "industry": "Power",
+    "isin": "INE931S01010",
+    "instrument_token": 2615553,
+    "last_price": 1382.0,
+    "avg_daily_volume": 4091034,
+    "adtv_inr": 5653810244.36,
+    "adtv_crores": 565.38,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ADANIENT": {
+    "symbol": "ADANIENT",
+    "nse_symbol": "NSE:ADANIENT",
+    "company_name": "Adani Enterprises Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE423A01024",
+    "instrument_token": 6401,
+    "last_price": 2863.9,
+    "avg_daily_volume": 1758782,
+    "adtv_inr": 5036977941.23,
+    "adtv_crores": 503.7,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ADANIGREEN": {
+    "symbol": "ADANIGREEN",
+    "nse_symbol": "NSE:ADANIGREEN",
+    "company_name": "Adani Green Energy Ltd.",
+    "industry": "Power",
+    "isin": "INE364U01010",
+    "instrument_token": 912129,
+    "last_price": 1265.0,
+    "avg_daily_volume": 1643431,
+    "adtv_inr": 2078940560.0,
+    "adtv_crores": 207.89,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ADANIPORTS": {
+    "symbol": "ADANIPORTS",
+    "nse_symbol": "NSE:ADANIPORTS",
+    "company_name": "Adani Ports and Special Economic Zone Ltd.",
+    "industry": "Services",
+    "isin": "INE742F01042",
+    "instrument_token": 3861249,
+    "last_price": 1647.5,
+    "avg_daily_volume": 2206101,
+    "adtv_inr": 3634551622.16,
+    "adtv_crores": 363.46,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ADANIPOWER": {
+    "symbol": "ADANIPOWER",
+    "nse_symbol": "NSE:ADANIPOWER",
+    "company_name": "Adani Power Ltd.",
+    "industry": "Power",
+    "isin": "INE814H01029",
+    "instrument_token": 4451329,
+    "last_price": 204.36,
+    "avg_daily_volume": 19701941,
+    "adtv_inr": 4026288767.68,
+    "adtv_crores": 402.63,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "ALKEM": {
+    "symbol": "ALKEM",
+    "nse_symbol": "NSE:ALKEM",
+    "company_name": "Alkem Laboratories Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE540L01014",
+    "instrument_token": 2995969,
+    "last_price": 5300.0,
+    "avg_daily_volume": 127821,
+    "adtv_inr": 677452986.36,
+    "adtv_crores": 67.75,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "AMBUJACEM": {
+    "symbol": "AMBUJACEM",
+    "nse_symbol": "NSE:AMBUJACEM",
+    "company_name": "Ambuja Cements Ltd.",
+    "industry": "Construction Materials",
+    "isin": "INE079A01024",
+    "instrument_token": 325121,
+    "last_price": 402.2,
+    "avg_daily_volume": 2730987,
+    "adtv_inr": 1098403150.99,
+    "adtv_crores": 109.84,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "APLAPOLLO": {
+    "symbol": "APLAPOLLO",
+    "nse_symbol": "NSE:APLAPOLLO",
+    "company_name": "APL Apollo Tubes Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE702C01027",
+    "instrument_token": 6599681,
+    "last_price": 2234.0,
+    "avg_daily_volume": 782577,
+    "adtv_inr": 1748277424.18,
+    "adtv_crores": 174.83,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "APOLLOHOSP": {
+    "symbol": "APOLLOHOSP",
+    "nse_symbol": "NSE:APOLLOHOSP",
+    "company_name": "Apollo Hospitals Enterprise Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE437A01024",
+    "instrument_token": 40193,
+    "last_price": 8755.0,
+    "avg_daily_volume": 401428,
+    "adtv_inr": 3514506517.5,
+    "adtv_crores": 351.45,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "ASHOKLEY": {
+    "symbol": "ASHOKLEY",
+    "nse_symbol": "NSE:ASHOKLEY",
+    "company_name": "Ashok Leyland Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE208A01029",
+    "instrument_token": 54273,
+    "last_price": 170.53,
+    "avg_daily_volume": 17921208,
+    "adtv_inr": 3056103586.11,
+    "adtv_crores": 305.61,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "ASIANPAINT": {
+    "symbol": "ASIANPAINT",
+    "nse_symbol": "NSE:ASIANPAINT",
+    "company_name": "Asian Paints Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE021A01026",
+    "instrument_token": 60417,
+    "last_price": 2575.5,
+    "avg_daily_volume": 714864,
+    "adtv_inr": 1841132466.14,
+    "adtv_crores": 184.11,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ASTRAL": {
+    "symbol": "ASTRAL",
+    "nse_symbol": "NSE:ASTRAL",
+    "company_name": "Astral Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE006I01046",
+    "instrument_token": 3691009,
+    "last_price": 1507.0,
+    "avg_daily_volume": 1455265,
+    "adtv_inr": 2193085451.0,
+    "adtv_crores": 219.31,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ATGL": {
+    "symbol": "ATGL",
+    "nse_symbol": "NSE:ATGL",
+    "company_name": "Adani Total Gas Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE399L01023",
+    "instrument_token": 1552897,
+    "last_price": 613.65,
+    "avg_daily_volume": 968608,
+    "adtv_inr": 594386797.03,
+    "adtv_crores": 59.44,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "AUBANK": {
+    "symbol": "AUBANK",
+    "nse_symbol": "NSE:AUBANK",
+    "company_name": "AU Small Finance Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE949L01017",
+    "instrument_token": 5436929,
+    "last_price": 1079.2,
+    "avg_daily_volume": 1634457,
+    "adtv_inr": 1763906307.03,
+    "adtv_crores": 176.39,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "AUROPHARMA": {
+    "symbol": "AUROPHARMA",
+    "nse_symbol": "NSE:AUROPHARMA",
+    "company_name": "Aurobindo Pharma Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE406A01037",
+    "instrument_token": 70401,
+    "last_price": 1683.3,
+    "avg_daily_volume": 1042790,
+    "adtv_inr": 1755329835.16,
+    "adtv_crores": 175.53,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "AXISBANK": {
+    "symbol": "AXISBANK",
+    "nse_symbol": "NSE:AXISBANK",
+    "company_name": "Axis Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE238A01034",
+    "instrument_token": 1510401,
+    "last_price": 1258.0,
+    "avg_daily_volume": 4882173,
+    "adtv_inr": 6141774034.27,
+    "adtv_crores": 614.18,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BAJAJ-AUTO": {
+    "symbol": "BAJAJ-AUTO",
+    "nse_symbol": "NSE:BAJAJ-AUTO",
+    "company_name": "Bajaj Auto Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE917I01010",
+    "instrument_token": 4267265,
+    "last_price": 12361.0,
+    "avg_daily_volume": 246021,
+    "adtv_inr": 3041068952.18,
+    "adtv_crores": 304.11,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "BAJAJFINSV": {
+    "symbol": "BAJAJFINSV",
+    "nse_symbol": "NSE:BAJAJFINSV",
+    "company_name": "Bajaj Finserv Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE918I01026",
+    "instrument_token": 4268801,
+    "last_price": 1972.0,
+    "avg_daily_volume": 1066614,
+    "adtv_inr": 2103363614.73,
+    "adtv_crores": 210.34,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BAJAJHLDNG": {
+    "symbol": "BAJAJHLDNG",
+    "nse_symbol": "NSE:BAJAJHLDNG",
+    "company_name": "Bajaj Holdings & Investment Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE118A01012",
+    "instrument_token": 78081,
+    "last_price": 11310.0,
+    "avg_daily_volume": 42038,
+    "adtv_inr": 475460061.82,
+    "adtv_crores": 47.55,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "BAJFINANCE": {
+    "symbol": "BAJFINANCE",
+    "nse_symbol": "NSE:BAJFINANCE",
+    "company_name": "Bajaj Finance Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE296A01032",
+    "instrument_token": 81153,
+    "last_price": 1053.9,
+    "avg_daily_volume": 5828127,
+    "adtv_inr": 6142263858.25,
+    "adtv_crores": 614.23,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BANKBARODA": {
+    "symbol": "BANKBARODA",
+    "nse_symbol": "NSE:BANKBARODA",
+    "company_name": "Bank of Baroda",
+    "industry": "Financial Services",
+    "isin": "INE028A01039",
+    "instrument_token": 1195009,
+    "last_price": 237.7,
+    "avg_daily_volume": 7813467,
+    "adtv_inr": 1857261136.08,
+    "adtv_crores": 185.73,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "BANKINDIA": {
+    "symbol": "BANKINDIA",
+    "nse_symbol": "NSE:BANKINDIA",
+    "company_name": "Bank of India",
+    "industry": "Financial Services",
+    "isin": "INE084A01016",
+    "instrument_token": 1214721,
+    "last_price": 142.35,
+    "avg_daily_volume": 6046385,
+    "adtv_inr": 860702974.01,
+    "adtv_crores": 86.07,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "BDL": {
+    "symbol": "BDL",
+    "nse_symbol": "NSE:BDL",
+    "company_name": "Bharat Dynamics Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE171Z01026",
+    "instrument_token": 548865,
+    "last_price": 1250.0,
+    "avg_daily_volume": 1875218,
+    "adtv_inr": 2344023465.91,
+    "adtv_crores": 234.4,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BEL": {
+    "symbol": "BEL",
+    "nse_symbol": "NSE:BEL",
+    "company_name": "Bharat Electronics Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE263A01024",
+    "instrument_token": 98049,
+    "last_price": 411.2,
+    "avg_daily_volume": 10045869,
+    "adtv_inr": 4130861586.27,
+    "adtv_crores": 413.09,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "BHARATFORG": {
+    "symbol": "BHARATFORG",
+    "nse_symbol": "NSE:BHARATFORG",
+    "company_name": "Bharat Forge Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE465A01025",
+    "instrument_token": 108033,
+    "last_price": 2052.2,
+    "avg_daily_volume": 1231921,
+    "adtv_inr": 2528149521.99,
+    "adtv_crores": 252.81,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BHARTIARTL": {
+    "symbol": "BHARTIARTL",
+    "nse_symbol": "NSE:BHARTIARTL",
+    "company_name": "Bharti Airtel Ltd.",
+    "industry": "Telecommunication",
+    "isin": "INE397D01024",
+    "instrument_token": 2714625,
+    "last_price": 1877.2,
+    "avg_daily_volume": 7132805,
+    "adtv_inr": 13389702733.61,
+    "adtv_crores": 1338.97,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BHEL": {
+    "symbol": "BHEL",
+    "nse_symbol": "NSE:BHEL",
+    "company_name": "Bharat Heavy Electricals Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE257A01026",
+    "instrument_token": 112129,
+    "last_price": 426.55,
+    "avg_daily_volume": 7866030,
+    "adtv_inr": 3355255252.53,
+    "adtv_crores": 335.53,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "BIOCON": {
+    "symbol": "BIOCON",
+    "nse_symbol": "NSE:BIOCON",
+    "company_name": "Biocon Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE376G01013",
+    "instrument_token": 2911489,
+    "last_price": 401.05,
+    "avg_daily_volume": 3211587,
+    "adtv_inr": 1288006927.15,
+    "adtv_crores": 128.8,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "BLUESTARCO": {
+    "symbol": "BLUESTARCO",
+    "nse_symbol": "NSE:BLUESTARCO",
+    "company_name": "Blue Star Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE472A01039",
+    "instrument_token": 2127617,
+    "last_price": 1490.9,
+    "avg_daily_volume": 604270,
+    "adtv_inr": 900906970.97,
+    "adtv_crores": 90.09,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "BOSCHLTD": {
+    "symbol": "BOSCHLTD",
+    "nse_symbol": "NSE:BOSCHLTD",
+    "company_name": "Bosch Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE323A01026",
+    "instrument_token": 558337,
+    "last_price": 48550.0,
+    "avg_daily_volume": 49236,
+    "adtv_inr": 2390427661.36,
+    "adtv_crores": 239.04,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "BPCL": {
+    "symbol": "BPCL",
+    "nse_symbol": "NSE:BPCL",
+    "company_name": "Bharat Petroleum Corporation Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE029A01011",
+    "instrument_token": 134657,
+    "last_price": 317.65,
+    "avg_daily_volume": 5051683,
+    "adtv_inr": 1604667102.99,
+    "adtv_crores": 160.47,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "BRITANNIA": {
+    "symbol": "BRITANNIA",
+    "nse_symbol": "NSE:BRITANNIA",
+    "company_name": "Britannia Industries Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE216A01030",
+    "instrument_token": 140033,
+    "last_price": 5187.0,
+    "avg_daily_volume": 334270,
+    "adtv_inr": 1733861083.5,
+    "adtv_crores": 173.39,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "BSE": {
+    "symbol": "BSE",
+    "nse_symbol": "NSE:BSE",
+    "company_name": "BSE Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE118H01025",
+    "instrument_token": 5013761,
+    "last_price": 3242.0,
+    "avg_daily_volume": 4609310,
+    "adtv_inr": 14943385230.45,
+    "adtv_crores": 1494.34,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "CANBK": {
+    "symbol": "CANBK",
+    "nse_symbol": "NSE:CANBK",
+    "company_name": "Canara Bank",
+    "industry": "Financial Services",
+    "isin": "INE476A01022",
+    "instrument_token": 2763265,
+    "last_price": 125.6,
+    "avg_daily_volume": 14718406,
+    "adtv_inr": 1848631845.36,
+    "adtv_crores": 184.86,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "CGPOWER": {
+    "symbol": "CGPOWER",
+    "nse_symbol": "NSE:CGPOWER",
+    "company_name": "CG Power and Industrial Solutions Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE067A01029",
+    "instrument_token": 194561,
+    "last_price": 885.5,
+    "avg_daily_volume": 2454163,
+    "adtv_inr": 2173161739.0,
+    "adtv_crores": 217.32,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "CHOLAFIN": {
+    "symbol": "CHOLAFIN",
+    "nse_symbol": "NSE:CHOLAFIN",
+    "company_name": "Cholamandalam Investment and Finance Company Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE121A01024",
+    "instrument_token": 175361,
+    "last_price": 1814.7,
+    "avg_daily_volume": 1125944,
+    "adtv_inr": 2043250769.28,
+    "adtv_crores": 204.33,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "CIPLA": {
+    "symbol": "CIPLA",
+    "nse_symbol": "NSE:CIPLA",
+    "company_name": "Cipla Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE059A01026",
+    "instrument_token": 177665,
+    "last_price": 1423.0,
+    "avg_daily_volume": 771309,
+    "adtv_inr": 1097574065.32,
+    "adtv_crores": 109.76,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "COALINDIA": {
+    "symbol": "COALINDIA",
+    "nse_symbol": "NSE:COALINDIA",
+    "company_name": "Coal India Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE522F01014",
+    "instrument_token": 5215745,
+    "last_price": 401.6,
+    "avg_daily_volume": 7534060,
+    "adtv_inr": 3025678633.26,
+    "adtv_crores": 302.57,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "COCHINSHIP": {
+    "symbol": "COCHINSHIP",
+    "nse_symbol": "NSE:COCHINSHIP",
+    "company_name": "Cochin Shipyard Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE704P01025",
+    "instrument_token": 5506049,
+    "last_price": 1475.9,
+    "avg_daily_volume": 1051446,
+    "adtv_inr": 1551830049.19,
+    "adtv_crores": 155.18,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "COFORGE": {
+    "symbol": "COFORGE",
+    "nse_symbol": "NSE:COFORGE",
+    "company_name": "Coforge Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE591G01025",
+    "instrument_token": 2955009,
+    "last_price": 1988.9,
+    "avg_daily_volume": 2119576,
+    "adtv_inr": 4215626385.43,
+    "adtv_crores": 421.56,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "COLPAL": {
+    "symbol": "COLPAL",
+    "nse_symbol": "NSE:COLPAL",
+    "company_name": "Colgate Palmolive (India) Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE259A01022",
+    "instrument_token": 3876097,
+    "last_price": 1859.8,
+    "avg_daily_volume": 364733,
+    "adtv_inr": 678330451.21,
+    "adtv_crores": 67.83,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "CONCOR": {
+    "symbol": "CONCOR",
+    "nse_symbol": "NSE:CONCOR",
+    "company_name": "Container Corporation of India Ltd.",
+    "industry": "Services",
+    "isin": "INE111A01025",
+    "instrument_token": 1215745,
+    "last_price": 514.0,
+    "avg_daily_volume": 1589280,
+    "adtv_inr": 816890153.64,
+    "adtv_crores": 81.69,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "COROMANDEL": {
+    "symbol": "COROMANDEL",
+    "nse_symbol": "NSE:COROMANDEL",
+    "company_name": "Coromandel International Ltd.",
+    "industry": "Chemicals",
+    "isin": "INE169A01031",
+    "instrument_token": 189185,
+    "last_price": 1922.9,
+    "avg_daily_volume": 134889,
+    "adtv_inr": 259379372.46,
+    "adtv_crores": 25.94,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "CUMMINSIND": {
+    "symbol": "CUMMINSIND",
+    "nse_symbol": "NSE:CUMMINSIND",
+    "company_name": "Cummins India Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE298A01020",
+    "instrument_token": 486657,
+    "last_price": 5105.0,
+    "avg_daily_volume": 506507,
+    "adtv_inr": 2585719627.27,
+    "adtv_crores": 258.57,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "DABUR": {
+    "symbol": "DABUR",
+    "nse_symbol": "NSE:DABUR",
+    "company_name": "Dabur India Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE016A01026",
+    "instrument_token": 197633,
+    "last_price": 384.0,
+    "avg_daily_volume": 1822350,
+    "adtv_inr": 699782661.82,
+    "adtv_crores": 69.98,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "DIVISLAB": {
+    "symbol": "DIVISLAB",
+    "nse_symbol": "NSE:DIVISLAB",
+    "company_name": "Divi's Laboratories Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE361B01024",
+    "instrument_token": 2800641,
+    "last_price": 9165.0,
+    "avg_daily_volume": 504583,
+    "adtv_inr": 4624504028.18,
+    "adtv_crores": 462.45,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "DIXON": {
+    "symbol": "DIXON",
+    "nse_symbol": "NSE:DIXON",
+    "company_name": "Dixon Technologies (India) Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE935N01020",
+    "instrument_token": 5552641,
+    "last_price": 14461.0,
+    "avg_daily_volume": 369567,
+    "adtv_inr": 5344320218.73,
+    "adtv_crores": 534.43,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "DLF": {
+    "symbol": "DLF",
+    "nse_symbol": "NSE:DLF",
+    "company_name": "DLF Ltd.",
+    "industry": "Realty",
+    "isin": "INE271C01023",
+    "instrument_token": 3771393,
+    "last_price": 675.15,
+    "avg_daily_volume": 3148260,
+    "adtv_inr": 2125548337.57,
+    "adtv_crores": 212.55,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "DMART": {
+    "symbol": "DMART",
+    "nse_symbol": "NSE:DMART",
+    "company_name": "Avenue Supermarts Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE192R01011",
+    "instrument_token": 5097729,
+    "last_price": 3824.0,
+    "avg_daily_volume": 456263,
+    "adtv_inr": 1744751450.18,
+    "adtv_crores": 174.48,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "DRREDDY": {
+    "symbol": "DRREDDY",
+    "nse_symbol": "NSE:DRREDDY",
+    "company_name": "Dr. Reddy's Laboratories Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE089A01031",
+    "instrument_token": 225537,
+    "last_price": 1171.0,
+    "avg_daily_volume": 1687563,
+    "adtv_inr": 1976137177.86,
+    "adtv_crores": 197.61,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "EICHERMOT": {
+    "symbol": "EICHERMOT",
+    "nse_symbol": "NSE:EICHERMOT",
+    "company_name": "Eicher Motors Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE066A01021",
+    "instrument_token": 232961,
+    "last_price": 7970.0,
+    "avg_daily_volume": 412752,
+    "adtv_inr": 3289638874.09,
+    "adtv_crores": 328.96,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "ENRIN": {
+    "symbol": "ENRIN",
+    "nse_symbol": "NSE:ENRIN",
+    "company_name": "Siemens Energy India Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE1NPP01017",
+    "instrument_token": 193758977,
+    "last_price": 3172.5,
+    "avg_daily_volume": 776772,
+    "adtv_inr": 2464310612.05,
+    "adtv_crores": 246.43,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ETERNAL": {
+    "symbol": "ETERNAL",
+    "nse_symbol": "NSE:ETERNAL",
+    "company_name": "Eternal Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE758T01015",
+    "instrument_token": 1304833,
+    "last_price": 327.75,
+    "avg_daily_volume": 36157890,
+    "adtv_inr": 11850748521.99,
+    "adtv_crores": 1185.07,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "EXIDEIND": {
+    "symbol": "EXIDEIND",
+    "nse_symbol": "NSE:EXIDEIND",
+    "company_name": "Exide Industries Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE302A01020",
+    "instrument_token": 173057,
+    "last_price": 436.25,
+    "avg_daily_volume": 3374817,
+    "adtv_inr": 1472264134.38,
+    "adtv_crores": 147.23,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "FEDERALBNK": {
+    "symbol": "FEDERALBNK",
+    "nse_symbol": "NSE:FEDERALBNK",
+    "company_name": "Federal Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE171A01029",
+    "instrument_token": 261889,
+    "last_price": 349.25,
+    "avg_daily_volume": 4663003,
+    "adtv_inr": 1628553845.38,
+    "adtv_crores": 162.86,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "FORTIS": {
+    "symbol": "FORTIS",
+    "nse_symbol": "NSE:FORTIS",
+    "company_name": "Fortis Healthcare Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE061F01013",
+    "instrument_token": 3735553,
+    "last_price": 915.0,
+    "avg_daily_volume": 1594351,
+    "adtv_inr": 1458831372.95,
+    "adtv_crores": 145.88,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "GAIL": {
+    "symbol": "GAIL",
+    "nse_symbol": "NSE:GAIL",
+    "company_name": "GAIL (India) Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE129A01019",
+    "instrument_token": 1207553,
+    "last_price": 172.69,
+    "avg_daily_volume": 10004222,
+    "adtv_inr": 1727629215.8,
+    "adtv_crores": 172.76,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "GLENMARK": {
+    "symbol": "GLENMARK",
+    "nse_symbol": "NSE:GLENMARK",
+    "company_name": "Glenmark Pharmaceuticals Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE935A01035",
+    "instrument_token": 1895937,
+    "last_price": 2470.4,
+    "avg_daily_volume": 553648,
+    "adtv_inr": 1367733088.04,
+    "adtv_crores": 136.77,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "GMRAIRPORT": {
+    "symbol": "GMRAIRPORT",
+    "nse_symbol": "NSE:GMRAIRPORT",
+    "company_name": "GMR Airports Ltd.",
+    "industry": "Services",
+    "isin": "INE776C01039",
+    "instrument_token": 3463169,
+    "last_price": 94.12,
+    "avg_daily_volume": 12597395,
+    "adtv_inr": 1185666907.62,
+    "adtv_crores": 118.57,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "GODFRYPHLP": {
+    "symbol": "GODFRYPHLP",
+    "nse_symbol": "NSE:GODFRYPHLP",
+    "company_name": "Godfrey Phillips India Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE260B01028",
+    "instrument_token": 302337,
+    "last_price": 2078.3,
+    "avg_daily_volume": 375706,
+    "adtv_inr": 780831215.17,
+    "adtv_crores": 78.08,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "GODREJCP": {
+    "symbol": "GODREJCP",
+    "nse_symbol": "NSE:GODREJCP",
+    "company_name": "Godrej Consumer Products Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE102D01028",
+    "instrument_token": 2585345,
+    "last_price": 905.0,
+    "avg_daily_volume": 2464626,
+    "adtv_inr": 2230487188.18,
+    "adtv_crores": 223.05,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "GODREJPROP": {
+    "symbol": "GODREJPROP",
+    "nse_symbol": "NSE:GODREJPROP",
+    "company_name": "Godrej Properties Ltd.",
+    "industry": "Realty",
+    "isin": "INE484J01027",
+    "instrument_token": 4576001,
+    "last_price": 1978.0,
+    "avg_daily_volume": 577306,
+    "adtv_inr": 1141912167.09,
+    "adtv_crores": 114.19,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "GRASIM": {
+    "symbol": "GRASIM",
+    "nse_symbol": "NSE:GRASIM",
+    "company_name": "Grasim Industries Ltd.",
+    "industry": "Construction Materials",
+    "isin": "INE047A01021",
+    "instrument_token": 315393,
+    "last_price": 3305.0,
+    "avg_daily_volume": 1119148,
+    "adtv_inr": 3698786243.18,
+    "adtv_crores": 369.88,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "GROWW": {
+    "symbol": "GROWW",
+    "nse_symbol": "NSE:GROWW",
+    "company_name": "Billionbrains Garage Ventures Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE0HOQ01053",
+    "instrument_token": 194510337,
+    "last_price": 189.41,
+    "avg_daily_volume": 44818825,
+    "adtv_inr": 8489133919.31,
+    "adtv_crores": 848.91,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "GVT&D": {
+    "symbol": "GVT&D",
+    "nse_symbol": "NSE:GVT&D",
+    "company_name": "GE Vernova T&D India Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE200A01026",
+    "instrument_token": 4296449,
+    "last_price": 4324.0,
+    "avg_daily_volume": 968563,
+    "adtv_inr": 4188067394.73,
+    "adtv_crores": 418.81,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HAL": {
+    "symbol": "HAL",
+    "nse_symbol": "NSE:HAL",
+    "company_name": "Hindustan Aeronautics Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE066F01020",
+    "instrument_token": 589569,
+    "last_price": 4807.6,
+    "avg_daily_volume": 1068027,
+    "adtv_inr": 5134650205.94,
+    "adtv_crores": 513.47,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HAVELLS": {
+    "symbol": "HAVELLS",
+    "nse_symbol": "NSE:HAVELLS",
+    "company_name": "Havells India Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE176B01034",
+    "instrument_token": 2513665,
+    "last_price": 1222.8,
+    "avg_daily_volume": 848157,
+    "adtv_inr": 1037127254.74,
+    "adtv_crores": 103.71,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HCLTECH": {
+    "symbol": "HCLTECH",
+    "nse_symbol": "NSE:HCLTECH",
+    "company_name": "HCL Technologies Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE860A01027",
+    "instrument_token": 1850625,
+    "last_price": 1351.4,
+    "avg_daily_volume": 2044587,
+    "adtv_inr": 2763055228.85,
+    "adtv_crores": 276.31,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HDFCAMC": {
+    "symbol": "HDFCAMC",
+    "nse_symbol": "NSE:HDFCAMC",
+    "company_name": "HDFC Asset Management Company Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE127D01025",
+    "instrument_token": 1086465,
+    "last_price": 2544.9,
+    "avg_daily_volume": 829795,
+    "adtv_inr": 2111746718.27,
+    "adtv_crores": 211.17,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HDFCBANK": {
+    "symbol": "HDFCBANK",
+    "nse_symbol": "NSE:HDFCBANK",
+    "company_name": "HDFC Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE040A01034",
+    "instrument_token": 341249,
+    "last_price": 711.9,
+    "avg_daily_volume": 28466677,
+    "adtv_inr": 20265428051.29,
+    "adtv_crores": 2026.54,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HDFCLIFE": {
+    "symbol": "HDFCLIFE",
+    "nse_symbol": "NSE:HDFCLIFE",
+    "company_name": "HDFC Life Insurance Company Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE795G01014",
+    "instrument_token": 119553,
+    "last_price": 540.3,
+    "avg_daily_volume": 3100965,
+    "adtv_inr": 1675451425.32,
+    "adtv_crores": 167.55,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HEROMOTOCO": {
+    "symbol": "HEROMOTOCO",
+    "nse_symbol": "NSE:HEROMOTOCO",
+    "company_name": "Hero MotoCorp Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE158A01026",
+    "instrument_token": 345089,
+    "last_price": 5555.0,
+    "avg_daily_volume": 662754,
+    "adtv_inr": 3681598722.5,
+    "adtv_crores": 368.16,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HINDALCO": {
+    "symbol": "HINDALCO",
+    "nse_symbol": "NSE:HINDALCO",
+    "company_name": "Hindalco Industries Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE038A01020",
+    "instrument_token": 348929,
+    "last_price": 1014.4,
+    "avg_daily_volume": 4610258,
+    "adtv_inr": 4676646288.85,
+    "adtv_crores": 467.66,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HINDPETRO": {
+    "symbol": "HINDPETRO",
+    "nse_symbol": "NSE:HINDPETRO",
+    "company_name": "Hindustan Petroleum Corporation Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE094A01015",
+    "instrument_token": 359937,
+    "last_price": 363.1,
+    "avg_daily_volume": 5373960,
+    "adtv_inr": 1951285172.87,
+    "adtv_crores": 195.13,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "HINDUNILVR": {
+    "symbol": "HINDUNILVR",
+    "nse_symbol": "NSE:HINDUNILVR",
+    "company_name": "Hindustan Unilever Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE030A01027",
+    "instrument_token": 356865,
+    "last_price": 1994.8,
+    "avg_daily_volume": 1111629,
+    "adtv_inr": 2217477855.5,
+    "adtv_crores": 221.75,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HINDZINC": {
+    "symbol": "HINDZINC",
+    "nse_symbol": "NSE:HINDZINC",
+    "company_name": "Hindustan Zinc Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE267A01025",
+    "instrument_token": 364545,
+    "last_price": 597.0,
+    "avg_daily_volume": 7272424,
+    "adtv_inr": 4341637480.77,
+    "adtv_crores": 434.16,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "HUDCO": {
+    "symbol": "HUDCO",
+    "nse_symbol": "NSE:HUDCO",
+    "company_name": "Housing & Urban Development Corporation Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE031A01017",
+    "instrument_token": 5331201,
+    "last_price": 178.58,
+    "avg_daily_volume": 1827383,
+    "adtv_inr": 326334059.49,
+    "adtv_crores": 32.63,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "HYUNDAI": {
+    "symbol": "HYUNDAI",
+    "nse_symbol": "NSE:HYUNDAI",
+    "company_name": "Hyundai Motor India Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE0V6F01027",
+    "instrument_token": 6616065,
+    "last_price": 2179.8,
+    "avg_daily_volume": 705494,
+    "adtv_inr": 1537836351.06,
+    "adtv_crores": 153.78,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ICICIAMC": {
+    "symbol": "ICICIAMC",
+    "nse_symbol": "NSE:ICICIAMC",
+    "company_name": "ICICI Prudential Asset Management Company Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE346A01027",
+    "instrument_token": 194664193,
+    "last_price": 3038.1,
+    "avg_daily_volume": 572406,
+    "adtv_inr": 1739026724.5,
+    "adtv_crores": 173.9,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ICICIBANK": {
+    "symbol": "ICICIBANK",
+    "nse_symbol": "NSE:ICICIBANK",
+    "company_name": "ICICI Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE090A01021",
+    "instrument_token": 1270529,
+    "last_price": 1438.0,
+    "avg_daily_volume": 9544449,
+    "adtv_inr": 13724918381.0,
+    "adtv_crores": 1372.49,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ICICIGI": {
+    "symbol": "ICICIGI",
+    "nse_symbol": "NSE:ICICIGI",
+    "company_name": "ICICI Lombard General Insurance Company Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE765G01017",
+    "instrument_token": 5573121,
+    "last_price": 1566.9,
+    "avg_daily_volume": 1037133,
+    "adtv_inr": 1625085147.48,
+    "adtv_crores": 162.51,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "IDEA": {
+    "symbol": "IDEA",
+    "nse_symbol": "NSE:IDEA",
+    "company_name": "Vodafone Idea Ltd.",
+    "industry": "Telecommunication",
+    "isin": "INE669E01016",
+    "instrument_token": 3677697,
+    "last_price": 14.06,
+    "avg_daily_volume": 405386568,
+    "adtv_inr": 5699735325.13,
+    "adtv_crores": 569.97,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "IDFCFIRSTB": {
+    "symbol": "IDFCFIRSTB",
+    "nse_symbol": "NSE:IDFCFIRSTB",
+    "company_name": "IDFC First Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE092T01019",
+    "instrument_token": 2863105,
+    "last_price": 84.9,
+    "avg_daily_volume": 11865594,
+    "adtv_inr": 1007388975.72,
+    "adtv_crores": 100.74,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "INDHOTEL": {
+    "symbol": "INDHOTEL",
+    "nse_symbol": "NSE:INDHOTEL",
+    "company_name": "Indian Hotels Co. Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE053A01029",
+    "instrument_token": 387073,
+    "last_price": 718.0,
+    "avg_daily_volume": 1583638,
+    "adtv_inr": 1137052704.09,
+    "adtv_crores": 113.71,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "INDIANB": {
+    "symbol": "INDIANB",
+    "nse_symbol": "NSE:INDIANB",
+    "company_name": "Indian Bank",
+    "industry": "Financial Services",
+    "isin": "INE562A01011",
+    "instrument_token": 3663105,
+    "last_price": 881.75,
+    "avg_daily_volume": 1293353,
+    "adtv_inr": 1140414408.55,
+    "adtv_crores": 114.04,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "INDIGO": {
+    "symbol": "INDIGO",
+    "nse_symbol": "NSE:INDIGO",
+    "company_name": "InterGlobe Aviation Ltd.",
+    "industry": "Services",
+    "isin": "INE646L01027",
+    "instrument_token": 2865921,
+    "last_price": 5052.0,
+    "avg_daily_volume": 513578,
+    "adtv_inr": 2594599500.55,
+    "adtv_crores": 259.46,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "INDUSINDBK": {
+    "symbol": "INDUSINDBK",
+    "nse_symbol": "NSE:INDUSINDBK",
+    "company_name": "IndusInd Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE095A01012",
+    "instrument_token": 1346049,
+    "last_price": 992.6,
+    "avg_daily_volume": 1064962,
+    "adtv_inr": 1057082112.45,
+    "adtv_crores": 105.71,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "INDUSTOWER": {
+    "symbol": "INDUSTOWER",
+    "nse_symbol": "NSE:INDUSTOWER",
+    "company_name": "Indus Towers Ltd.",
+    "industry": "Telecommunication",
+    "isin": "INE121J01017",
+    "instrument_token": 7458561,
+    "last_price": 375.0,
+    "avg_daily_volume": 5115176,
+    "adtv_inr": 1918191153.41,
+    "adtv_crores": 191.82,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "INFY": {
+    "symbol": "INFY",
+    "nse_symbol": "NSE:INFY",
+    "company_name": "Infosys Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE009A01021",
+    "instrument_token": 408065,
+    "last_price": 1156.0,
+    "avg_daily_volume": 8302739,
+    "adtv_inr": 9597966389.09,
+    "adtv_crores": 959.8,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "IOC": {
+    "symbol": "IOC",
+    "nse_symbol": "NSE:IOC",
+    "company_name": "Indian Oil Corporation Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE242A01010",
+    "instrument_token": 415745,
+    "last_price": 136.53,
+    "avg_daily_volume": 8549684,
+    "adtv_inr": 1167288401.94,
+    "adtv_crores": 116.73,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "IRCTC": {
+    "symbol": "IRCTC",
+    "nse_symbol": "NSE:IRCTC",
+    "company_name": "Indian Railway Catering And Tourism Corporation Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE335Y01020",
+    "instrument_token": 3484417,
+    "last_price": 481.35,
+    "avg_daily_volume": 932125,
+    "adtv_inr": 448678571.36,
+    "adtv_crores": 44.87,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "IREDA": {
+    "symbol": "IREDA",
+    "nse_symbol": "NSE:IREDA",
+    "company_name": "Indian Renewable Energy Development Agency Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE202E01016",
+    "instrument_token": 5186817,
+    "last_price": 114.2,
+    "avg_daily_volume": 5285399,
+    "adtv_inr": 603592586.01,
+    "adtv_crores": 60.36,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "IRFC": {
+    "symbol": "IRFC",
+    "nse_symbol": "NSE:IRFC",
+    "company_name": "Indian Railway Finance Corporation Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE053F01010",
+    "instrument_token": 519425,
+    "last_price": 82.5,
+    "avg_daily_volume": 7053000,
+    "adtv_inr": 581872575.0,
+    "adtv_crores": 58.19,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "ITC": {
+    "symbol": "ITC",
+    "nse_symbol": "NSE:ITC",
+    "company_name": "ITC Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE154A01025",
+    "instrument_token": 424961,
+    "last_price": 266.6,
+    "avg_daily_volume": 14925944,
+    "adtv_inr": 3979256846.33,
+    "adtv_crores": 397.93,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "JINDALSTEL": {
+    "symbol": "JINDALSTEL",
+    "nse_symbol": "NSE:JINDALSTEL",
+    "company_name": "Jindal Steel Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE749A01030",
+    "instrument_token": 1723649,
+    "last_price": 1160.0,
+    "avg_daily_volume": 814044,
+    "adtv_inr": 944291040.0,
+    "adtv_crores": 94.43,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "JIOFIN": {
+    "symbol": "JIOFIN",
+    "nse_symbol": "NSE:JIOFIN",
+    "company_name": "Jio Financial Services Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE758E01017",
+    "instrument_token": 4644609,
+    "last_price": 235.85,
+    "avg_daily_volume": 14430758,
+    "adtv_inr": 3403494469.58,
+    "adtv_crores": 340.35,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "JSWENERGY": {
+    "symbol": "JSWENERGY",
+    "nse_symbol": "NSE:JSWENERGY",
+    "company_name": "JSW Energy Ltd.",
+    "industry": "Power",
+    "isin": "INE121E01018",
+    "instrument_token": 4574465,
+    "last_price": 518.0,
+    "avg_daily_volume": 1828768,
+    "adtv_inr": 947301988.82,
+    "adtv_crores": 94.73,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "JSWSTEEL": {
+    "symbol": "JSWSTEEL",
+    "nse_symbol": "NSE:JSWSTEEL",
+    "company_name": "JSW Steel Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE019A01038",
+    "instrument_token": 3001089,
+    "last_price": 1313.5,
+    "avg_daily_volume": 1742834,
+    "adtv_inr": 2289213414.27,
+    "adtv_crores": 228.92,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "JUBLFOOD": {
+    "symbol": "JUBLFOOD",
+    "nse_symbol": "NSE:JUBLFOOD",
+    "company_name": "Jubilant Foodworks Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE797F01020",
+    "instrument_token": 4632577,
+    "last_price": 484.4,
+    "avg_daily_volume": 3512675,
+    "adtv_inr": 1701539770.58,
+    "adtv_crores": 170.15,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "KALYANKJIL": {
+    "symbol": "KALYANKJIL",
+    "nse_symbol": "NSE:KALYANKJIL",
+    "company_name": "Kalyan Jewellers India Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE303R01014",
+    "instrument_token": 756481,
+    "last_price": 573.0,
+    "avg_daily_volume": 12856947,
+    "adtv_inr": 7367031021.68,
+    "adtv_crores": 736.7,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "KEI": {
+    "symbol": "KEI",
+    "nse_symbol": "NSE:KEI",
+    "company_name": "KEI Industries Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE878B01027",
+    "instrument_token": 3407361,
+    "last_price": 5348.0,
+    "avg_daily_volume": 522405,
+    "adtv_inr": 2793823641.64,
+    "adtv_crores": 279.38,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "KOTAKBANK": {
+    "symbol": "KOTAKBANK",
+    "nse_symbol": "NSE:KOTAKBANK",
+    "company_name": "Kotak Mahindra Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE237A01036",
+    "instrument_token": 492033,
+    "last_price": 425.0,
+    "avg_daily_volume": 11890312,
+    "adtv_inr": 5053382696.59,
+    "adtv_crores": 505.34,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "KPITTECH": {
+    "symbol": "KPITTECH",
+    "nse_symbol": "NSE:KPITTECH",
+    "company_name": "KPIT Technologies Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE04I401011",
+    "instrument_token": 2478849,
+    "last_price": 590.0,
+    "avg_daily_volume": 1791691,
+    "adtv_inr": 1057098038.64,
+    "adtv_crores": 105.71,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LAURUSLABS": {
+    "symbol": "LAURUSLABS",
+    "nse_symbol": "NSE:LAURUSLABS",
+    "company_name": "Laurus Labs Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE947Q01028",
+    "instrument_token": 4923905,
+    "last_price": 1861.6,
+    "avg_daily_volume": 3353428,
+    "adtv_inr": 6242741736.78,
+    "adtv_crores": 624.27,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LENSKART": {
+    "symbol": "LENSKART",
+    "nse_symbol": "NSE:LENSKART",
+    "company_name": "Lenskart Solutions Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE956O01016",
+    "instrument_token": 194458881,
+    "last_price": 663.75,
+    "avg_daily_volume": 13070508,
+    "adtv_inr": 8675549805.68,
+    "adtv_crores": 867.55,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LGEINDIA": {
+    "symbol": "LGEINDIA",
+    "nse_symbol": "NSE:LGEINDIA",
+    "company_name": "LG Electronics India Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE324D01010",
+    "instrument_token": 194614529,
+    "last_price": 1665.6,
+    "avg_daily_volume": 1009303,
+    "adtv_inr": 1681096112.09,
+    "adtv_crores": 168.11,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LICHSGFIN": {
+    "symbol": "LICHSGFIN",
+    "nse_symbol": "NSE:LICHSGFIN",
+    "company_name": "LIC Housing Finance Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE115A01026",
+    "instrument_token": 511233,
+    "last_price": 534.9,
+    "avg_daily_volume": 2656814,
+    "adtv_inr": 1421130384.05,
+    "adtv_crores": 142.11,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LODHA": {
+    "symbol": "LODHA",
+    "nse_symbol": "NSE:LODHA",
+    "company_name": "Lodha Developers Ltd.",
+    "industry": "Realty",
+    "isin": "INE670K01029",
+    "instrument_token": 824321,
+    "last_price": 1193.9,
+    "avg_daily_volume": 1279447,
+    "adtv_inr": 1527532835.63,
+    "adtv_crores": 152.75,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LT": {
+    "symbol": "LT",
+    "nse_symbol": "NSE:LT",
+    "company_name": "Larsen & Toubro Ltd.",
+    "industry": "Construction",
+    "isin": "INE018A01030",
+    "instrument_token": 2939649,
+    "last_price": 3980.1,
+    "avg_daily_volume": 1383023,
+    "adtv_inr": 5504570701.02,
+    "adtv_crores": 550.46,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "LTF": {
+    "symbol": "LTF",
+    "nse_symbol": "NSE:LTF",
+    "company_name": "L&T Finance Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE498L01015",
+    "instrument_token": 6386689,
+    "last_price": 309.05,
+    "avg_daily_volume": 4819869,
+    "adtv_inr": 1489580455.61,
+    "adtv_crores": 148.96,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "LTM": {
+    "symbol": "LTM",
+    "nse_symbol": "NSE:LTM",
+    "company_name": "LTM Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE214T01019",
+    "instrument_token": 4561409,
+    "last_price": 4625.0,
+    "avg_daily_volume": 455592,
+    "adtv_inr": 2107114892.05,
+    "adtv_crores": 210.71,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "LUPIN": {
+    "symbol": "LUPIN",
+    "nse_symbol": "NSE:LUPIN",
+    "company_name": "Lupin Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE326A01037",
+    "instrument_token": 2672641,
+    "last_price": 2153.0,
+    "avg_daily_volume": 1095248,
+    "adtv_inr": 2358070411.95,
+    "adtv_crores": 235.81,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "M&M": {
+    "symbol": "M&M",
+    "nse_symbol": "NSE:M&M",
+    "company_name": "Mahindra & Mahindra Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE101A01026",
+    "instrument_token": 519937,
+    "last_price": 3259.0,
+    "avg_daily_volume": 1871722,
+    "adtv_inr": 6099944664.45,
+    "adtv_crores": 609.99,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "M&MFIN": {
+    "symbol": "M&MFIN",
+    "nse_symbol": "NSE:M&MFIN",
+    "company_name": "Mahindra & Mahindra Financial Services Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE774D01024",
+    "instrument_token": 3400961,
+    "last_price": 364.4,
+    "avg_daily_volume": 2323057,
+    "adtv_inr": 846522254.77,
+    "adtv_crores": 84.65,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "MANKIND": {
+    "symbol": "MANKIND",
+    "nse_symbol": "NSE:MANKIND",
+    "company_name": "Mankind Pharma Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE634S01028",
+    "instrument_token": 3937281,
+    "last_price": 2356.5,
+    "avg_daily_volume": 354879,
+    "adtv_inr": 836274291.55,
+    "adtv_crores": 83.63,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "MARICO": {
+    "symbol": "MARICO",
+    "nse_symbol": "NSE:MARICO",
+    "company_name": "Marico Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE196A01026",
+    "instrument_token": 1041153,
+    "last_price": 838.1,
+    "avg_daily_volume": 1721096,
+    "adtv_inr": 1442450782.25,
+    "adtv_crores": 144.25,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "MARUTI": {
+    "symbol": "MARUTI",
+    "nse_symbol": "NSE:MARUTI",
+    "company_name": "Maruti Suzuki India Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE585B01010",
+    "instrument_token": 2815745,
+    "last_price": 12950.0,
+    "avg_daily_volume": 349273,
+    "adtv_inr": 4523090059.09,
+    "adtv_crores": 452.31,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "MAXHEALTH": {
+    "symbol": "MAXHEALTH",
+    "nse_symbol": "NSE:MAXHEALTH",
+    "company_name": "Max Healthcare Institute Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE027H01010",
+    "instrument_token": 5728513,
+    "last_price": 1003.0,
+    "avg_daily_volume": 1967333,
+    "adtv_inr": 1973235181.36,
+    "adtv_crores": 197.32,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "MAZDOCK": {
+    "symbol": "MAZDOCK",
+    "nse_symbol": "NSE:MAZDOCK",
+    "company_name": "Mazagoan Dock Shipbuilders Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE249Z01020",
+    "instrument_token": 130305,
+    "last_price": 2485.0,
+    "avg_daily_volume": 931096,
+    "adtv_inr": 2313775593.18,
+    "adtv_crores": 231.38,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "MCX": {
+    "symbol": "MCX",
+    "nse_symbol": "NSE:MCX",
+    "company_name": "Multi Commodity Exchange of India Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE745G01043",
+    "instrument_token": 7982337,
+    "last_price": 3303.0,
+    "avg_daily_volume": 2841826,
+    "adtv_inr": 9386552028.68,
+    "adtv_crores": 938.66,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "MFSL": {
+    "symbol": "MFSL",
+    "nse_symbol": "NSE:MFSL",
+    "company_name": "Max Financial Services Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE180A01020",
+    "instrument_token": 548353,
+    "last_price": 1534.7,
+    "avg_daily_volume": 739563,
+    "adtv_inr": 1135007788.3,
+    "adtv_crores": 113.5,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "MOTHERSON": {
+    "symbol": "MOTHERSON",
+    "nse_symbol": "NSE:MOTHERSON",
+    "company_name": "Samvardhana Motherson International Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE775A01035",
+    "instrument_token": 1076225,
+    "last_price": 165.6,
+    "avg_daily_volume": 19976473,
+    "adtv_inr": 3308104193.74,
+    "adtv_crores": 330.81,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "MOTILALOFS": {
+    "symbol": "MOTILALOFS",
+    "nse_symbol": "NSE:MOTILALOFS",
+    "company_name": "Motilal Oswal Financial Services Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE338I01027",
+    "instrument_token": 3826433,
+    "last_price": 1016.0,
+    "avg_daily_volume": 1194924,
+    "adtv_inr": 1214043245.82,
+    "adtv_crores": 121.4,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "MPHASIS": {
+    "symbol": "MPHASIS",
+    "nse_symbol": "NSE:MPHASIS",
+    "company_name": "MphasiS Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE356A01018",
+    "instrument_token": 1152769,
+    "last_price": 2505.5,
+    "avg_daily_volume": 432257,
+    "adtv_inr": 1083020596.82,
+    "adtv_crores": 108.3,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "MRF": {
+    "symbol": "MRF",
+    "nse_symbol": "NSE:MRF",
+    "company_name": "MRF Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE883A01011",
+    "instrument_token": 582913,
+    "last_price": 132335.0,
+    "avg_daily_volume": 4292,
+    "adtv_inr": 568096109.32,
+    "adtv_crores": 56.81,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "MUTHOOTFIN": {
+    "symbol": "MUTHOOTFIN",
+    "nse_symbol": "NSE:MUTHOOTFIN",
+    "company_name": "Muthoot Finance Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE414G01012",
+    "instrument_token": 6054401,
+    "last_price": 2905.0,
+    "avg_daily_volume": 1403217,
+    "adtv_inr": 4076347101.59,
+    "adtv_crores": 407.63,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "NATIONALUM": {
+    "symbol": "NATIONALUM",
+    "nse_symbol": "NSE:NATIONALUM",
+    "company_name": "National Aluminium Co. Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE139A01034",
+    "instrument_token": 1629185,
+    "last_price": 372.0,
+    "avg_daily_volume": 8463252,
+    "adtv_inr": 3148329980.73,
+    "adtv_crores": 314.83,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "NAUKRI": {
+    "symbol": "NAUKRI",
+    "nse_symbol": "NSE:NAUKRI",
+    "company_name": "Info Edge (India) Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE663F01032",
+    "instrument_token": 3520257,
+    "last_price": 1356.0,
+    "avg_daily_volume": 1904619,
+    "adtv_inr": 2582663795.45,
+    "adtv_crores": 258.27,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "NESTLEIND": {
+    "symbol": "NESTLEIND",
+    "nse_symbol": "NSE:NESTLEIND",
+    "company_name": "Nestle India Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE239A01024",
+    "instrument_token": 4598529,
+    "last_price": 1438.2,
+    "avg_daily_volume": 1801479,
+    "adtv_inr": 2590887728.94,
+    "adtv_crores": 259.09,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "NHPC": {
+    "symbol": "NHPC",
+    "nse_symbol": "NSE:NHPC",
+    "company_name": "NHPC Ltd.",
+    "industry": "Power",
+    "isin": "INE848E01016",
+    "instrument_token": 4454401,
+    "last_price": 76.3,
+    "avg_daily_volume": 9557946,
+    "adtv_inr": 729271347.12,
+    "adtv_crores": 72.93,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "NMDC": {
+    "symbol": "NMDC",
+    "nse_symbol": "NSE:NMDC",
+    "company_name": "NMDC Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE584A01023",
+    "instrument_token": 3924993,
+    "last_price": 85.69,
+    "avg_daily_volume": 19184524,
+    "adtv_inr": 1643921990.19,
+    "adtv_crores": 164.39,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "NTPC": {
+    "symbol": "NTPC",
+    "nse_symbol": "NSE:NTPC",
+    "company_name": "NTPC Ltd.",
+    "industry": "Power",
+    "isin": "INE733E01010",
+    "instrument_token": 2977281,
+    "last_price": 327.5,
+    "avg_daily_volume": 8776820,
+    "adtv_inr": 2874408743.52,
+    "adtv_crores": 287.44,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "NYKAA": {
+    "symbol": "NYKAA",
+    "nse_symbol": "NSE:NYKAA",
+    "company_name": "FSN E-Commerce Ventures Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE388Y01029",
+    "instrument_token": 1675521,
+    "last_price": 338.5,
+    "avg_daily_volume": 6420381,
+    "adtv_inr": 2173299183.91,
+    "adtv_crores": 217.33,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "OBEROIRLTY": {
+    "symbol": "OBEROIRLTY",
+    "nse_symbol": "NSE:OBEROIRLTY",
+    "company_name": "Oberoi Realty Ltd.",
+    "industry": "Realty",
+    "isin": "INE093I01010",
+    "instrument_token": 5181953,
+    "last_price": 1880.7,
+    "avg_daily_volume": 470567,
+    "adtv_inr": 884996958.16,
+    "adtv_crores": 88.5,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "OFSS": {
+    "symbol": "OFSS",
+    "nse_symbol": "NSE:OFSS",
+    "company_name": "Oracle Financial Services Software Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE881D01027",
+    "instrument_token": 2748929,
+    "last_price": 12187.0,
+    "avg_daily_volume": 217284,
+    "adtv_inr": 2648051741.05,
+    "adtv_crores": 264.81,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "OIL": {
+    "symbol": "OIL",
+    "nse_symbol": "NSE:OIL",
+    "company_name": "Oil India Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE274J01014",
+    "instrument_token": 4464129,
+    "last_price": 490.0,
+    "avg_daily_volume": 2972479,
+    "adtv_inr": 1456514843.64,
+    "adtv_crores": 145.65,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "ONGC": {
+    "symbol": "ONGC",
+    "nse_symbol": "NSE:ONGC",
+    "company_name": "Oil & Natural Gas Corporation Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE213A01029",
+    "instrument_token": 633601,
+    "last_price": 236.45,
+    "avg_daily_volume": 12273320,
+    "adtv_inr": 2902026670.0,
+    "adtv_crores": 290.2,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "PAGEIND": {
+    "symbol": "PAGEIND",
+    "nse_symbol": "NSE:PAGEIND",
+    "company_name": "Page Industries Ltd.",
+    "industry": "Textiles",
+    "isin": "INE761H01022",
+    "instrument_token": 3689729,
+    "last_price": 35675.0,
+    "avg_daily_volume": 32202,
+    "adtv_inr": 1148840403.41,
+    "adtv_crores": 114.88,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "PATANJALI": {
+    "symbol": "PATANJALI",
+    "nse_symbol": "NSE:PATANJALI",
+    "company_name": "Patanjali Foods Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE619A01035",
+    "instrument_token": 4359425,
+    "last_price": 345.8,
+    "avg_daily_volume": 3118342,
+    "adtv_inr": 1078322719.84,
+    "adtv_crores": 107.83,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "PAYTM": {
+    "symbol": "PAYTM",
+    "nse_symbol": "NSE:PAYTM",
+    "company_name": "One 97 Communications Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE982J01020",
+    "instrument_token": 1716481,
+    "last_price": 1633.5,
+    "avg_daily_volume": 5059698,
+    "adtv_inr": 8265018168.0,
+    "adtv_crores": 826.5,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "PERSISTENT": {
+    "symbol": "PERSISTENT",
+    "nse_symbol": "NSE:PERSISTENT",
+    "company_name": "Persistent Systems Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE262H01021",
+    "instrument_token": 4701441,
+    "last_price": 5800.0,
+    "avg_daily_volume": 497949,
+    "adtv_inr": 2888107363.64,
+    "adtv_crores": 288.81,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "PFC": {
+    "symbol": "PFC",
+    "nse_symbol": "NSE:PFC",
+    "company_name": "Power Finance Corporation Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE134E01011",
+    "instrument_token": 3660545,
+    "last_price": 345.8,
+    "avg_daily_volume": 8959891,
+    "adtv_inr": 3098330371.33,
+    "adtv_crores": 309.83,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "PHOENIXLTD": {
+    "symbol": "PHOENIXLTD",
+    "nse_symbol": "NSE:PHOENIXLTD",
+    "company_name": "Phoenix Mills Ltd.",
+    "industry": "Realty",
+    "isin": "INE211B01039",
+    "instrument_token": 3725313,
+    "last_price": 1892.6,
+    "avg_daily_volume": 399298,
+    "adtv_inr": 755712675.46,
+    "adtv_crores": 75.57,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "PIDILITIND": {
+    "symbol": "PIDILITIND",
+    "nse_symbol": "NSE:PIDILITIND",
+    "company_name": "Pidilite Industries Ltd.",
+    "industry": "Chemicals",
+    "isin": "INE318A01026",
+    "instrument_token": 681985,
+    "last_price": 1643.5,
+    "avg_daily_volume": 1028379,
+    "adtv_inr": 1690142380.59,
+    "adtv_crores": 169.01,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "PIIND": {
+    "symbol": "PIIND",
+    "nse_symbol": "NSE:PIIND",
+    "company_name": "PI Industries Ltd.",
+    "industry": "Chemicals",
+    "isin": "INE603J01030",
+    "instrument_token": 6191105,
+    "last_price": 2397.1,
+    "avg_daily_volume": 300303,
+    "adtv_inr": 719856568.54,
+    "adtv_crores": 71.99,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "PNB": {
+    "symbol": "PNB",
+    "nse_symbol": "NSE:PNB",
+    "company_name": "Punjab National Bank",
+    "industry": "Financial Services",
+    "isin": "INE160A01022",
+    "instrument_token": 2730497,
+    "last_price": 115.22,
+    "avg_daily_volume": 12859457,
+    "adtv_inr": 1481666666.95,
+    "adtv_crores": 148.17,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "POLICYBZR": {
+    "symbol": "POLICYBZR",
+    "nse_symbol": "NSE:POLICYBZR",
+    "company_name": "PB Fintech Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE417T01026",
+    "instrument_token": 1703937,
+    "last_price": 1829.2,
+    "avg_daily_volume": 1325536,
+    "adtv_inr": 2424671883.09,
+    "adtv_crores": 242.47,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "POLYCAB": {
+    "symbol": "POLYCAB",
+    "nse_symbol": "NSE:POLYCAB",
+    "company_name": "Polycab India Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE455K01017",
+    "instrument_token": 2455041,
+    "last_price": 8895.5,
+    "avg_daily_volume": 279812,
+    "adtv_inr": 2489069263.36,
+    "adtv_crores": 248.91,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "POWERGRID": {
+    "symbol": "POWERGRID",
+    "nse_symbol": "NSE:POWERGRID",
+    "company_name": "Power Grid Corporation of India Ltd.",
+    "industry": "Power",
+    "isin": "INE752E01010",
+    "instrument_token": 3834113,
+    "last_price": 264.55,
+    "avg_daily_volume": 8539879,
+    "adtv_inr": 2259225065.58,
+    "adtv_crores": 225.92,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "POWERINDIA": {
+    "symbol": "POWERINDIA",
+    "nse_symbol": "NSE:POWERINDIA",
+    "company_name": "Hitachi Energy India Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE07Y701011",
+    "instrument_token": 4724993,
+    "last_price": 32640.0,
+    "avg_daily_volume": 117027,
+    "adtv_inr": 3819776116.36,
+    "adtv_crores": 381.98,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "PREMIERENE": {
+    "symbol": "PREMIERENE",
+    "nse_symbol": "NSE:PREMIERENE",
+    "company_name": "Premier Energies Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE0BS701011",
+    "instrument_token": 6412545,
+    "last_price": 1012.9,
+    "avg_daily_volume": 1050129,
+    "adtv_inr": 1063675873.9,
+    "adtv_crores": 106.37,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "PRESTIGE": {
+    "symbol": "PRESTIGE",
+    "nse_symbol": "NSE:PRESTIGE",
+    "company_name": "Prestige Estates Projects Ltd.",
+    "industry": "Realty",
+    "isin": "INE811K01011",
+    "instrument_token": 5197313,
+    "last_price": 1570.0,
+    "avg_daily_volume": 500690,
+    "adtv_inr": 786083942.27,
+    "adtv_crores": 78.61,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "RADICO": {
+    "symbol": "RADICO",
+    "nse_symbol": "NSE:RADICO",
+    "company_name": "Radico Khaitan Ltd",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE944F01028",
+    "instrument_token": 2813441,
+    "last_price": 4474.3,
+    "avg_daily_volume": 322710,
+    "adtv_inr": 1443902306.86,
+    "adtv_crores": 144.39,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "RECLTD": {
+    "symbol": "RECLTD",
+    "nse_symbol": "NSE:RECLTD",
+    "company_name": "REC Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE020B01018",
+    "instrument_token": 3930881,
+    "last_price": 314.05,
+    "avg_daily_volume": 6084302,
+    "adtv_inr": 1910775025.93,
+    "adtv_crores": 191.08,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "RELIANCE": {
+    "symbol": "RELIANCE",
+    "nse_symbol": "NSE:RELIANCE",
+    "company_name": "Reliance Industries Ltd.",
+    "industry": "Oil Gas & Consumable Fuels",
+    "isin": "INE002A01018",
+    "instrument_token": 738561,
+    "last_price": 1309.0,
+    "avg_daily_volume": 11228658,
+    "adtv_inr": 14698313619.5,
+    "adtv_crores": 1469.83,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "RVNL": {
+    "symbol": "RVNL",
+    "nse_symbol": "NSE:RVNL",
+    "company_name": "Rail Vikas Nigam Ltd.",
+    "industry": "Construction",
+    "isin": "INE415G01027",
+    "instrument_token": 2445313,
+    "last_price": 208.38,
+    "avg_daily_volume": 4219052,
+    "adtv_inr": 879166133.19,
+    "adtv_crores": 87.92,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "SAIL": {
+    "symbol": "SAIL",
+    "nse_symbol": "NSE:SAIL",
+    "company_name": "Steel Authority of India Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE114A01011",
+    "instrument_token": 758529,
+    "last_price": 193.0,
+    "avg_daily_volume": 24846212,
+    "adtv_inr": 4795318994.95,
+    "adtv_crores": 479.53,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "SBICARD": {
+    "symbol": "SBICARD",
+    "nse_symbol": "NSE:SBICARD",
+    "company_name": "SBI Cards and Payment Services Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE018E01016",
+    "instrument_token": 4600577,
+    "last_price": 632.4,
+    "avg_daily_volume": 2954379,
+    "adtv_inr": 1868349897.89,
+    "adtv_crores": 186.83,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "SBILIFE": {
+    "symbol": "SBILIFE",
+    "nse_symbol": "NSE:SBILIFE",
+    "company_name": "SBI Life Insurance Company Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE123W01016",
+    "instrument_token": 5582849,
+    "last_price": 1739.3,
+    "avg_daily_volume": 857735,
+    "adtv_inr": 1491859950.45,
+    "adtv_crores": 149.19,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "SBIN": {
+    "symbol": "SBIN",
+    "nse_symbol": "NSE:SBIN",
+    "company_name": "State Bank of India",
+    "industry": "Financial Services",
+    "isin": "INE062A01020",
+    "instrument_token": 779521,
+    "last_price": 1034.5,
+    "avg_daily_volume": 9543264,
+    "adtv_inr": 9872506608.0,
+    "adtv_crores": 987.25,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "SHREECEM": {
+    "symbol": "SHREECEM",
+    "nse_symbol": "NSE:SHREECEM",
+    "company_name": "Shree Cement Ltd.",
+    "industry": "Construction Materials",
+    "isin": "INE070A01015",
+    "instrument_token": 794369,
+    "last_price": 23490.0,
+    "avg_daily_volume": 27273,
+    "adtv_inr": 640649176.36,
+    "adtv_crores": 64.06,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "SHRIRAMFIN": {
+    "symbol": "SHRIRAMFIN",
+    "nse_symbol": "NSE:SHRIRAMFIN",
+    "company_name": "Shriram Finance Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE721A01047",
+    "instrument_token": 1102337,
+    "last_price": 1059.1,
+    "avg_daily_volume": 4097410,
+    "adtv_inr": 4339567264.23,
+    "adtv_crores": 433.96,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "SIEMENS": {
+    "symbol": "SIEMENS",
+    "nse_symbol": "NSE:SIEMENS",
+    "company_name": "Siemens Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE003A01024",
+    "instrument_token": 806401,
+    "last_price": 4030.0,
+    "avg_daily_volume": 450266,
+    "adtv_inr": 1814575094.09,
+    "adtv_crores": 181.46,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "SOLARINDS": {
+    "symbol": "SOLARINDS",
+    "nse_symbol": "NSE:SOLARINDS",
+    "company_name": "Solar Industries India Ltd.",
+    "industry": "Chemicals",
+    "isin": "INE343H01029",
+    "instrument_token": 3412993,
+    "last_price": 20060.0,
+    "avg_daily_volume": 143313,
+    "adtv_inr": 2874877928.18,
+    "adtv_crores": 287.49,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "SRF": {
+    "symbol": "SRF",
+    "nse_symbol": "NSE:SRF",
+    "company_name": "SRF Ltd.",
+    "industry": "Chemicals",
+    "isin": "INE647A01010",
+    "instrument_token": 837889,
+    "last_price": 2592.0,
+    "avg_daily_volume": 265333,
+    "adtv_inr": 687744667.64,
+    "adtv_crores": 68.77,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "SUNPHARMA": {
+    "symbol": "SUNPHARMA",
+    "nse_symbol": "NSE:SUNPHARMA",
+    "company_name": "Sun Pharmaceutical Industries Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE044A01036",
+    "instrument_token": 857857,
+    "last_price": 1929.0,
+    "avg_daily_volume": 1793820,
+    "adtv_inr": 3460280270.59,
+    "adtv_crores": 346.03,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "SUPREMEIND": {
+    "symbol": "SUPREMEIND",
+    "nse_symbol": "NSE:SUPREMEIND",
+    "company_name": "Supreme Industries Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE195A01028",
+    "instrument_token": 860929,
+    "last_price": 3605.0,
+    "avg_daily_volume": 195749,
+    "adtv_inr": 705677930.68,
+    "adtv_crores": 70.57,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "SUZLON": {
+    "symbol": "SUZLON",
+    "nse_symbol": "NSE:SUZLON",
+    "company_name": "Suzlon Energy Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE040H01021",
+    "instrument_token": 3076609,
+    "last_price": 46.5,
+    "avg_daily_volume": 42387290,
+    "adtv_inr": 1971009027.27,
+    "adtv_crores": 197.1,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "SWIGGY": {
+    "symbol": "SWIGGY",
+    "nse_symbol": "NSE:SWIGGY",
+    "company_name": "Swiggy Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE00H001014",
+    "instrument_token": 6928897,
+    "last_price": 275.0,
+    "avg_daily_volume": 13768212,
+    "adtv_inr": 3786258500.0,
+    "adtv_crores": 378.63,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "TATACAP": {
+    "symbol": "TATACAP",
+    "nse_symbol": "NSE:TATACAP",
+    "company_name": "Tata Capital Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE976I01016",
+    "instrument_token": 194371841,
+    "last_price": 367.85,
+    "avg_daily_volume": 1577918,
+    "adtv_inr": 580437196.09,
+    "adtv_crores": 58.04,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "TATACOMM": {
+    "symbol": "TATACOMM",
+    "nse_symbol": "NSE:TATACOMM",
+    "company_name": "Tata Communications Ltd.",
+    "industry": "Telecommunication",
+    "isin": "INE151A01013",
+    "instrument_token": 952577,
+    "last_price": 1733.8,
+    "avg_daily_volume": 251173,
+    "adtv_inr": 435484705.37,
+    "adtv_crores": 43.55,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "TATACONSUM": {
+    "symbol": "TATACONSUM",
+    "nse_symbol": "NSE:TATACONSUM",
+    "company_name": "Tata Consumer Products Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE192A01025",
+    "instrument_token": 878593,
+    "last_price": 1030.5,
+    "avg_daily_volume": 1283930,
+    "adtv_inr": 1323090005.52,
+    "adtv_crores": 132.31,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "TATAELXSI": {
+    "symbol": "TATAELXSI",
+    "nse_symbol": "NSE:TATAELXSI",
+    "company_name": "Tata Elxsi Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE670A01012",
+    "instrument_token": 873217,
+    "last_price": 3638.0,
+    "avg_daily_volume": 190089,
+    "adtv_inr": 691544112.73,
+    "adtv_crores": 69.15,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "TATAINVEST": {
+    "symbol": "TATAINVEST",
+    "nse_symbol": "NSE:TATAINVEST",
+    "company_name": "Tata Investment Corporation Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE672A01026",
+    "instrument_token": 414977,
+    "last_price": 633.65,
+    "avg_daily_volume": 362147,
+    "adtv_inr": 229474484.19,
+    "adtv_crores": 22.95,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "TATAPOWER": {
+    "symbol": "TATAPOWER",
+    "nse_symbol": "NSE:TATAPOWER",
+    "company_name": "Tata Power Co. Ltd.",
+    "industry": "Power",
+    "isin": "INE245A01021",
+    "instrument_token": 877057,
+    "last_price": 350.55,
+    "avg_daily_volume": 4598857,
+    "adtv_inr": 1612129328.95,
+    "adtv_crores": 161.21,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "TATASTEEL": {
+    "symbol": "TATASTEEL",
+    "nse_symbol": "NSE:TATASTEEL",
+    "company_name": "Tata Steel Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE081A01020",
+    "instrument_token": 895745,
+    "last_price": 184.07,
+    "avg_daily_volume": 26350071,
+    "adtv_inr": 4850257862.37,
+    "adtv_crores": 485.03,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "TCS": {
+    "symbol": "TCS",
+    "nse_symbol": "NSE:TCS",
+    "company_name": "Tata Consultancy Services Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE467B01029",
+    "instrument_token": 2953217,
+    "last_price": 2369.0,
+    "avg_daily_volume": 2747538,
+    "adtv_inr": 6508919137.23,
+    "adtv_crores": 650.89,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "TECHM": {
+    "symbol": "TECHM",
+    "nse_symbol": "NSE:TECHM",
+    "company_name": "Tech Mahindra Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE669C01036",
+    "instrument_token": 3465729,
+    "last_price": 1638.0,
+    "avg_daily_volume": 2613165,
+    "adtv_inr": 4280364865.64,
+    "adtv_crores": 428.04,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "TIINDIA": {
+    "symbol": "TIINDIA",
+    "nse_symbol": "NSE:TIINDIA",
+    "company_name": "Tube Investments of India Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE974X01010",
+    "instrument_token": 79873,
+    "last_price": 2763.2,
+    "avg_daily_volume": 447198,
+    "adtv_inr": 1235697868.56,
+    "adtv_crores": 123.57,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "TITAN": {
+    "symbol": "TITAN",
+    "nse_symbol": "NSE:TITAN",
+    "company_name": "Titan Company Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE280A01028",
+    "instrument_token": 897537,
+    "last_price": 5050.0,
+    "avg_daily_volume": 830390,
+    "adtv_inr": 4193470647.73,
+    "adtv_crores": 419.35,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "TMCV": {
+    "symbol": "TMCV",
+    "nse_symbol": "NSE:TMCV",
+    "company_name": "Tata Motors Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE1TAE01010",
+    "instrument_token": 194504193,
+    "last_price": 464.35,
+    "avg_daily_volume": 8866705,
+    "adtv_inr": 4117254816.36,
+    "adtv_crores": 411.73,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "TMPV": {
+    "symbol": "TMPV",
+    "nse_symbol": "NSE:TMPV",
+    "company_name": "Tata Motors Passenger Vehicles Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE155A01022",
+    "instrument_token": 884737,
+    "last_price": 310.0,
+    "avg_daily_volume": 9676213,
+    "adtv_inr": 2999626283.64,
+    "adtv_crores": 299.96,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "TORNTPHARM": {
+    "symbol": "TORNTPHARM",
+    "nse_symbol": "NSE:TORNTPHARM",
+    "company_name": "Torrent Pharmaceuticals Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE685A01028",
+    "instrument_token": 900609,
+    "last_price": 4965.5,
+    "avg_daily_volume": 385862,
+    "adtv_inr": 1916002500.8,
+    "adtv_crores": 191.6,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "TRENT": {
+    "symbol": "TRENT",
+    "nse_symbol": "NSE:TRENT",
+    "company_name": "Trent Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE849A01020",
+    "instrument_token": 502785,
+    "last_price": 2855.0,
+    "avg_daily_volume": 990932,
+    "adtv_inr": 2829111768.41,
+    "adtv_crores": 282.91,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "TVSMOTOR": {
+    "symbol": "TVSMOTOR",
+    "nse_symbol": "NSE:TVSMOTOR",
+    "company_name": "TVS Motor Company Ltd.",
+    "industry": "Automobile and Auto Components",
+    "isin": "INE494B01023",
+    "instrument_token": 2170625,
+    "last_price": 4203.0,
+    "avg_daily_volume": 979842,
+    "adtv_inr": 4118277836.45,
+    "adtv_crores": 411.83,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "ULTRACEMCO": {
+    "symbol": "ULTRACEMCO",
+    "nse_symbol": "NSE:ULTRACEMCO",
+    "company_name": "UltraTech Cement Ltd.",
+    "industry": "Construction Materials",
+    "isin": "INE481G01011",
+    "instrument_token": 2952193,
+    "last_price": 11400.0,
+    "avg_daily_volume": 221724,
+    "adtv_inr": 2527658263.64,
+    "adtv_crores": 252.77,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "UNIONBANK": {
+    "symbol": "UNIONBANK",
+    "nse_symbol": "NSE:UNIONBANK",
+    "company_name": "Union Bank of India",
+    "industry": "Financial Services",
+    "isin": "INE692A01016",
+    "instrument_token": 2752769,
+    "last_price": 184.9,
+    "avg_daily_volume": 11040462,
+    "adtv_inr": 2041381465.67,
+    "adtv_crores": 204.14,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "UNITDSPR": {
+    "symbol": "UNITDSPR",
+    "nse_symbol": "NSE:UNITDSPR",
+    "company_name": "United Spirits Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE854D01024",
+    "instrument_token": 2674433,
+    "last_price": 1470.0,
+    "avg_daily_volume": 540846,
+    "adtv_inr": 795043620.0,
+    "adtv_crores": 79.5,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "UPL": {
+    "symbol": "UPL",
+    "nse_symbol": "NSE:UPL",
+    "company_name": "UPL Ltd.",
+    "industry": "Chemicals",
+    "isin": "INE628A01036",
+    "instrument_token": 2889473,
+    "last_price": 567.1,
+    "avg_daily_volume": 2238216,
+    "adtv_inr": 1269292728.72,
+    "adtv_crores": 126.93,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "VBL": {
+    "symbol": "VBL",
+    "nse_symbol": "NSE:VBL",
+    "company_name": "Varun Beverages Ltd.",
+    "industry": "Fast Moving Consumer Goods",
+    "isin": "INE200M01039",
+    "instrument_token": 4843777,
+    "last_price": 405.85,
+    "avg_daily_volume": 5577771,
+    "adtv_inr": 2263738486.63,
+    "adtv_crores": 226.37,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "VEDL": {
+    "symbol": "VEDL",
+    "nse_symbol": "NSE:VEDL",
+    "company_name": "Vedanta Ltd.",
+    "industry": "Metals & Mining",
+    "isin": "INE205A01025",
+    "instrument_token": 784129,
+    "last_price": 274.0,
+    "avg_daily_volume": 13711344,
+    "adtv_inr": 3756908517.55,
+    "adtv_crores": 375.69,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "VMM": {
+    "symbol": "VMM",
+    "nse_symbol": "NSE:VMM",
+    "company_name": "Vishal Mega Mart Ltd.",
+    "industry": "Consumer Services",
+    "isin": "INE01EA01019",
+    "instrument_token": 7160065,
+    "last_price": 106.55,
+    "avg_daily_volume": 16372077,
+    "adtv_inr": 1744444859.16,
+    "adtv_crores": 174.44,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "VOLTAS": {
+    "symbol": "VOLTAS",
+    "nse_symbol": "NSE:VOLTAS",
+    "company_name": "Voltas Ltd.",
+    "industry": "Consumer Durables",
+    "isin": "INE226A01021",
+    "instrument_token": 951809,
+    "last_price": 1205.0,
+    "avg_daily_volume": 953088,
+    "adtv_inr": 1148472025.91,
+    "adtv_crores": 114.85,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  },
+  "WAAREEENER": {
+    "symbol": "WAAREEENER",
+    "nse_symbol": "NSE:WAAREEENER",
+    "company_name": "Waaree Energies Ltd.",
+    "industry": "Capital Goods",
+    "isin": "INE377N01017",
+    "instrument_token": 6632193,
+    "last_price": 2588.0,
+    "avg_daily_volume": 466424,
+    "adtv_inr": 1207106606.0,
+    "adtv_crores": 120.71,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": false
+    }
+  },
+  "WIPRO": {
+    "symbol": "WIPRO",
+    "nse_symbol": "NSE:WIPRO",
+    "company_name": "Wipro Ltd.",
+    "industry": "Information Technology",
+    "isin": "INE075A01022",
+    "instrument_token": 969473,
+    "last_price": 181.7,
+    "avg_daily_volume": 8384381,
+    "adtv_inr": 1523442059.93,
+    "adtv_crores": 152.34,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "YESBANK": {
+    "symbol": "YESBANK",
+    "nse_symbol": "NSE:YESBANK",
+    "company_name": "Yes Bank Ltd.",
+    "industry": "Financial Services",
+    "isin": "INE528G01035",
+    "instrument_token": 3050241,
+    "last_price": 22.1,
+    "avg_daily_volume": 49048797,
+    "adtv_inr": 1083978449.49,
+    "adtv_crores": 108.4,
+    "is_tradeable": true,
+    "filters": {
+      "price_under_500": true,
+      "high_liquidity": true
+    }
+  },
+  "ZYDUSLIFE": {
+    "symbol": "ZYDUSLIFE",
+    "nse_symbol": "NSE:ZYDUSLIFE",
+    "company_name": "Zydus Lifesciences Ltd.",
+    "industry": "Healthcare",
+    "isin": "INE010B01027",
+    "instrument_token": 2029825,
+    "last_price": 1167.8,
+    "avg_daily_volume": 1697481,
+    "adtv_inr": 1982319403.24,
+    "adtv_crores": 198.23,
+    "is_tradeable": false,
+    "filters": {
+      "price_under_500": false,
+      "high_liquidity": true
+    }
+  }
+}

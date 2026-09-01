@@ -83,6 +83,9 @@ FALLBACK_WEIGHTS: dict[str, float] = {
 }
 
 
+from sg_security.universe import get_tradeable_universe
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
@@ -111,16 +114,14 @@ class Settings(BaseSettings):
     DEFAULT_TIMEFRAME: str = "5m"
     PRIMARY_SYMBOL: str = "NIFTY50"
     WATCHLIST_SYMBOLS: list[str] = Field(
-        default_factory=lambda: [
-            "RELIANCE", "HDFCBANK", "ICICIBANK", "INFY", "TCS",
-            "TATAMOTORS", "SBIN", "ITC", "LT", "AXISBANK",
-        ]
+        default_factory=lambda: get_tradeable_universe(prefix=False)
     )
     STRATEGY_REGISTRY: list[str] = Field(
         default_factory=lambda: [
             "trend_following", "mean_reversion", "breakout", "momentum", "ml_prediction", "rsi",
         ]
     )
+
 
     # --- Aggregation behavior -------------------------------------------------
     BUY_THRESHOLD: float = 0.20  # net_score >= this -> BUY

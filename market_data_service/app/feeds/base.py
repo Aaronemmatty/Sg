@@ -11,6 +11,7 @@ from typing import Callable, Awaitable
 
 from app.core.logging import get_logger
 from app.core.types import Tick
+from sg_security.universe import get_nifty200_token_map, get_nifty200_base_prices
 
 log = get_logger(__name__)
 
@@ -43,33 +44,12 @@ class MockFeed(BaseFeed):
       - Strategy development
     """
 
-    # Realistic NSE symbols for simulation
-    DEFAULT_SYMBOLS: dict[str, int] = {
-        "NSE:RELIANCE":  738561,
-        "NSE:TCS":       2953217,
-        "NSE:INFY":      408065,
-        "NSE:HDFC":      341249,
-        "NSE:ICICIBANK": 1270529,
-        "NSE:SBIN":      779521,
-        "NSE:WIPRO":     969473,
-        "NSE:AXISBANK":  1510401,
-        "NSE:BAJFINANCE":4267265,
-        "NSE:KOTAKBANK": 492033,
-    }
+    # Full NIFTY 200 constituent base pool for simulation
+    DEFAULT_SYMBOLS: dict[str, int] = get_nifty200_token_map(prefix=True)
 
-    # Approximate base prices (as of 2025)
-    BASE_PRICES: dict[str, float] = {
-        "NSE:RELIANCE":  2950.0,
-        "NSE:TCS":       3800.0,
-        "NSE:INFY":      1750.0,
-        "NSE:HDFC":      1680.0,
-        "NSE:ICICIBANK": 1150.0,
-        "NSE:SBIN":       825.0,
-        "NSE:WIPRO":      480.0,
-        "NSE:AXISBANK":  1095.0,
-        "NSE:BAJFINANCE":6800.0,
-        "NSE:KOTAKBANK": 1780.0,
-    }
+    # Reference base prices for all 200 constituents
+    BASE_PRICES: dict[str, float] = get_nifty200_base_prices(prefix=True)
+
 
     def __init__(
         self,

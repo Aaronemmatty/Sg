@@ -7,6 +7,8 @@ from typing import Literal
 from pydantic import Field, PostgresDsn, RedisDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from sg_security.universe import get_tradeable_universe
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -42,7 +44,7 @@ class Settings(BaseSettings):
     # Redis state keys written by downstream services (hot-path reads)
     REDIS_KEY_PORTFOLIO_STATE: str = "sg:portfolio:state:{portfolio_id}"
     REDIS_KEY_RISK_STATE: str = "sg:risk:state:{portfolio_id}"
-    REDIS_KEY_REGIME: str = "sg:regime:{symbol}"
+
 
     # State cache TTL (seconds)
     PORTFOLIO_STATE_TTL_S: int = 30
@@ -51,7 +53,9 @@ class Settings(BaseSettings):
 
     # ── Symbols / portfolio ────────────────────────────────────────────────────
     PRIMARY_SYMBOL: str = "NIFTY"
-    WATCHLIST_SYMBOLS: list[str] = []
+    WATCHLIST_SYMBOLS: list[str] = Field(
+        default_factory=lambda: get_tradeable_universe(prefix=False)
+    )
     DEFAULT_PORTFOLIO_ID: str = ""          # UUID string; empty = use broker default
 
     # ── Retail account capital reference ─────────────────────────────────────

@@ -99,11 +99,11 @@ async def verify_pipeline():
             cur.execute("SELECT count(*) FROM trades;")
             trade_count_before = cur.fetchone()[0]
 
-    # Inject a TradeIntent while halted (uses retail-scale allocation)
+    # Inject a TradeIntent while halted (uses tradeable universe constituent)
     blocked_intent_id = str(uuid.uuid4())
     blocked_intent = {
         "intent_id": blocked_intent_id,
-        "symbol": "NSE:RELIANCE",
+        "symbol": "NSE:TATASTEEL",
         "action": "BUY",
         "confidence": 0.88,
         "allocation_inr": TEST_ALLOCATION_INR,   # 20% of ACCOUNT_CAPITAL_INR
@@ -113,6 +113,7 @@ async def verify_pipeline():
         "rejection_reasons": [],
         "correlation_id": str(uuid.uuid4()),
         "created_at": datetime.now(timezone.utc).isoformat()
+
     }
     
     print(f"\n[STEP 2] Injecting TradeIntent ({blocked_intent_id}) to 'sg:intents:created' while HALTED...")
@@ -179,11 +180,11 @@ async def verify_pipeline():
         print(f"  Current Status: {status_data}")
         assert status_data["is_halted"] is False, "Kill switch should be normal!"
 
-    # Inject a new TradeIntent while normal (retail-scale allocation)
+    # Inject a new TradeIntent while normal (tradeable universe constituent)
     normal_intent_id = str(uuid.uuid4())
     normal_intent = {
         "intent_id": normal_intent_id,
-        "symbol": "NSE:RELIANCE",
+        "symbol": "NSE:ITC",
         "action": "BUY",
         "confidence": 0.88,
         "allocation_inr": TEST_ALLOCATION_INR,    # 20% of ACCOUNT_CAPITAL_INR
@@ -194,6 +195,7 @@ async def verify_pipeline():
         "correlation_id": str(uuid.uuid4()),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
+
     
     print(f"\n[STEP 5] Injecting TradeIntent ({normal_intent_id}) to 'sg:intents:created' in NORMAL state...")
     print(f"         allocation_inr = ₹{TEST_ALLOCATION_INR:,.0f} (20% of capital — should PASS 20% cap)")
@@ -336,7 +338,7 @@ async def verify_pipeline():
     print(f"    - Dynamic 4% allocation floor   = ₹{min_alloc_floor:,.0f}")
 
     dummy_signal = AggregatedSignal(
-        symbol="NSE:RELIANCE",
+        symbol="NSE:TATASTEEL",
         timeframe="5m",
         final_signal=TradeAction.BUY,
         confidence=0.85,
@@ -390,6 +392,35 @@ async def verify_pipeline():
     assert alloc_fail.allocation_inr < min_alloc_floor, "Low confidence should produce sub-floor allocation"
 
     print("  [VERIFIED] Both directions of liquidity threshold (3%) and allocation floor (4%) work as intended!")
+
+    # -------------------------------------------------------------------------
+    # PART 5: Verify NIFTY 200 Base Pool and Filtered Universe Integration
+    # -------------------------------------------------------------------------
+    print("\n" + "=" * 80)
+    print("  STEP 8: Verifying NIFTY 200 Base Pool vs. Filtered Universe Integration")
+    print("=" * 80)
+    from sg_security.universe import get_nifty200_symbols, get_nifty200_token_map, get_tradeable_universe
+    from app.core.config import get_settings as get_orch_settings
+
+    nifty200_base = get_nifty200_symbols(prefix=True)
+    nifty200_tokens = get_nifty200_token_map(prefix=True)
+    tradeable_sub = get_tradeable_universe(prefix=False)
+    orch_watchlist = get_orch_settings().WATCHLIST_SYMBOLS
+
+    print(f"  NIFTY 200 Base Pool Count        : {len(nifty200_base)} constituents")
+    print(f"  MockFeed Token Map Count         : {len(nifty200_tokens)} constituents")
+    print(f"  Tradeable Universe (<₹500 & Liq) : {len(tradeable_sub)} constituents")
+    print(f"  Orchestrator WATCHLIST_SYMBOLS   : {len(orch_watchlist)} constituents")
+
+    assert len(nifty200_base) == 200, "NIFTY 200 should have exactly 200 constituents"
+    assert len(nifty200_tokens) == 200, "MockFeed tokens should cover all 200 constituents"
+    assert len(tradeable_sub) == len(orch_watchlist), "Orchestrator watchlist should match tradeable universe"
+    assert "RELIANCE" not in tradeable_sub, "RELIANCE (price > ₹500) must be filtered out of tradeable universe"
+    assert "TCS" not in tradeable_sub, "TCS (price > ₹500) must be filtered out of tradeable universe"
+    assert "TATASTEEL" in tradeable_sub, "TATASTEEL (price < ₹500 & high liq) must be in tradeable universe"
+    assert "ITC" in tradeable_sub, "ITC (price < ₹500 & high liq) must be in tradeable universe"
+    print("  [VERIFIED] All symbol lists wired correctly across pipeline services!")
+
 
     print("\n" + "=" * 80)
     print("  ALL SMOKE TESTS, DYNAMIC CAPITAL CHECKS, AND KILL-SWITCH TESTS PASSED")
