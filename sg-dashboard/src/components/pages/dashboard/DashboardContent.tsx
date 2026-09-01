@@ -82,30 +82,30 @@ export function DashboardContent() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Portfolio Value"
-          value={snapshot ? formatInrCompact(snapshot.total_value_inr) : "—"}
-          sub={snapshot ? `${formatPct(snapshot.total_pnl_pct, 2, true)} all-time` : undefined}
+          value={snapshot?.total_value_inr != null ? formatInrCompact(snapshot.total_value_inr) : "—"}
+          sub={snapshot?.total_pnl_pct != null ? `${formatPct(snapshot.total_pnl_pct, 2, true)} all-time` : undefined}
           subClass={totalPnlPositive ? "text-bull" : "text-bear"}
           icon={TrendingUp}
           accent
         />
         <StatCard
           label="Day P&L"
-          value={snapshot ? formatInrCompact(snapshot.day_pnl_inr) : "—"}
-          sub={snapshot ? formatPct(snapshot.day_pnl_pct, 2, true) : undefined}
+          value={snapshot?.day_pnl_inr != null ? formatInrCompact(snapshot.day_pnl_inr) : "—"}
+          sub={snapshot?.day_pnl_pct != null ? formatPct(snapshot.day_pnl_pct, 2, true) : undefined}
           subClass={dayPnlPositive ? "text-bull" : "text-bear"}
           icon={dayPnlPositive ? TrendingUp : TrendingDown}
         />
         <StatCard
           label="30d Sharpe"
-          value={perf ? perf.sharpe_ratio.toFixed(2) : "—"}
-          sub={perf ? `Sortino ${perf.sortino_ratio.toFixed(2)}` : undefined}
+          value={perf?.sharpe_ratio != null ? perf.sharpe_ratio.toFixed(2) : "—"}
+          sub={perf?.sortino_ratio != null ? `Sortino ${perf.sortino_ratio.toFixed(2)}` : undefined}
           icon={Activity}
         />
         <StatCard
           label="Daily VaR (95%)"
-          value={risk ? formatInrCompact(risk.var_95_inr) : "—"}
-          sub={risk ? `${formatPct(risk.daily_loss_used_inr / risk.daily_loss_limit_inr * 100)} daily limit used` : undefined}
-          subClass={risk && risk.daily_loss_used_inr / risk.daily_loss_limit_inr > 0.8 ? "text-bear" : "text-text-muted"}
+          value={risk?.var_95_inr != null ? formatInrCompact(risk.var_95_inr) : "—"}
+          sub={risk && risk.daily_loss_limit_inr ? `${formatPct((risk.daily_loss_used_inr / risk.daily_loss_limit_inr) * 100)} daily limit used` : undefined}
+          subClass={risk && risk.daily_loss_limit_inr && (risk.daily_loss_used_inr / risk.daily_loss_limit_inr > 0.8) ? "text-bear" : "text-text-muted"}
           icon={ShieldAlert}
         />
       </div>
@@ -114,13 +114,13 @@ export function DashboardContent() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Open Positions"
-          value={String(snapshot?.positions.length ?? "—")}
-          sub={snapshot ? `${formatInrCompact(snapshot.invested_inr)} deployed` : undefined}
+          value={String(snapshot?.positions?.length ?? "—")}
+          sub={snapshot?.invested_inr != null ? `${formatInrCompact(snapshot.invested_inr)} deployed` : undefined}
         />
         <StatCard
           label="Cash Available"
-          value={snapshot ? formatInrCompact(snapshot.cash_inr) : "—"}
-          sub={snapshot ? `${formatPct((snapshot.cash_inr / snapshot.total_value_inr) * 100)} of portfolio` : undefined}
+          value={snapshot?.cash_inr != null ? formatInrCompact(snapshot.cash_inr) : "—"}
+          sub={snapshot?.cash_inr != null && snapshot?.total_value_inr ? `${formatPct((snapshot.cash_inr / snapshot.total_value_inr) * 100)} of portfolio` : undefined}
         />
         <StatCard
           label="Champion Models"

@@ -2,16 +2,18 @@ import { format, formatDistanceToNow, parseISO } from "date-fns";
 
 // ─── Currency ────────────────────────────────────────────────────────────────
 
-export function formatInr(value: number, compact = false): string {
+export function formatInr(value: number | null | undefined, compact = false): string {
+  if (value === null || value === undefined || isNaN(Number(value))) return "₹0.00";
+  const num = Number(value);
   if (compact) {
-    if (Math.abs(value) >= 1_00_00_000) {
-      return `₹${(value / 1_00_00_000).toFixed(2)}Cr`;
+    if (Math.abs(num) >= 1_00_00_000) {
+      return `₹${(num / 1_00_00_000).toFixed(2)}Cr`;
     }
-    if (Math.abs(value) >= 1_00_000) {
-      return `₹${(value / 1_00_000).toFixed(2)}L`;
+    if (Math.abs(num) >= 1_00_000) {
+      return `₹${(num / 1_00_000).toFixed(2)}L`;
     }
-    if (Math.abs(value) >= 1_000) {
-      return `₹${(value / 1_000).toFixed(1)}K`;
+    if (Math.abs(num) >= 1_000) {
+      return `₹${(num / 1_000).toFixed(1)}K`;
     }
   }
   return new Intl.NumberFormat("en-IN", {
@@ -19,40 +21,50 @@ export function formatInr(value: number, compact = false): string {
     currency: "INR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(num);
 }
 
-export function formatInrCompact(value: number): string {
+export function formatInrCompact(value: number | null | undefined): string {
   return formatInr(value, true);
 }
 
 // ─── Percentage ───────────────────────────────────────────────────────────────
 
-export function formatPct(value: number, decimals = 2, showSign = false): string {
-  const sign = showSign && value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(decimals)}%`;
+export function formatPct(value: number | null | undefined, decimals = 2, showSign = false): string {
+  if (value === null || value === undefined || isNaN(Number(value))) return "0.00%";
+  const num = Number(value);
+  const sign = showSign && num > 0 ? "+" : "";
+  return `${sign}${num.toFixed(decimals)}%`;
 }
 
-export function formatPnlPct(value: number): string {
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(2)}%`;
+export function formatPnlPct(value: number | null | undefined): string {
+  if (value === null || value === undefined || isNaN(Number(value))) return "0.00%";
+  const num = Number(value);
+  const sign = num > 0 ? "+" : "";
+  return `${sign}${num.toFixed(2)}%`;
 }
 
 // ─── Numbers ──────────────────────────────────────────────────────────────────
 
-export function formatNumber(value: number, decimals = 0): string {
+export function formatNumber(value: number | null | undefined, decimals = 0): string {
+  if (value === null || value === undefined || isNaN(Number(value))) return "0";
+  const num = Number(value);
   return new Intl.NumberFormat("en-IN", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(value);
+  }).format(num);
 }
 
-export function formatBps(value: number): string {
-  return `${value.toFixed(1)} bps`;
+export function formatBps(value: number | null | undefined): string {
+  if (value === null || value === undefined || isNaN(Number(value))) return "0.0 bps";
+  const num = Number(value);
+  return `${num.toFixed(1)} bps`;
 }
 
-export function formatRatio(value: number, decimals = 2): string {
-  return value.toFixed(decimals);
+export function formatRatio(value: number | null | undefined, decimals = 2): string {
+  if (value === null || value === undefined || isNaN(Number(value))) return "0.00";
+  const num = Number(value);
+  return num.toFixed(decimals);
 }
 
 // ─── Dates ────────────────────────────────────────────────────────────────────
