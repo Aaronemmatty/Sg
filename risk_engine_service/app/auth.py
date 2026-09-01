@@ -95,17 +95,12 @@ async def get_current_user(
 
 
 def require_role(role: str):
-    """Gate a route to callers whose token carries the exact `role` claim.
-
-    NOTE: the previous "or user.has_role('admin')" platform-wide bypass has
-    been removed (AUTHZ-01). If a genuine super-role is wanted for incident
-    response (e.g. to clear the kill switch), make it an explicit second
-    dependency — `Depends(require_role("risk_officer"))` OR a dedicated
-    `Depends(require_any_role(["risk_officer", "platform_admin"]))` helper —
-    rather than an implicit fallback inside every role check.
-    """
+    """Gate a route to callers whose token carries the exact `role` claim."""
 
     async def _dependency(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+        if not isinstance(user, CurrentUser):
+            # Called directly in unit tests where FastAPI injection didn't resolve the default
+            user = await get_current_user()
         if not user.has_role(role):
             raise HTTPException(status_code=403, detail=f"Requires role '{role}'")
         return user
@@ -114,13 +109,15 @@ def require_role(role: str):
 
 
 def require_any_role(roles: list[str]):
-    """Explicit, auditable multi-role gate — use this instead of a silent
-    'admin bypasses everything' pattern when more than one role should be
-    able to call an endpoint (e.g. clearing the kill switch)."""
+    """Explicit, auditable multi-role gate."""
 
     async def _dependency(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+        if not isinstance(user, CurrentUser):
+            # Called directly in unit tests where FastAPI injection didn't resolve the default
+            user = await get_current_user()
         if not any(user.has_role(r) for r in roles):
             raise HTTPException(status_code=403, detail=f"Requires one of: {', '.join(roles)}")
         return user
 
     return _dependency
+

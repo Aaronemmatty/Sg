@@ -256,8 +256,9 @@ async def test_drawdown_exceeded():
 
 @pytest.mark.asyncio
 async def test_open_intents_ok():
-    result = await check_open_intents(_risk(open_intents=5))
+    result = await check_open_intents(_risk(open_intents=2))
     assert result.passed is True
+
 
 
 @pytest.mark.asyncio

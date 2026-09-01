@@ -78,14 +78,13 @@ async def get_config(_user = Depends(get_current_user)):
     """Return current orchestrator thresholds (read-only)."""
     return OrchestratorConfigResponse(
         min_confidence=settings.MIN_CONFIDENCE,
-        min_liquidity_value_inr=settings.MIN_LIQUIDITY_VALUE_INR,
+        min_liquidity_pct=settings.MIN_LIQUIDITY_PCT,
         max_position_pct=settings.MAX_POSITION_PCT,
         max_sector_exposure_pct=settings.MAX_SECTOR_EXPOSURE_PCT,
         max_correlation_score=settings.MAX_CORRELATION_SCORE,
         default_risk_pct=settings.DEFAULT_RISK_PCT,
-        max_allocation_inr=settings.MAX_ALLOCATION_INR,
-        min_allocation_inr=settings.MIN_ALLOCATION_INR,
-        daily_loss_limit_inr=settings.DAILY_LOSS_LIMIT_INR,
+        max_allocation_pct=settings.MAX_ALLOCATION_PCT,
+        min_allocation_pct=settings.MIN_ALLOCATION_PCT,
         daily_loss_limit_pct=settings.DAILY_LOSS_LIMIT_PCT,
         max_portfolio_drawdown_pct=settings.MAX_PORTFOLIO_DRAWDOWN_PCT,
         max_open_intents=settings.MAX_OPEN_INTENTS,

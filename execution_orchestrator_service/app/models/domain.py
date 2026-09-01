@@ -165,6 +165,9 @@ class AllocationResult(BaseModel):
     risk_percent: float
     quantity_estimate: Optional[int] = None
     basis: str = ""                         # human-readable allocation rationale
+    # Dynamic minimum floor computed from live portfolio (4% of balance).
+    # Populated by compute_allocation(); used by pipeline to reject tiny trades.
+    min_allocation_inr: float = 0.0
 
 
 class TradeIntent(BaseModel):

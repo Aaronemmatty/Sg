@@ -40,18 +40,26 @@ class Settings(BaseSettings):
     RETRY_MIN_WAIT_S: float = 1.0
     RETRY_MAX_WAIT_S: float = 10.0
 
-    # ── Pre-trade risk defaults ───────────────────────────────────────────────
-    MAX_ORDER_VALUE_INR: float = 500_000.0    # 5 lakh max single order
-    MAX_POSITION_VALUE_INR: float = 2_000_000.0  # 20 lakh max single position
-    MAX_DAILY_LOSS_INR: float = 50_000.0      # 50k daily loss kill-switch
+    # ── Retail account capital reference ─────────────────────────────────────
+    # Initial / default capital base used when live broker balance is unavailable.
+    # Set once in .env — do NOT update after every P&L move. Percentage limits
+    # below are computed from the live available_cash at pre-trade-check time.
+    ACCOUNT_CAPITAL_INR: float = 9000.0
+
+    # ── Pre-trade risk — percentage-based (applied to live available_cash) ────
+    # The risk engine derives effective INR limits at runtime via
+    # get_account_info(); these pct values are the authoritative knobs.
+    MAX_ORDER_VALUE_PCT: float = 0.20     # 20% of live available cash per order
+    MAX_POSITION_VALUE_PCT: float = 0.20  # 20% of live available cash per position
+    MAX_DAILY_LOSS_PCT: float = 0.02      # 2% of live available cash as daily kill-switch
     MAX_ORDERS_PER_SYMBOL_PER_DAY: int = 50
     ALLOWED_EXCHANGES: list[str] = ["NSE", "BSE"]
     ALLOWED_PRODUCTS: list[str] = ["CNC", "MIS", "NRML"]
 
     # ── Paper broker ──────────────────────────────────────────────────────────
-    PAPER_INITIAL_CAPITAL_INR: float = 1_000_000.0   # 10 lakh virtual capital
-    PAPER_SLIPPAGE_PCT: float = 0.05                  # 0.05% simulated slippage
-    PAPER_FILL_DELAY_MS: int = 100                    # simulated fill latency
+    PAPER_INITIAL_CAPITAL_INR: float = 9_000.0  # mirrors ACCOUNT_CAPITAL_INR (was ₹10 lakh)
+    PAPER_SLIPPAGE_PCT: float = 0.05             # 0.05% simulated slippage
+    PAPER_FILL_DELAY_MS: int = 100               # simulated fill latency
 
     # ── Storage ───────────────────────────────────────────────────────────────
     DATABASE_URL: PostgresDsn = Field(...)

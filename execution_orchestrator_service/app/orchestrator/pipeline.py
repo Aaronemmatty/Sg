@@ -74,14 +74,18 @@ def _determine_status(
     failures = [r for r in checks if not r.passed]
 
     if not failures:
-        # Allocation floor check (post-eligibility)
-        if allocation.allocation_inr < settings.MIN_ALLOCATION_INR:
+        # Allocation floor check (post-eligibility) — uses the dynamic minimum
+        # computed from the live portfolio value (4% of current balance), NOT
+        # a stale hardcoded INR constant.
+        min_inr = allocation.min_allocation_inr
+        if allocation.allocation_inr <= 0 or allocation.allocation_inr < min_inr:
             return (
                 IntentStatus.REJECTED,
                 [RejectionReason.ALLOCATION_TOO_SMALL],
-                f"allocation={allocation.allocation_inr:.0f} < min={settings.MIN_ALLOCATION_INR:.0f}",
+                f"allocation={allocation.allocation_inr:.0f} < min={min_inr:.0f} (4% of live balance)",
             )
         return IntentStatus.ELIGIBLE, [], None
+
 
     reasons = [f.reason for f in failures if f.reason]
     details = "; ".join(f.detail for f in failures if f.detail)
@@ -229,10 +233,14 @@ class OrchestratorPipeline:
         if risk is None:
             from datetime import datetime, timezone
             log.error("risk_state_unavailable", portfolio_id=portfolio_id)
+            # Fallback daily loss limit: 2% of ACCOUNT_CAPITAL_INR (the configured
+            # capital reference).  When live balance is available this is overridden
+            # by the value returned from risk_engine / Redis.
+            fallback_daily_loss_limit = settings.ACCOUNT_CAPITAL_INR * settings.DAILY_LOSS_LIMIT_PCT
             risk = RiskState(
                 portfolio_id=portfolio_id,
                 daily_loss_inr=0.0,
-                daily_loss_limit_inr=settings.DAILY_LOSS_LIMIT_INR,
+                daily_loss_limit_inr=fallback_daily_loss_limit,
                 drawdown_pct=0.0,
                 max_drawdown_pct=settings.MAX_PORTFOLIO_DRAWDOWN_PCT,
                 kill_switch_active=False,

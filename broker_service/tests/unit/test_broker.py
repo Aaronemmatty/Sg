@@ -15,7 +15,7 @@ def _make_order(**kwargs) -> OrderRequest:
     defaults = dict(
         symbol="RELIANCE", exchange=Exchange.NSE, side=OrderSide.BUY,
         order_type=OrderType.LIMIT, product=ProductType.MIS,
-        quantity=10, price=2950.0,
+        quantity=1, price=500.0,
     )
     defaults.update(kwargs)
     return OrderRequest(**defaults)
@@ -140,7 +140,7 @@ class TestRiskEngine:
         mock_broker = AsyncMock()
         mock_broker.get_positions.return_value = []
 
-        with patch("app.core.config.Settings.ALLOWED_EXCHANGES", ["NSE"]):
+        with patch("app.risk.engine.settings.ALLOWED_EXCHANGES", ["NSE"]):
             result = await engine.pre_trade_check(order, mock_broker)
         # BSE not in ["NSE"] → violation
         assert result.passed is False
@@ -205,18 +205,18 @@ class TestPaperBroker:
     @pytest.mark.asyncio
     async def test_place_market_order_fills(self, broker):
         order = _make_order(order_type=OrderType.MARKET, price=None)
-        with patch.object(broker, "_get_market_price", AsyncMock(return_value=2950.0)), \
+        with patch.object(broker, "_get_market_price", AsyncMock(return_value=500.0)), \
              patch.object(broker, "_save_state", AsyncMock()):
             result = await broker.place_order(order)
         from app.core.types import OrderStatus
         assert result.status == OrderStatus.COMPLETE
-        assert result.filled_quantity == 10
+        assert result.filled_quantity == 1
 
     @pytest.mark.asyncio
     async def test_place_limit_order_stays_open(self, broker):
-        # Limit BUY at 2900 with market at 2950 → should NOT fill immediately
-        order = _make_order(order_type=OrderType.LIMIT, price=2900.0)
-        with patch.object(broker, "_get_market_price", AsyncMock(return_value=2950.0)), \
+        # Limit BUY at 450 with market at 500 → should NOT fill immediately
+        order = _make_order(order_type=OrderType.LIMIT, price=450.0)
+        with patch.object(broker, "_get_market_price", AsyncMock(return_value=500.0)), \
              patch.object(broker, "_save_state", AsyncMock()):
             result = await broker.place_order(order)
         from app.core.types import OrderStatus
@@ -224,7 +224,7 @@ class TestPaperBroker:
 
     @pytest.mark.asyncio
     async def test_cancel_order(self, broker):
-        order = _make_order(order_type=OrderType.LIMIT, price=2900.0)
+        order = _make_order(order_type=OrderType.LIMIT, price=450.0)
         with patch.object(broker, "_save_state", AsyncMock()):
             placed = await broker.place_order(order)
             cancelled = await broker.cancel_order(placed.broker_order_id)
@@ -233,6 +233,8 @@ class TestPaperBroker:
 
     @pytest.mark.asyncio
     async def test_get_account_info(self, broker):
+        from app.core.config import get_settings
         info = await broker.get_account_info()
         assert info.broker == "paper"
-        assert info.available_cash == pytest.approx(1_000_000.0, rel=0.01)
+        assert info.available_cash == pytest.approx(get_settings().PAPER_INITIAL_CAPITAL_INR, rel=0.01)
+

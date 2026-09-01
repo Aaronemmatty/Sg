@@ -71,12 +71,44 @@ CREATE INDEX IF NOT EXISTS idx_circuit_breaker_symbol ON circuit_breaker_events(
 INSERT INTO risk_policies (policy_name, enabled, params, description) VALUES
 ('var_limit',            TRUE, '{"max_var_percent_of_portfolio": 2.0, "confidence": 0.95, "horizon_days": 1, "method": "parametric"}', 'Max 1-day 95% VaR as % of portfolio NAV per intent'),
 ('drawdown_limit',       TRUE, '{"max_drawdown_percent": 10.0, "warn_drawdown_percent": 7.0}', 'Halt new risk-on intents past max drawdown from equity peak'),
-('daily_loss_limit',     TRUE, '{"max_daily_loss_percent": 3.0, "warn_daily_loss_percent": 2.0}', 'Halt new intents past daily realized+unrealized loss limit'),
-('concentration_limit',  TRUE, '{"max_single_position_percent": 8.0}', 'Max % of portfolio NAV in a single symbol post-trade'),
+-- Retail-calibrated: max_daily_loss_percent reduced 3% -> 2% to match orchestrator limit
+('daily_loss_limit',     TRUE, '{"max_daily_loss_percent": 2.0, "warn_daily_loss_percent": 1.5}', 'Halt new intents past daily realized+unrealized loss limit'),
+-- Retail-calibrated: max_single_position_percent raised 8% -> 20% (right-sized for 5-position book)
+('concentration_limit',  TRUE, '{"max_single_position_percent": 20.0}', 'Max % of portfolio NAV in a single symbol post-trade'),
 ('sector_exposure_limit',TRUE, '{"max_sector_percent": 25.0}', 'Max % of portfolio NAV in a single sector post-trade'),
 ('correlation_limit',    TRUE, '{"max_avg_correlation": 0.75, "lookback_days": 60}', 'Max average correlation vs existing open positions'),
 ('volatility_limit',     TRUE, '{"max_annualized_vol_percent": 80.0, "circuit_breaker_intraday_move_percent": 7.0, "circuit_breaker_window_minutes": 5}', 'Volatility guardrails + symbol-level circuit breaker'),
 ('margin_check',         TRUE, '{"min_free_margin_buffer_percent": 15.0, "mode": "resilient"}', 'Ensure sufficient free margin remains after allocation'),
-('position_sizing',      TRUE, '{"max_allocation_per_intent_percent": 10.0, "min_allocation_inr": 500.0}', 'Hard bounds on per-intent allocation regardless of Kelly output'),
+-- Retail-calibrated: max_allocation_per_intent_percent 10% -> 20%; min_allocation_inr 500 -> 0 (derived dynamically from live portfolio in orchestrator)
+('position_sizing',      TRUE, '{"max_allocation_per_intent_percent": 20.0, "min_allocation_inr": 0.0}', 'Hard bounds on per-intent allocation regardless of Kelly output'),
 ('risk_score_threshold', TRUE, '{"reject_at_or_above": 81, "hold_band": [61, 80]}', 'Composite risk score bands controlling auto-reject / hold')
 ON CONFLICT (policy_name) DO NOTHING;
+
+-- ── Idempotent retail-calibration migration ────────────────────────────────────
+-- Runs on every startup. Updates EXISTING rows to the new retail limits so
+-- that DBs created before this migration also converge correctly.
+-- (The INSERT above only seeds rows that don't exist; this UPDATE handles upgrades.)
+
+UPDATE risk_policies SET
+    params = '{"max_daily_loss_percent": 2.0, "warn_daily_loss_percent": 1.5}'::jsonb,
+    description = 'Halt new intents past daily realized+unrealized loss limit',
+    updated_by = 'migration:retail_calibration',
+    updated_at = now()
+WHERE policy_name = 'daily_loss_limit'
+  AND (params->>'max_daily_loss_percent')::float > 2.0;
+
+UPDATE risk_policies SET
+    params = '{"max_single_position_percent": 20.0}'::jsonb,
+    description = 'Max % of portfolio NAV in a single symbol post-trade',
+    updated_by = 'migration:retail_calibration',
+    updated_at = now()
+WHERE policy_name = 'concentration_limit'
+  AND (params->>'max_single_position_percent')::float < 20.0;
+
+UPDATE risk_policies SET
+    params = '{"max_allocation_per_intent_percent": 20.0, "min_allocation_inr": 0.0}'::jsonb,
+    description = 'Hard bounds on per-intent allocation regardless of Kelly output',
+    updated_by = 'migration:retail_calibration',
+    updated_at = now()
+WHERE policy_name = 'position_sizing'
+  AND (params->>'max_allocation_per_intent_percent')::float < 20.0;

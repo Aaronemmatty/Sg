@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     service_port: int = 8007
     env: str = "production"
 
+    # Retail account capital reference — initial/default capital base.
+    # Used as fallback when the live broker balance is unavailable.
+    # Set once in .env; do NOT update after every P&L move.
+    account_capital_inr: float = 9000.0
+
     postgres_dsn: str = "postgresql://sg_user:sg_pass@localhost:5432/sg_db"
     redis_url: str = "redis://localhost:6379/0"
 

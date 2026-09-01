@@ -347,12 +347,15 @@ class PaperBroker(BrokerInterface):
 
     def _validate_order(self, request: OrderRequest) -> None:
         order_value = (request.price or 0) * request.quantity
-        # For market orders estimate using a floor value — paper broker is lenient
-        if order_value > settings.MAX_ORDER_VALUE_INR:
+        # Dynamic max order value = 20% of current paper cash (or initial capital fallback)
+        max_order_val = max(self._cash, settings.ACCOUNT_CAPITAL_INR) * settings.MAX_ORDER_VALUE_PCT
+        if order_value > max_order_val:
             raise OrderRejectedError(
-                f"Order value ₹{order_value:,.0f} exceeds limit ₹{settings.MAX_ORDER_VALUE_INR:,.0f}",
+                f"Order value ₹{order_value:,.0f} exceeds limit ₹{max_order_val:,.0f} "
+                f"({settings.MAX_ORDER_VALUE_PCT*100:.0f}% of available cash)",
                 reason="order_value_exceeded",
             )
+
 
     # ── Persistence ───────────────────────────────────────────────────────────
 

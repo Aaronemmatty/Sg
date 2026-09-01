@@ -6,6 +6,10 @@ Uses a fractional Kelly approach scaled by:
   - portfolio size
   - regime multipliers (reduce size in volatile / sideways regimes)
   - configured risk % cap
+
+Allocation limits are expressed as percentages of the CURRENT live portfolio
+value (fetched from broker_service each cycle), so they automatically
+recalibrate as the account grows or shrinks with P&L.
 """
 from __future__ import annotations
 
@@ -42,15 +46,21 @@ def compute_allocation(
     """
     Compute recommended capital allocation for one trade intent.
 
+    Limits are percentage-based and applied to the CURRENT live portfolio
+    value (portfolio.total_value_inr) so they recalibrate automatically as
+    the account balance changes with P&L:
+
+        max_allocation = portfolio_value * MAX_ALLOCATION_PCT  (20%)
+        min_allocation = portfolio_value * MIN_ALLOCATION_PCT  ( 4%)
+
     Formula:
         kelly_edge  = confidence - (1 - confidence)          # win - loss
         kelly_frac  = kelly_edge / 1.0                       # odds = 1:1
         adjusted_f  = KELLY_FRACTION * kelly_frac * regime_mul
         allocation  = portfolio_value * adjusted_f
 
-    Capped at MAX_ALLOCATION_INR, floored at MIN_ALLOCATION_INR.
+    Capped at max_allocation, floored at 0 (min floor enforced in pipeline).
     """
-    risk_pct = risk_pct or settings.DEFAULT_RISK_PCT
     portfolio_value = portfolio.total_value_inr
 
     if portfolio_value <= 0:
@@ -60,21 +70,28 @@ def compute_allocation(
             basis="portfolio_value_zero",
         )
 
+    # Dynamic caps — 20% / 4% of the CURRENT live portfolio value
+    max_allocation_inr = portfolio_value * settings.MAX_ALLOCATION_PCT
+    min_allocation_inr = portfolio_value * settings.MIN_ALLOCATION_PCT
+
     # Fractional Kelly
     kelly_edge = confidence - (1.0 - confidence)
     kelly_frac = max(kelly_edge, 0.0)  # never go negative
     regime_mul = _regime_multiplier(market_regime)
     adjusted_f = KELLY_FRACTION * kelly_frac * regime_mul
-
-    # Scale by configured risk % as a secondary cap
-    risk_based = portfolio_value * (risk_pct / 100.0)
     kelly_based = portfolio_value * adjusted_f
 
-    allocation = min(kelly_based, risk_based)
+    # Scale by configured risk % if explicitly provided; otherwise Kelly + max cap
+    if risk_pct is not None:
+        risk_based = portfolio_value * (risk_pct / 100.0)
+        allocation = min(kelly_based, risk_based)
+    else:
+        allocation = kelly_based
 
-    # Hard caps
-    allocation = min(allocation, settings.MAX_ALLOCATION_INR)
+    # Hard cap: 20% of live balance
+    allocation = min(allocation, max_allocation_inr)
     allocation = max(allocation, 0.0)
+
 
     actual_risk_pct = (allocation / portfolio_value * 100.0) if portfolio_value > 0 else 0.0
 
@@ -82,9 +99,11 @@ def compute_allocation(
         f"kelly_frac={kelly_frac:.3f} "
         f"regime_mul={regime_mul:.2f} "
         f"kelly_based={kelly_based:.0f} "
-        f"risk_cap={risk_based:.0f} "
+        f"max_cap={max_allocation_inr:.0f} "
+        f"min_floor={min_allocation_inr:.0f} "
         f"final={allocation:.0f}"
     )
+
 
     log.debug(
         "allocation_computed",
@@ -93,6 +112,8 @@ def compute_allocation(
         kelly_frac=round(kelly_frac, 4),
         regime_mul=regime_mul,
         portfolio_value=portfolio_value,
+        max_allocation_inr=round(max_allocation_inr, 2),
+        min_allocation_inr=round(min_allocation_inr, 2),
         allocation=round(allocation, 2),
         risk_pct=round(actual_risk_pct, 4),
     )
@@ -101,4 +122,5 @@ def compute_allocation(
         allocation_inr=round(allocation, 2),
         risk_percent=round(actual_risk_pct, 4),
         basis=basis,
+        min_allocation_inr=round(min_allocation_inr, 2),
     )

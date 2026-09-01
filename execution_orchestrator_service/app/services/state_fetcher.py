@@ -164,7 +164,10 @@ class StateFetcher:
                     portfolio_id=portfolio_id,
                     daily_loss_inr=data.get("daily_loss_inr", 0.0),
                     daily_loss_limit_inr=data.get(
-                        "daily_loss_limit_inr", settings.DAILY_LOSS_LIMIT_INR
+                        "daily_loss_limit_inr",
+                        # Fallback: 2% of ACCOUNT_CAPITAL_INR when risk_engine
+                        # doesn't return its own limit value.
+                        settings.ACCOUNT_CAPITAL_INR * settings.DAILY_LOSS_LIMIT_PCT,
                     ),
                     drawdown_pct=data.get("drawdown_pct", 0.0),
                     max_drawdown_pct=data.get(
@@ -191,7 +194,8 @@ class StateFetcher:
         return RiskState(
             portfolio_id=portfolio_id,
             daily_loss_inr=0.0,
-            daily_loss_limit_inr=settings.DAILY_LOSS_LIMIT_INR,
+            # 2% of configured capital reference as the last-resort fallback.
+            daily_loss_limit_inr=settings.ACCOUNT_CAPITAL_INR * settings.DAILY_LOSS_LIMIT_PCT,
             drawdown_pct=0.0,
             max_drawdown_pct=settings.MAX_PORTFOLIO_DRAWDOWN_PCT,
             kill_switch_active=False,

@@ -48,7 +48,8 @@ def test_allocation_never_exceeds_max_cap():
     """Even with max confidence and huge portfolio, cap applies."""
     result = compute_allocation(1.0, _portfolio(total=100_000_000.0), "TRENDING")
     from app.core.config import get_settings
-    assert result.allocation_inr <= get_settings().MAX_ALLOCATION_INR
+    assert result.allocation_inr <= 100_000_000.0 * get_settings().MAX_ALLOCATION_PCT
+
 
 
 def test_low_confidence_below_50_returns_zero():

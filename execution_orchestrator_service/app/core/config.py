@@ -54,28 +54,40 @@ class Settings(BaseSettings):
     WATCHLIST_SYMBOLS: list[str] = []
     DEFAULT_PORTFOLIO_ID: str = ""          # UUID string; empty = use broker default
 
+    # ── Retail account capital reference ─────────────────────────────────────
+    # Initial / default capital base used when live broker balance is unavailable.
+    # Set once in .env — do NOT update after every P&L move.  The actual
+    # percentage limits below are recalculated from the live available-cash
+    # figure at evaluation time; this is only the fallback / paper-trading seed.
+    ACCOUNT_CAPITAL_INR: float = 9000.0
+
     # ── Eligibility thresholds ────────────────────────────────────────────────
-    MIN_CONFIDENCE: float = 0.60            # below this → REJECTED / low_confidence
-    MIN_LIQUIDITY_VALUE_INR: float = 100_000.0  # notional required for liquidity gate
+    MIN_CONFIDENCE: float = 0.60    # below this → REJECTED / low_confidence
+    # Minimum available cash expressed as % of current live portfolio value.
+    # Computed dynamically at check time: threshold = portfolio.total_value_inr * 0.03
+    # (~₹270 at ₹9,000 | ~₹300 at ₹10,000). Replaces hardcoded ₹1,00,000 constant.
+    MIN_LIQUIDITY_PCT: float = 0.03  # 3% of live portfolio value
 
     # ── Position limits ───────────────────────────────────────────────────────
     MAX_POSITION_PCT: float = 0.10          # max 10% of portfolio in one symbol
     MAX_SECTOR_EXPOSURE_PCT: float = 0.30   # max 30% in one sector
     MAX_CORRELATION_SCORE: float = 0.80     # Pearson ρ above this → reject
 
-    # ── Capital allocation ────────────────────────────────────────────────────
+    # ── Capital allocation (percentage-based, applied to CURRENT live balance)
+    # These replace the old hardcoded INR amounts. The live portfolio value is
+    # fetched from broker_service on every pipeline cycle so limits auto-adjust
+    # as the account grows or shrinks with P&L.
     DEFAULT_RISK_PCT: float = 1.0           # % of portfolio risked per trade
     PRODUCT_TYPE: str = "MIS"               # MIS (intraday) | CNC (delivery) | NRML
-    MAX_ALLOCATION_INR: float = 500_000.0   # hard cap per single intent (5 lakh)
-    MIN_ALLOCATION_INR: float = 1_000.0     # below this → not worth executing
+    MAX_ALLOCATION_PCT: float = 0.20        # hard cap per single intent = 20% of live balance
+    MIN_ALLOCATION_PCT: float = 0.04        # floor per intent = 4% of live balance (~₹360 at ₹9k)
 
-    # ── Daily loss guard ──────────────────────────────────────────────────────
-    DAILY_LOSS_LIMIT_INR: float = 50_000.0  # mirrors broker_service default
-    DAILY_LOSS_LIMIT_PCT: float = 0.05      # 5% of portfolio NAV
+    # ── Daily loss guard (percentage-based, evaluated against CURRENT balance)
+    DAILY_LOSS_LIMIT_PCT: float = 0.02      # 2% of current portfolio NAV (was 5%)
 
     # ── Portfolio risk limits ─────────────────────────────────────────────────
     MAX_PORTFOLIO_DRAWDOWN_PCT: float = 0.15  # 15% max drawdown guard
-    MAX_OPEN_INTENTS: int = 20               # concurrent live ELIGIBLE intents
+    MAX_OPEN_INTENTS: int = 5                # concurrent live ELIGIBLE intents (was 20)
 
     # ── Downstream service URLs (HTTP fallback) ───────────────────────────────
     BROKER_SERVICE_URL: str = "http://broker-service:8003"

@@ -114,14 +114,13 @@ class ReadyResponse(BaseModel):
 
 class OrchestratorConfigResponse(BaseModel):
     min_confidence: float
-    min_liquidity_value_inr: float
+    min_liquidity_pct: float          # 3% of live portfolio value (dynamic)
     max_position_pct: float
     max_sector_exposure_pct: float
     max_correlation_score: float
     default_risk_pct: float
-    max_allocation_inr: float
-    min_allocation_inr: float
-    daily_loss_limit_inr: float
+    max_allocation_pct: float         # 20% of live balance (dynamic)
+    min_allocation_pct: float         # 4% of live balance (dynamic)
     daily_loss_limit_pct: float
     max_portfolio_drawdown_pct: float
     max_open_intents: int

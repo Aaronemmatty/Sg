@@ -20,4 +20,4 @@ echo ============================================================
 echo Done. All platform service ports should now be free.
 echo ============================================================
 echo.
-pause
+

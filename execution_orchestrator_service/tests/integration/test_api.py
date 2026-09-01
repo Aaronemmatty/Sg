@@ -80,8 +80,10 @@ async def test_config_endpoint():
     assert resp.status_code == 200
     data = resp.json()
     assert "min_confidence" in data
-    assert "max_allocation_inr" in data
+    assert "max_allocation_pct" in data
+    assert "min_liquidity_pct" in data
     assert data["min_confidence"] == pytest.approx(0.60, abs=0.01)
+
 
 
 # ── Intent endpoints ──────────────────────────────────────────────────────────

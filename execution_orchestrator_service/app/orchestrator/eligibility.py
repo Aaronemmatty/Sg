@@ -49,21 +49,33 @@ async def check_liquidity(
     portfolio: PortfolioState,
 ) -> EligibilityResult:
     """
-    Ensure the portfolio has enough notional to make the trade meaningful.
-    Proxy: available cash must meet the minimum liquidity threshold.
+    Ensure the portfolio has enough available cash to make the trade meaningful.
+
+    The minimum threshold is computed dynamically as MIN_LIQUIDITY_PCT (3%) of
+    the CURRENT live portfolio value, so it recalibrates automatically as the
+    account grows or shrinks with P&L:
+
+        threshold = portfolio.total_value_inr * 0.03
+        (~₹270 at ₹9,000 | ~₹300 at ₹10,000)
+
+    This replaces the former hardcoded ₹1,00,000 static constant which blocked
+    all trades at small account sizes.
     """
     available = portfolio.cash_inr
-    passed = available >= settings.MIN_LIQUIDITY_VALUE_INR
+    threshold = portfolio.total_value_inr * settings.MIN_LIQUIDITY_PCT
+    passed = available >= threshold
     return EligibilityResult(
         check_name="liquidity",
         passed=passed,
         reason=RejectionReason.LIQUIDITY_VIOLATION if not passed else None,
         detail=(
-            f"cash={available:.0f} INR < min_liquidity={settings.MIN_LIQUIDITY_VALUE_INR:.0f} INR"
+            f"cash={available:.0f} INR < min_liquidity={threshold:.0f} INR "
+            f"({settings.MIN_LIQUIDITY_PCT*100:.0f}% of live portfolio ₹{portfolio.total_value_inr:.0f})"
             if not passed
             else None
         ),
     )
+
 
 
 # ── 3. Position limit check ───────────────────────────────────────────────────
