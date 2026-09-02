@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     KITE_ACCESS_TOKEN: str = ""
     # "live" or "paper" — paper uses Paper broker, live uses Kite
     BROKER_MODE: Literal["live", "paper"] = "paper"
+    # Secondary safety guard: Live real-money trading is refused unless this exact string is set.
+    ENABLE_REAL_MONEY_TRADING: str = ""
+    LIVE_CONFIRMATION_TOKEN: str = "CONFIRMED_REAL_CAPITAL_RISK"
     # Thread pool workers for sync Kite SDK calls
     KITE_EXECUTOR_WORKERS: int = 4
 

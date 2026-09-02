@@ -7,7 +7,7 @@ Provides get_current_user dependency and role guard functions.
 from __future__ import annotations
 
 from app.core.config import get_settings
-from app.core.jwt_auth import JWTAuthConfig, JWTAuthDependencies
+from sg_security.jwt_auth import CurrentUser, JWTAuthConfig, JWTAuthDependencies
 
 settings = get_settings()
 

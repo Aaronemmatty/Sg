@@ -75,10 +75,12 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    from sg_security.cors import parse_cors_origins
+
     app.add_middleware(CorrelationIdMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[os.getenv("ALLOWED_ORIGINS", "http://localhost")],
+        allow_origins=parse_cors_origins(os.getenv("ALLOWED_ORIGINS", "http://localhost")),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

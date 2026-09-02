@@ -59,6 +59,12 @@ class AuthenticationError(BrokerError):
         super().__init__(message, code="auth_error", retryable=False)
 
 
+class LiveTradingGuardError(BrokerError):
+    """Refused live broker initialization due to missing/invalid confirmation guard."""
+    def __init__(self, message: str):
+        super().__init__(message, code="live_trading_guard_blocked", retryable=False)
+
+
 class BrokerInterface(ABC):
     """Abstract broker — all concrete adapters implement this."""
 

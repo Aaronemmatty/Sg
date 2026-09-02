@@ -31,6 +31,7 @@ from app.brokers.interface import BrokerInterface
 from app.core.config import get_settings
 from app.core.logging import get_logger
 from app.core.types import AccountInfo, OrderRequest, OrderResult, OrderSide, Position
+from sg_security.calendar import is_market_open
 
 settings = get_settings()
 log = get_logger(__name__)
@@ -119,7 +120,6 @@ class RiskEngine:
                     error=str(exc),
                     fallback_capital=settings.ACCOUNT_CAPITAL_INR,
                 )
-                from app.core.types import AccountInfo
                 self._cached_account = AccountInfo(
                     broker="fallback",
                     account_id="fallback",
@@ -150,6 +150,7 @@ class RiskEngine:
         self,
         request: OrderRequest,
         broker: BrokerInterface,
+        now_dt: datetime | None = None,
     ) -> RiskCheckResult:
         """Run all pre-trade checks. Returns result with violations."""
         self._auto_reset()
@@ -158,6 +159,7 @@ class RiskEngine:
         # Fetch effective limits once per check (cached)
         limits = await self._get_effective_limits(broker)
 
+        self._check_market_hours(result, now_dt=now_dt)
         self._check_exchange(request, result)
         self._check_product(request, result)
         self._check_order_value(request, result, limits)
@@ -175,6 +177,14 @@ class RiskEngine:
                 violations=[str(v) for v in result.violations],
             )
         return result
+
+    def _check_market_hours(self, result: RiskCheckResult, now_dt: datetime | None = None) -> None:
+        if not is_market_open(now_dt):
+            result.add_violation(
+                "MARKET_HOURS",
+                "Market is closed. Continuous equity trading is only allowed during NSE market hours "
+                "(09:15-15:30 IST, Monday-Friday, excluding NSE exchange holidays).",
+            )
 
     def _check_exchange(self, req: OrderRequest, result: RiskCheckResult) -> None:
         if req.exchange.value not in settings.ALLOWED_EXCHANGES:

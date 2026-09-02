@@ -169,11 +169,14 @@ class TestRiskEngine:
 
     @pytest.mark.asyncio
     async def test_valid_order_passes(self):
+        from datetime import datetime
+        from sg_security.calendar import IST
         engine = self._engine()
         order = _make_order(quantity=1, price=100.0)
         mock_broker = AsyncMock()
         mock_broker.get_positions.return_value = []
-        result = await engine.pre_trade_check(order, mock_broker)
+        open_dt = datetime(2026, 3, 4, 11, 0, 0, tzinfo=IST)
+        result = await engine.pre_trade_check(order, mock_broker, now_dt=open_dt)
         assert result.passed is True
         assert result.violations == []
 

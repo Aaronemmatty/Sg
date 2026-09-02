@@ -49,8 +49,14 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" if settings.APP_ENV != "production" else None,
         lifespan=lifespan,
     )
-    app.add_middleware(CORSMiddleware, allow_origins=[os.getenv("ALLOWED_ORIGINS", "http://localhost")], allow_credentials=True,
-                       allow_methods=["*"], allow_headers=["*"])
+    from sg_security.cors import parse_cors_origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=parse_cors_origins(os.getenv("ALLOWED_ORIGINS", "http://localhost")),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.include_router(api_router)
 
     @app.get("/health", include_in_schema=False)

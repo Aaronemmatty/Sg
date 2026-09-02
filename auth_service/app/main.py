@@ -55,9 +55,11 @@ def create_app() -> FastAPI:
     app.add_middleware(CorrelationIDMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestLoggingMiddleware)
+    from sg_security.cors import parse_cors_origins
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(o) for o in settings.ALLOWED_ORIGINS],
+        allow_origins=parse_cors_origins([str(o) for o in settings.ALLOWED_ORIGINS], default=["http://localhost"]),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

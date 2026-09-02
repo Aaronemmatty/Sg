@@ -35,6 +35,7 @@ class RejectionReason(str, enum.Enum):
     DRAWDOWN_LIMIT = "drawdown_limit"
     MAX_OPEN_INTENTS = "max_open_intents"
     ALLOCATION_TOO_SMALL = "allocation_too_small"
+    MARKET_CLOSED = "market_closed"
 
 
 class MarketRegime(str, enum.Enum):

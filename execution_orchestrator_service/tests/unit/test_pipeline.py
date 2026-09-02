@@ -68,8 +68,10 @@ def _make_pipeline(portfolio=None, risk=None, regime_cache=None):
 
 @pytest.mark.asyncio
 async def test_eligible_signal_produces_eligible_intent():
+    from sg_security.calendar import IST
     pipeline = _make_pipeline()
-    intent, checks, portfolio, risk = await pipeline.process(_signal(), "port-001")
+    open_dt = datetime(2026, 3, 4, 11, 0, 0, tzinfo=IST)
+    intent, checks, portfolio, risk = await pipeline.process(_signal(), "port-001", now_dt=open_dt)
 
     assert intent.status == IntentStatus.ELIGIBLE
     assert intent.symbol == "NIFTY"

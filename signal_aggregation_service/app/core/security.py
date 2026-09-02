@@ -39,8 +39,7 @@ def _load_public_key() -> str | None:
     return path.read_text()
 
 
-def _is_production(settings: Any) -> bool:
-    return getattr(settings, "env", None) == "production"
+from sg_security.env import is_production as _is_production
 
 
 async def verify_token(
@@ -80,7 +79,7 @@ async def verify_token(
             issuer=getattr(settings, "JWT_ISSUER", None) or None,
             options={"require": ["exp", "sub"]},
         )
-    except jwt.PyJWTError as exc:
+    except Exception as exc:
         logger.info("jwt_verification_failed", extra={"reason": type(exc).__name__})
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
 

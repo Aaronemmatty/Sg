@@ -7,7 +7,7 @@ and returning an EligibilityResult(passed, check_name, reason, detail).
 The pipeline runs ALL checks and aggregates results so the audit log
 captures every check, not just the first failure.
 """
-from __future__ import annotations
+from datetime import datetime
 
 from app.core.config import get_settings
 from app.core.logging import get_logger
@@ -19,6 +19,7 @@ from app.models.domain import (
     RiskState,
     TradeAction,
 )
+from sg_security.calendar import is_market_open
 
 settings = get_settings()
 log = get_logger(__name__)
@@ -248,6 +249,26 @@ async def check_open_intents(risk: RiskState) -> EligibilityResult:
     )
 
 
+# ── 9. Market hours check ─────────────────────────────────────────────────────
+async def check_market_hours(
+    now_dt: datetime | None = None,
+) -> EligibilityResult:
+    """
+    Ensure the market is currently open for continuous trading (09:15–15:30 IST Mon–Fri, excluding holidays).
+    """
+    open_now = is_market_open(now_dt)
+    return EligibilityResult(
+        check_name="market_hours",
+        passed=open_now,
+        reason=RejectionReason.MARKET_CLOSED if not open_now else None,
+        detail=(
+            "Market is closed (trading session is 09:15-15:30 IST on NSE trading days)"
+            if not open_now
+            else None
+        ),
+    )
+
+
 # ── Pipeline runner ───────────────────────────────────────────────────────────
 
 
@@ -255,6 +276,7 @@ async def run_all_checks(
     signal: AggregatedSignal,
     portfolio: PortfolioState,
     risk: RiskState,
+    now_dt: datetime | None = None,
 ) -> list[EligibilityResult]:
     """
     Run all eligibility checks and return results for every check.
@@ -262,6 +284,7 @@ async def run_all_checks(
     """
     results: list[EligibilityResult] = []
 
+    results.append(await check_market_hours(now_dt))
     results.append(await check_confidence(signal))
     results.append(await check_liquidity(signal, portfolio))
     results.append(await check_position_limit(signal, portfolio))

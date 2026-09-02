@@ -110,21 +110,31 @@ class TestSecurityAuth:
             assert "Invalid token" in exc_info.value.detail
 
     def test_is_production_true(self):
-        """_is_production returns True when env is 'production'."""
+        """_is_production returns True when env is 'production' or 'prod' (case-insensitive)."""
         mock_settings = MagicMock()
         mock_settings.env = "production"
+        assert _is_production(mock_settings) is True
+
+        mock_settings.env = None
+        mock_settings.ENV = "prod"
+        assert _is_production(mock_settings) is True
+
+        mock_settings.ENV = "PROD"
         assert _is_production(mock_settings) is True
 
     def test_is_production_false(self):
         """_is_production returns False for non-production envs."""
         mock_settings = MagicMock()
         mock_settings.env = "development"
+        mock_settings.ENV = "dev"
         assert _is_production(mock_settings) is False
 
         mock_settings.env = "staging"
+        mock_settings.ENV = "staging"
         assert _is_production(mock_settings) is False
 
         mock_settings.env = None
+        mock_settings.ENV = None
         assert _is_production(mock_settings) is False
 
 
@@ -134,28 +144,18 @@ class TestRequireRole:
     @pytest.mark.asyncio
     async def test_require_role_passes_with_correct_role(self):
         """User with required role passes."""
-        mock_creds = MagicMock()
-        mock_creds.credentials = "valid_token"
-
-        with patch("app.core.security._load_public_key", return_value="mock_key"), \
-             patch("app.core.security.jwt.decode", return_value={"sub": "user", "roles": ["analyst"]}):
-            dependency = require_role("analyst")
-            result = await dependency(mock_creds)
-            assert result["sub"] == "user"
+        dependency = require_role("analyst")
+        result = await dependency(claims={"sub": "user", "roles": ["analyst"]})
+        assert result["sub"] == "user"
 
     @pytest.mark.asyncio
     async def test_require_role_fails_without_role(self):
         """User without required role gets 403."""
-        mock_creds = MagicMock()
-        mock_creds.credentials = "valid_token"
-
-        with patch("app.core.security._load_public_key", return_value="mock_key"), \
-             patch("app.core.security.jwt.decode", return_value={"sub": "user", "roles": ["trader"]}):
-            dependency = require_role("analyst")
-            with pytest.raises(HTTPException) as exc_info:
-                await dependency(mock_creds)
-            assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
-            assert "Requires role 'analyst'" in exc_info.value.detail
+        dependency = require_role("analyst")
+        with pytest.raises(HTTPException) as exc_info:
+            await dependency(claims={"sub": "user", "roles": ["trader"]})
+        assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
+        assert "Requires role 'analyst'" in exc_info.value.detail
 
     @pytest.mark.asyncio
     async def test_require_role_validates_roles_claim(self):

@@ -110,6 +110,7 @@ class OrchestratorPipeline:
         self,
         signal: AggregatedSignal,
         portfolio_id: Optional[str] = None,
+        now_dt: Optional[datetime] = None,
     ) -> tuple[TradeIntent, list[EligibilityResult], PortfolioState, RiskState]:
         """
         Full orchestration pipeline.
@@ -141,7 +142,7 @@ class OrchestratorPipeline:
 
             # ── 2. Eligibility checks ─────────────────────────────────────────
             with tracer.start_as_current_span("orchestrator.eligibility"):
-                checks = await run_all_checks(signal, portfolio, risk)
+                checks = await run_all_checks(signal, portfolio, risk, now_dt=now_dt)
 
             # ── 3. Allocation ─────────────────────────────────────────────────
             with tracer.start_as_current_span("orchestrator.allocation"):

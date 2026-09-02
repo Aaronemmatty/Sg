@@ -274,22 +274,26 @@ async def test_open_intents_at_max():
 
 @pytest.mark.asyncio
 async def test_run_all_checks_all_pass():
+    from sg_security.calendar import IST
     signal = _signal(confidence=0.85)
     portfolio = _portfolio(cash=500_000)
     risk = _risk()
-    results = await run_all_checks(signal, portfolio, risk)
-    assert len(results) == 8
+    open_dt = datetime(2026, 3, 4, 11, 0, tzinfo=IST)
+    results = await run_all_checks(signal, portfolio, risk, now_dt=open_dt)
+    assert len(results) == 9
     assert all(r.passed for r in results)
 
 
 @pytest.mark.asyncio
 async def test_run_all_checks_does_not_short_circuit():
     """All checks run even if confidence fails."""
+    from sg_security.calendar import IST
     signal = _signal(confidence=0.20)   # will fail confidence
     portfolio = _portfolio(cash=50)     # will also fail liquidity
     risk = _risk(daily_loss=60_000)     # will also fail daily_loss
-    results = await run_all_checks(signal, portfolio, risk)
-    assert len(results) == 8            # all 8 checks ran
+    open_dt = datetime(2026, 3, 4, 11, 0, tzinfo=IST)
+    results = await run_all_checks(signal, portfolio, risk, now_dt=open_dt)
+    assert len(results) == 9            # all 9 checks ran
     failed = [r for r in results if not r.passed]
     assert len(failed) >= 3
 
@@ -297,7 +301,10 @@ async def test_run_all_checks_does_not_short_circuit():
 @pytest.mark.asyncio
 async def test_hold_signal_passes_all_positional_checks():
     """A HOLD signal should pass position/sector/correlation checks."""
+    from sg_security.calendar import IST
     signal = _signal(action=TradeAction.HOLD, confidence=0.90)
-    results = await run_all_checks(signal, _portfolio(), _risk())
+    open_dt = datetime(2026, 3, 4, 11, 0, tzinfo=IST)
+    results = await run_all_checks(signal, _portfolio(), _risk(), now_dt=open_dt)
     position_result = next(r for r in results if r.check_name == "position_limit")
     assert position_result.passed is True
+

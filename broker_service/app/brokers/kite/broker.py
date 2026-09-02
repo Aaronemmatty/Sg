@@ -77,6 +77,9 @@ _KITE_STATUS_MAP: dict[str, OrderStatus] = {
 
 class KiteBroker(BrokerInterface):
     def __init__(self) -> None:
+        from app.brokers.factory import verify_live_trading_guard
+        verify_live_trading_guard()
+
         self._kite = KiteConnect(
             api_key=settings.KITE_API_KEY,
             access_token=settings.KITE_ACCESS_TOKEN,
