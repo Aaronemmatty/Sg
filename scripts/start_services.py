@@ -84,7 +84,7 @@ def main():
     if not is_port_open(3000):
         dash_dir = REPO_ROOT / "sg-dashboard"
         dash_log = open(LOGS_DIR / "sg-dashboard.log", "w", encoding="utf-8")
-        subprocess.Popen(["cmd.exe", "/c", "npm run dev"], cwd=str(dash_dir), env=env, stdout=dash_log, stderr=subprocess.STDOUT, creationflags=DETACHED)
+        subprocess.Popen(["npm.cmd", "run", "dev"], cwd=str(dash_dir), env=env, stdout=dash_log, stderr=subprocess.STDOUT, creationflags=DETACHED)
         print("  [*] Started sg-dashboard on port 3000")
     else:
         print("  [+] sg-dashboard already listening on port 3000")

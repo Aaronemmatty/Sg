@@ -265,6 +265,7 @@ async def generate_kite_session(
     and broadcasts to sg:kite:token_refreshed.
     """
     try:
+        broker = await get_broker()
         if broker.broker_name == "kite" and hasattr(broker, "generate_session"):
             access_token = await broker.generate_session(body.request_token)
         else:
