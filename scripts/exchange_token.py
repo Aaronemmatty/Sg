@@ -15,13 +15,20 @@ class CustomSSLAdapter(HTTPAdapter):
         kwargs["ssl_context"] = ctx
         return super().init_poolmanager(*args, **kwargs)
 
+import os
 import sys
 import urllib.parse
+from dotenv import dotenv_values
 
-api_key = "xb80osxbhnfj8kbz"
-api_secret = "ncnhxtixpwcpm4afnlru185jtjs5vnnr"
+_envs = dotenv_values(".env")
+api_key = os.environ.get("KITE_API_KEY") or _envs.get("KITE_API_KEY", "")
+api_secret = os.environ.get("KITE_API_SECRET") or _envs.get("KITE_API_SECRET", "")
 
-raw_input = sys.argv[1] if len(sys.argv) > 1 else "kBB16Ern7WBZnDsj1oAz1pz92IaZN3PV"
+raw_input = sys.argv[1] if len(sys.argv) > 1 else ""
+if not raw_input:
+    print("Usage: python scripts/exchange_token.py <request_token>")
+    sys.exit(1)
+
 if "request_token=" in raw_input:
     parsed = urllib.parse.urlparse(raw_input)
     params = urllib.parse.parse_qs(parsed.query)
