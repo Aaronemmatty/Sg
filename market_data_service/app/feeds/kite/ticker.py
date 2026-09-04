@@ -61,6 +61,7 @@ class KiteFeed(BaseFeed):
             "ticks_processed": 0,
             "reconnects": 0,
         }
+        self._pubsub_task: Optional[asyncio.Task] = None
 
     # ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -70,9 +71,20 @@ class KiteFeed(BaseFeed):
         self._running = True
         self._loop = asyncio.get_running_loop()
 
+        import redis.asyncio as redis_lib
+        access_token = settings.KITE_ACCESS_TOKEN
+        try:
+            r_b2 = redis_lib.from_url("redis://127.0.0.1:6379/2")
+            cached_token = await r_b2.get("sg:kite:access_token")
+            if cached_token:
+                access_token = cached_token.decode() if isinstance(cached_token, bytes) else str(cached_token)
+            await r_b2.aclose()
+        except Exception as e:
+            log.warning("kite_feed_redis_token_check_failed", error=str(e))
+
         self._ticker = KiteTicker(
             api_key=settings.KITE_API_KEY,
-            access_token=settings.KITE_ACCESS_TOKEN,
+            access_token=access_token,
         )
 
         # Wire callbacks
@@ -88,16 +100,19 @@ class KiteFeed(BaseFeed):
             target=self._ticker.connect,
             kwargs={
                 "threaded": True,
-                "disable_ssl_verify": False,
+                "disable_ssl_verification": False,
             },
             daemon=True,
             name="kite-ticker",
         )
         thread.start()
 
-        # Start async consumer
+        # Start async consumer and pubsub subscriber
         self._consumer_task = asyncio.create_task(
             self._consume_queue(), name="tick-consumer"
+        )
+        self._pubsub_task = asyncio.create_task(
+            self._listen_token_refreshed(), name="token-refreshed-listener"
         )
         log.info("kite_feed_started", mode="live")
         await set_feed_status("connecting")
@@ -105,11 +120,47 @@ class KiteFeed(BaseFeed):
     async def stop(self) -> None:
         self._running = False
         if self._ticker:
-            self._ticker.stop()
+            try:
+                self._ticker.stop()
+            except Exception as e:
+                log.warning("kite_ticker_stop_error", error=str(e))
         if self._consumer_task:
             self._consumer_task.cancel()
+        if self._pubsub_task:
+            self._pubsub_task.cancel()
         log.info("kite_feed_stopped", stats=self._stats)
         await set_feed_status("stopped")
+
+    async def update_access_token(self, new_token: str) -> None:
+        """Update KiteTicker access token and force reconnect."""
+        if self._ticker:
+            log.info("updating_kite_feed_access_token_and_reconnecting")
+            self._ticker.set_access_token(new_token)
+            try:
+                self._ticker.reconnect()
+            except Exception as e:
+                log.warning("kite_feed_reconnect_failed", error=str(e))
+
+    async def _listen_token_refreshed(self) -> None:
+        """Listen for sg:kite:token_refreshed Redis pubsub notifications."""
+        import redis.asyncio as redis_lib
+        try:
+            r = redis_lib.from_url("redis://127.0.0.1:6379/2")
+            pubsub = r.pubsub()
+            await pubsub.subscribe("sg:kite:token_refreshed")
+            log.info("subscribed_to_kite_token_refreshed_pubsub")
+            async for message in pubsub.listen():
+                if not self._running:
+                    break
+                if message and message.get("type") == "message":
+                    raw_tok = await r.get("sg:kite:access_token")
+                    if raw_tok:
+                        tok_str = raw_tok.decode() if isinstance(raw_tok, bytes) else str(raw_tok)
+                        await self.update_access_token(tok_str)
+        except asyncio.CancelledError:
+            pass
+        except Exception as exc:
+            log.error("token_refreshed_listener_error", error=str(exc))
 
     # ── Subscription management ───────────────────────────────────────────────
 
@@ -128,8 +179,14 @@ class KiteFeed(BaseFeed):
         self._token_to_symbol.update({v: k for k, v in symbol_token_map.items()})
 
         # Kite: subscribe in FULL mode (gives bid/ask, OI, etc.)
-        self._ticker.subscribe(tokens)
-        self._ticker.set_mode(self._ticker.MODE_FULL, tokens)
+        if self._ticker and getattr(self._ticker, "ws", None) and self._ticker.is_connected():
+            try:
+                self._ticker.subscribe(tokens)
+                self._ticker.set_mode(self._ticker.MODE_FULL, tokens)
+            except Exception as exc:
+                log.warning("ticker_subscribe_call_failed", error=str(exc))
+        else:
+            log.info("ticker_not_yet_connected_queued_in_redis", count=len(tokens))
 
         # Persist subscription registry to Redis
         for symbol, token in symbol_token_map.items():

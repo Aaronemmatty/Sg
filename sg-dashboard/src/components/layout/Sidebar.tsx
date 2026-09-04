@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Activity,
   TrendingUp,
+  KeyRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useStore } from "@/lib/stores/app.store";
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { href: "/ml-models", label: "ML Models", icon: Brain },
   { href: "/backtesting", label: "Backtesting", icon: FlaskConical },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/kite-auth", label: "Kite Auth", icon: KeyRound },
   { href: "/admin", label: "Admin", icon: Shield },
 ];
 
@@ -85,7 +87,13 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.filter(({ href }) => {
+          if (href === "/admin") return user?.roles?.includes("admin");
+          if (href === "/kite-auth") {
+            return user?.roles?.includes("admin") || user?.roles?.includes("risk_officer");
+          }
+          return true;
+        }).map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link

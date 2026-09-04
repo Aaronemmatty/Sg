@@ -10,9 +10,10 @@ from app.core.config import get_settings
 from app.core.types import Exchange, OrderRequest, OrderSide, OrderType, ProductType, Validity
 from app.risk.engine import get_risk_engine
 from app.schemas.broker import (
-    AccountInfoResponse, BrokerStatusResponse, ModifyOrderRequest,
-    OkResponse, OrderBookResponse, OrderResultResponse,
-    PlaceOrderRequest, PositionResponse, RiskStatusResponse,
+    AccountInfoResponse, BrokerStatusResponse, KiteLoginUrlResponse,
+    KiteSessionRequest, ModifyOrderRequest, OkResponse, OrderBookResponse,
+    OrderResultResponse, PlaceOrderRequest, PositionResponse,
+    RiskStatusResponse,
 )
 from app.services.order import OrderService
 from sg_security.validation import validate_symbol
@@ -240,3 +241,49 @@ async def broker_status(_user = Depends(get_current_user)) -> BrokerStatusRespon
         circuit_breaker=cb_info,
         rate_limiter=rl_info,
     )
+
+
+# ── Kite Session Management ───────────────────────────────────────────────────
+
+@router.get("/kite/login-url", response_model=KiteLoginUrlResponse,
+            summary="Get Kite Connect OAuth login URL for manual authentication")
+async def get_kite_login_url(_user = Depends(get_current_user)) -> KiteLoginUrlResponse:
+    """Returns the Zerodha OAuth login URL to open in browser."""
+    url = f"https://kite.zerodha.com/connect/login?v=3&api_key={settings.KITE_API_KEY}"
+    return KiteLoginUrlResponse(login_url=url, api_key=settings.KITE_API_KEY)
+
+
+@router.post("/kite/session", response_model=OkResponse,
+             summary="Exchange request_token for Kite access_token and activate live session")
+async def generate_kite_session(
+    body: KiteSessionRequest,
+    _user = Depends(require_any_role(["admin", "risk_officer"])),
+) -> OkResponse:
+    """
+    Exchanges the manually obtained request_token for an access_token,
+    updates the in-memory KiteConnect instance, saves to Redis (26h TTL),
+    and broadcasts to sg:kite:token_refreshed.
+    """
+    try:
+        if broker.broker_name == "kite" and hasattr(broker, "generate_session"):
+            access_token = await broker.generate_session(body.request_token)
+        else:
+            from kiteconnect import KiteConnect
+            import redis.asyncio as redis_lib
+            kc = KiteConnect(api_key=settings.KITE_API_KEY)
+            data = kc.generate_session(request_token=body.request_token, api_secret=settings.KITE_API_SECRET)
+            access_token = data["access_token"]
+            
+            # Save in Redis DB 0, 1, 2 and notify
+            for db_num in (0, 1, 2):
+                r = redis_lib.from_url(f"redis://127.0.0.1:6379/{db_num}")
+                await r.set("sg:kite:access_token", access_token, ex=93600)
+                if db_num == 2:
+                    await r.publish("sg:kite:token_refreshed", "refreshed")
+                await r.aclose()
+
+        prefix = access_token[:4] if len(access_token) >= 4 else "***"
+        return OkResponse(message=f"Kite access token activated successfully (prefix: {prefix}...)")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to generate Kite session: {e}")
+

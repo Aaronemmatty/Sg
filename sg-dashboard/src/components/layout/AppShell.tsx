@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Sidebar } from "./Sidebar";
+import { TradingModeBanner } from "./TradingModeBanner";
 import { useStore } from "@/lib/stores/app.store";
 import { usePortfolioStream, useRiskStream, useExecutionStream } from "@/hooks/use-sse";
 import type { User } from "@/types";
@@ -30,6 +31,7 @@ export function AppShell({ user, children }: AppShellProps) {
       <SSEInitializer />
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <TradingModeBanner />
         {children}
       </main>
     </div>

@@ -95,7 +95,21 @@ class JobManager:
     def repo(self) -> BacktestRepository:
         return self._repo
 
-    async def submit(self, request: BacktestRunRequest) -> uuid.UUID:
+    async def submit(
+        self, request: BacktestRunRequest, auth_header: str | None = None
+    ) -> uuid.UUID:
+        if request.config.initial_capital_inr is None:
+            from app.services.capital_provider import resolve_initial_capital
+
+            await resolve_initial_capital(request.config, auth_header=auth_header)
+        elif request.config.capital_source is None:
+            request.config.capital_source = "user-override"
+            log.info(
+                "backtest_capital_resolved",
+                run_name=request.config.name,
+                initial_capital_inr=request.config.initial_capital_inr,
+                source="user-override",
+            )
         run_id = uuid.uuid4()
         await self._repo.create_run(
             run_id, request.mode, request.config, request.walk_forward, request.monte_carlo
@@ -185,7 +199,8 @@ class JobManager:
                     await provider.prepare(sym, df)
             engine = BacktestEngine(config)
             trades, equity_curve = engine.run(bars_by_symbol, provider, benchmark_df)
-            metrics = compute_performance(equity_curve, trades, config.initial_capital_inr)
+            initial_cap = config.initial_capital_inr or settings.default_initial_capital_inr
+            metrics = compute_performance(equity_curve, trades, initial_cap)
 
             await self._repo.save_trades(run_id, trades)
             await self._repo.save_equity_curve(run_id, equity_curve)
@@ -211,8 +226,9 @@ class JobManager:
 
         await self._repo.save_trades(run_id, trades)
         await self._repo.save_equity_curve(run_id, equity_curve)
-        baseline_metrics = compute_performance(equity_curve, trades, config.initial_capital_inr)
+        initial_cap = config.initial_capital_inr or settings.default_initial_capital_inr
+        baseline_metrics = compute_performance(equity_curve, trades, initial_cap)
         await self._repo.save_performance(run_id, baseline_metrics)
 
-        mc_result = run_monte_carlo(mc_config, equity_curve, trades, config.initial_capital_inr)
+        mc_result = run_monte_carlo(mc_config, equity_curve, trades, initial_cap)
         await self._repo.save_monte_carlo(run_id, mc_result)

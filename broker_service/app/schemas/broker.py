@@ -114,3 +114,12 @@ class BrokerStatusResponse(BaseModel):
 class OkResponse(BaseModel):
     ok: bool = True
     message: str = "Success"
+
+
+class KiteSessionRequest(BaseModel):
+    request_token: str = Field(..., description="The request_token obtained from Zerodha OAuth redirect")
+
+
+class KiteLoginUrlResponse(BaseModel):
+    login_url: str = Field(..., description="URL to open in browser for manual Zerodha authentication")
+    api_key: str = Field(..., description="Kite API key")

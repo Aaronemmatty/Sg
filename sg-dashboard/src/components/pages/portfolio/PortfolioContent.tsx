@@ -117,14 +117,14 @@ export function PortfolioContent() {
           </div>
           <div className="p-5 grid grid-cols-4 lg:grid-cols-8 gap-4">
             {[
-              { label: "Total Return", value: formatPct(perf.total_return_pct, 2, true), positive: perf.total_return_pct > 0 },
-              { label: "Ann. Return", value: formatPct(perf.annualised_return_pct, 2, true), positive: perf.annualised_return_pct > 0 },
-              { label: "Sharpe", value: perf.sharpe_ratio.toFixed(2), positive: perf.sharpe_ratio > 1 },
-              { label: "Sortino", value: perf.sortino_ratio.toFixed(2), positive: perf.sortino_ratio > 1 },
-              { label: "Max DD", value: formatPct(perf.max_drawdown_pct), positive: false },
-              { label: "Win Rate", value: formatPct(perf.win_rate_pct), positive: perf.win_rate_pct > 50 },
-              { label: "Alpha", value: perf.alpha.toFixed(3), positive: perf.alpha > 0 },
-              { label: "Beta", value: perf.beta.toFixed(2), positive: true },
+              { label: "Total Return", value: perf.total_return_pct != null ? formatPct(perf.total_return_pct, 2, true) : "—", positive: (perf.total_return_pct ?? 0) > 0 },
+              { label: "Ann. Return", value: perf.annualised_return_pct != null ? formatPct(perf.annualised_return_pct, 2, true) : "—", positive: (perf.annualised_return_pct ?? 0) > 0 },
+              { label: "Sharpe", value: perf.sharpe_ratio != null ? perf.sharpe_ratio.toFixed(2) : "—", positive: (perf.sharpe_ratio ?? 0) > 1 },
+              { label: "Sortino", value: perf.sortino_ratio != null ? perf.sortino_ratio.toFixed(2) : "—", positive: (perf.sortino_ratio ?? 0) > 1 },
+              { label: "Max DD", value: perf.max_drawdown_pct != null ? formatPct(perf.max_drawdown_pct) : "—", positive: false },
+              { label: "Win Rate", value: perf.win_rate_pct != null ? formatPct(perf.win_rate_pct) : "—", positive: (perf.win_rate_pct ?? 0) > 50 },
+              { label: "Alpha", value: perf.alpha != null ? perf.alpha.toFixed(3) : "—", positive: (perf.alpha ?? 0) > 0 },
+              { label: "Beta", value: perf.beta != null ? perf.beta.toFixed(2) : "—", positive: true },
             ].map((m) => (
               <div key={m.label} className="text-center">
                 <div className="text-2xs text-text-muted uppercase tracking-wider mb-1">{m.label}</div>

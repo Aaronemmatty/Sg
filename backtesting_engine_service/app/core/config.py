@@ -35,6 +35,9 @@ class Settings(BaseSettings):
         default="http://portfolio_management_service:8009",
         alias="PORTFOLIO_MANAGEMENT_SERVICE_URL",
     )
+    broker_service_url: str = Field(
+        default="http://broker_service:8003", alias="BROKER_SERVICE_URL"
+    )
 
     # OTel
     otel_exporter_otlp_endpoint: str = Field(
@@ -49,7 +52,7 @@ class Settings(BaseSettings):
     max_concurrent_backtests: int = Field(default=3, alias="MAX_CONCURRENT_BACKTESTS")
     backtest_job_ttl_days: int = Field(default=90, alias="BACKTEST_JOB_TTL_DAYS")
     default_initial_capital_inr: float = Field(
-        default=1_000_000.0, alias="DEFAULT_INITIAL_CAPITAL_INR"
+        default=9_000.0, alias="DEFAULT_INITIAL_CAPITAL_INR"
     )
     default_commission_bps: float = Field(default=3.0, alias="DEFAULT_COMMISSION_BPS")
     default_slippage_bps: float = Field(default=5.0, alias="DEFAULT_SLIPPAGE_BPS")

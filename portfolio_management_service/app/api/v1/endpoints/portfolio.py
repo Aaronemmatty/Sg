@@ -130,3 +130,32 @@ async def get_lots(
             )
     lots = [dict(r) for r in rows]
     return {"symbol": sym, "lots": lots, "count": len(lots)}
+
+
+@router.post("/reconciliation/run")
+async def run_reconciliation(
+    trigger_halt: bool = Query(default=True, description="Trigger risk kill-switch on mismatch"),
+    _user: CurrentUser = Depends(get_current_user),
+):
+    """
+    Triggers an on-demand position-book reconciliation cycle between
+    internal Postgres positions and broker_service live positions.
+    """
+    from app.services.position_reconciliation import reconcile_positions
+
+    result = await reconcile_positions(trigger_halt_on_mismatch=trigger_halt)
+    return result.to_dict()
+
+
+@router.get("/reconciliation/diff")
+async def get_reconciliation_diff(
+    _user: CurrentUser = Depends(get_current_user),
+):
+    """
+    Performs a read-only reconciliation diff between internal and broker positions
+    without tripping the risk kill-switch.
+    """
+    from app.services.position_reconciliation import reconcile_positions
+
+    result = await reconcile_positions(trigger_halt_on_mismatch=False)
+    return result.to_dict()

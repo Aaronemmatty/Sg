@@ -6,6 +6,7 @@ import { formatInrCompact, formatPct } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { RiskEventFeed } from "@/components/shared/RiskEventFeed";
 import { ShieldAlert, AlertTriangle } from "lucide-react";
+import { KillSwitchCard } from "./KillSwitchCard";
 
 function LimitBar({
   label,
@@ -57,6 +58,9 @@ export function RiskContent() {
 
   return (
     <div className="space-y-5 animate-fade-in">
+      {/* Global Kill Switch Status Banner */}
+      <KillSwitchCard />
+
       {/* Circuit breaker banner */}
       {circuitBreakerActive && (
         <div className="flex items-center gap-4 p-5 bg-bear/10 border border-bear/40 rounded-lg">

@@ -168,9 +168,9 @@ export function MLModelsContent() {
   const driftAlerts = driftReports?.filter((d) => d.alert) ?? [];
 
   const TABS = [
-    { key: "champions", label: "Champions", count: champions?.length },
-    { key: "all", label: "All Models", count: allModels?.length },
-    { key: "jobs", label: "Training Jobs", count: jobs?.filter((j) => j.status === "running").length },
+    { key: "champions", label: "Champions", count: champions?.length, alert: false },
+    { key: "all", label: "All Models", count: allModels?.length, alert: false },
+    { key: "jobs", label: "Training Jobs", count: jobs?.filter((j) => j.status === "running").length, alert: false },
     { key: "drift", label: "Drift Monitor", count: driftAlerts.length, alert: driftAlerts.length > 0 },
   ] as const;
 

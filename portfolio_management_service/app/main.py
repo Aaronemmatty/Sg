@@ -33,6 +33,7 @@ from app.db.session import close_pool, init_pool
 from app.publishers import portfolio_publisher
 from app.services.market_data_client import market_data_client
 from app.services.mtm_service import refresh_all_positions
+from app.services.position_reconciliation import position_reconciliation_loop
 from app.services.snapshot_service import build_and_persist
 
 configure_logging()
@@ -105,6 +106,10 @@ async def lifespan(app: FastAPI):
     mtm_task = asyncio.create_task(_mtm_refresh_loop())
     snapshot_task = asyncio.create_task(_snapshot_loop())
     _background_tasks.extend([consumer_task, mtm_task, snapshot_task])
+
+    if settings.position_reconciliation_enabled:
+        reconcile_task = asyncio.create_task(position_reconciliation_loop(_stop_event))
+        _background_tasks.append(reconcile_task)
 
     log.info("portfolio_management_started")
     try:

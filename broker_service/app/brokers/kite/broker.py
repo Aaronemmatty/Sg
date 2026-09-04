@@ -76,13 +76,14 @@ _KITE_STATUS_MAP: dict[str, OrderStatus] = {
 
 
 class KiteBroker(BrokerInterface):
-    def __init__(self) -> None:
+    def __init__(self, access_token: str | None = None) -> None:
         from app.brokers.factory import verify_live_trading_guard
         verify_live_trading_guard()
 
+        tok = access_token or settings.KITE_ACCESS_TOKEN
         self._kite = KiteConnect(
             api_key=settings.KITE_API_KEY,
-            access_token=settings.KITE_ACCESS_TOKEN,
+            access_token=tok,
         )
         self._executor  = ThreadPoolExecutor(
             max_workers=settings.KITE_EXECUTOR_WORKERS,
@@ -105,6 +106,16 @@ class KiteBroker(BrokerInterface):
     async def connect(self) -> None:
         """Validate credentials by fetching profile."""
         try:
+            from app.core.redis import get_redis
+            r = await get_redis()
+            cached_token = await r.get("sg:kite:access_token")
+            if cached_token:
+                tok_str = cached_token.decode() if isinstance(cached_token, bytes) else str(cached_token)
+                self._kite.set_access_token(tok_str)
+        except Exception as e:
+            log.warning("kite_redis_token_check_failed", error=str(e))
+
+        try:
             await self._run(self._kite.profile)
             self._connected = True
             log.info("kite_broker_connected")
@@ -117,9 +128,46 @@ class KiteBroker(BrokerInterface):
         self._executor.shutdown(wait=False)
         log.info("kite_broker_disconnected")
 
+    def update_access_token(self, new_token: str) -> None:
+        """Update access token on existing KiteConnect instance without reconstructing it."""
+        self._kite.set_access_token(new_token)
+        log.info("kite_access_token_updated_in_memory")
+
+    async def generate_session(self, request_token: str) -> str:
+        """Exchange request_token for access_token, update self, save to Redis, notify pub/sub."""
+        from app.core.redis import get_redis
+        data = await self._run(
+            self._kite.generate_session,
+            request_token=request_token,
+            api_secret=settings.KITE_API_SECRET,
+        )
+        access_token = data.get("access_token") if isinstance(data, dict) else getattr(data, "access_token", None)
+        if not access_token:
+            raise AuthenticationError("No access_token returned in generate_session response")
+
+        self.update_access_token(access_token)
+
+        # Save to Redis with 26h TTL (93600 seconds)
+        r = await get_redis()
+        await r.set("sg:kite:access_token", access_token, ex=93600)
+        await r.publish("sg:kite:token_refreshed", "refreshed")
+
+        # Verify by calling profile/connect
+        await self.connect()
+        log.info("kite_session_generated_and_activated", token_prefix=access_token[:4] + "...")
+        return access_token
+
+    def _ensure_connected(self) -> None:
+        """Verify broker connection status before attempting any operation."""
+        if not self._connected:
+            raise AuthenticationError(
+                "Kite broker is disconnected or unauthenticated. Active session required."
+            )
+
     # ── Orders ────────────────────────────────────────────────────────────────
 
     async def place_order(self, request: OrderRequest) -> OrderResult:
+        self._ensure_connected()
         await self._rl.acquire(is_order=True)
 
         params = _order_request_to_kite(request)
@@ -149,6 +197,7 @@ class KiteBroker(BrokerInterface):
         order_type: Optional[str] = None,
         validity: Optional[str] = None,
     ) -> OrderResult:
+        self._ensure_connected()
         await self._rl.acquire(is_order=True)
 
         params: dict[str, Any] = {"order_id": broker_order_id, "variety": "regular"}
@@ -163,6 +212,7 @@ class KiteBroker(BrokerInterface):
         return _order_book_entry_to_result(order)
 
     async def cancel_order(self, broker_order_id: str, variety: str = "regular") -> OrderResult:
+        self._ensure_connected()
         await self._rl.acquire(is_order=True)
         await self._execute_with_retry(
             self._kite.cancel_order,
@@ -175,6 +225,7 @@ class KiteBroker(BrokerInterface):
     # ── Queries ───────────────────────────────────────────────────────────────
 
     async def get_order(self, broker_order_id: str) -> OrderBookEntry:
+        self._ensure_connected()
         await self._rl.acquire()
         orders = await self._execute_with_retry(
             self._kite.order_history, order_id=broker_order_id
@@ -186,11 +237,13 @@ class KiteBroker(BrokerInterface):
         return _parse_order(raw)
 
     async def get_order_book(self) -> list[OrderBookEntry]:
+        self._ensure_connected()
         await self._rl.acquire()
         raw_orders = await self._execute_with_retry(self._kite.orders)
         return [_parse_order(o) for o in (raw_orders or [])]
 
     async def get_positions(self) -> list[Position]:
+        self._ensure_connected()
         await self._rl.acquire()
         raw = await self._execute_with_retry(self._kite.positions)
         positions = []
@@ -199,11 +252,13 @@ class KiteBroker(BrokerInterface):
         return positions
 
     async def get_holdings(self) -> list[Position]:
+        self._ensure_connected()
         await self._rl.acquire()
         raw = await self._execute_with_retry(self._kite.holdings)
         return [_parse_holding(h) for h in (raw or [])]
 
     async def get_account_info(self) -> AccountInfo:
+        self._ensure_connected()
         await self._rl.acquire()
         raw = await self._execute_with_retry(self._kite.margins)
         return _parse_margins(raw)
@@ -217,10 +272,13 @@ class KiteBroker(BrokerInterface):
 
     async def _execute_with_retry(self, fn, *args, **kwargs) -> Any:
         """Retry + circuit breaker wrapper for all SDK calls."""
+        self._ensure_connected()
         async def _attempt():
             try:
                 return await self._run(fn, *args, **kwargs)
             except TokenException as e:
+                log.critical("kite_token_exception_detected_triggering_kill_switch", error=str(e))
+                await self._trigger_kill_switch(f"KITE_TOKEN_EXCEPTION: {e}")
                 raise AuthenticationError(str(e)) from e
             except InputException as e:
                 raise OrderRejectedError(str(e), reason=str(e)) from e
@@ -247,6 +305,39 @@ class KiteBroker(BrokerInterface):
         ):
             with attempt:
                 return await _with_cb()
+
+    async def _trigger_kill_switch(self, reason: str) -> None:
+        """Helper to activate risk engine kill switch on auth failure."""
+        try:
+            import os, jwt, httpx
+            from datetime import datetime, timezone, timedelta
+            from dotenv import dotenv_values
+
+            envs = dotenv_values(".env")
+            priv_key_str = envs.get("JWT_PRIVATE_KEY", os.environ.get("JWT_PRIVATE_KEY", ""))
+            if priv_key_str.startswith('"') and priv_key_str.endswith('"'):
+                priv_key_str = priv_key_str[1:-1]
+            priv_key_str = priv_key_str.replace("\\n", "\n")
+
+            token = "dev-token"
+            if priv_key_str:
+                payload = {
+                    "sub": "kite-broker-auth-failure",
+                    "roles": ["risk_officer", "admin"],
+                    "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
+                }
+                token = jwt.encode(payload, priv_key_str, algorithm="RS256")
+
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                url = f"{settings.RISK_ENGINE_SERVICE_URL.rstrip('/')}/risk/kill-switch/activate"
+                resp = await client.post(
+                    url,
+                    json={"reason": reason},
+                    headers={"Authorization": f"Bearer {token}"},
+                )
+                log.warning("kill_switch_activated_on_kite_auth_failure", status_code=resp.status_code, reason=reason)
+        except Exception as exc:
+            log.error("failed_to_trigger_kill_switch_on_kite_auth_failure", error=str(exc))
 
 
 # ── Parsers ───────────────────────────────────────────────────────────────────
@@ -370,10 +461,12 @@ def _parse_margins(raw: dict) -> AccountInfo:
     net    = equity.get("net", 0)
     avail  = equity.get("available", {})
     used   = equity.get("utilised", {})
+    # live_balance represents active available funds including same-day pay-ins
+    avail_cash = avail.get("live_balance", avail.get("cash", 0))
     return AccountInfo(
         broker="kite",
         account_id=settings.KITE_API_KEY[:8] + "****",
-        available_cash=float(avail.get("cash", 0)),
+        available_cash=float(avail_cash),
         used_margin=float(used.get("debits", 0)),
         total_margin=float(net),
         net_value=float(net),

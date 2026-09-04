@@ -59,10 +59,23 @@ _YAHOO_SUFFIX = ".NS"
 
 class HistoricalFetcher:
     def __init__(self) -> None:
-        self._kite = KiteConnect(
-            api_key=settings.KITE_API_KEY,
-            access_token=settings.KITE_ACCESS_TOKEN,
-        ) if settings.KITE_MODE == "live" else None
+        pass
+
+    async def _get_kite_client(self) -> KiteConnect | None:
+        """Fetch a KiteConnect instance with the latest access token from Redis."""
+        if settings.KITE_MODE != "live":
+            return None
+        import redis.asyncio as redis_lib
+        access_token = settings.KITE_ACCESS_TOKEN
+        try:
+            r_b2 = redis_lib.from_url("redis://127.0.0.1:6379/2")
+            cached_token = await r_b2.get("sg:kite:access_token")
+            if cached_token:
+                access_token = cached_token.decode() if isinstance(cached_token, bytes) else str(cached_token)
+            await r_b2.aclose()
+        except Exception as e:
+            log.warning("kite_historical_redis_token_check_failed", error=str(e))
+        return KiteConnect(api_key=settings.KITE_API_KEY, access_token=access_token)
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -105,7 +118,8 @@ class HistoricalFetcher:
         to_date: date,
         continuous: bool,
     ) -> list[OHLCV]:
-        if not self._kite:
+        kite_client = await self._get_kite_client()
+        if not kite_client:
             raise RuntimeError("Kite not configured — running in mock mode")
 
         max_days = _KITE_MAX_DAYS[timeframe.value]
@@ -114,7 +128,7 @@ class HistoricalFetcher:
 
         for chunk_from, chunk_to in chunks:
             bars = await self._fetch_kite_single(
-                instrument_token, trading_symbol, timeframe,
+                kite_client, instrument_token, trading_symbol, timeframe,
                 chunk_from, chunk_to, continuous,
             )
             all_bars.extend(bars)
@@ -133,6 +147,7 @@ class HistoricalFetcher:
 
     async def _fetch_kite_single(
         self,
+        kite_client: KiteConnect,
         instrument_token: int,
         trading_symbol: str,
         timeframe: Timeframe,
@@ -151,7 +166,7 @@ class HistoricalFetcher:
                 loop = asyncio.get_running_loop()
                 raw = await loop.run_in_executor(
                     None,
-                    lambda: self._kite.historical_data(
+                    lambda: kite_client.historical_data(
                         instrument_token=instrument_token,
                         from_date=str(from_date),
                         to_date=str(to_date),

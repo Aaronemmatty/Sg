@@ -26,7 +26,7 @@ winget install PostgreSQL.PostgreSQL.16
 ### Step 2.2: Create Platform Database & Role
 Open PowerShell and run `psql` (replace password prompts as needed):
 ```powershell
-& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "CREATE USER sg_user WITH PASSWORD 'sg_password';"
+& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "CREATE USER sg_user WITH PASSWORD '<your_secure_password>';"
 & "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "CREATE DATABASE sg_db OWNER sg_user;"
 & "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE sg_db TO sg_user;"
 ```
@@ -89,6 +89,18 @@ This performs a single-pass installation of:
 ```
 This generates random secrets (JWT private/public keypair, secret keys) and patches `.env`.
 
+### Step 4.2: Provision First Administrator Account
+Before logging into the dashboard for the first time, provision the initial administrator account:
+```powershell
+.\sg.ps1 admin
+```
+*(Or specify custom credentials via `.\.venv\Scripts\python.exe scripts\create_admin.py --email <email> --password "<pass>"`).*
+
+Default Credentials created:
+- **Email**: `admin@sg-trading.com`
+- **Password**: `<generated_during_provisioning>` (or set via `--password`)
+- **Roles**: `admin`, `risk_officer`, `trader`
+
 ---
 
 ## 5. Starting the Platform
@@ -148,3 +160,4 @@ stop_all.bat
 | **ML Platform Service** | `8011` | `http://localhost:8011` | XGBoost/LightGBM model training |
 | **AI Analyst Service** | `8012` | `http://localhost:8012` | Claude / LLM market review |
 | **Signal Aggregation Service**| `8013` | `http://localhost:8013` | Multi-strategy ensemble consensus |
+| **Notification Service**      | `8014` | `http://localhost:8014` | Telegram execution alerts (outbound-only) |

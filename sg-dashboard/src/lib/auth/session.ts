@@ -50,7 +50,7 @@ export async function getRefreshToken(): Promise<string | null> {
 
 // ─── JWT verification ────────────────────────────────────────────────────────
 
-let cachedPublicKey: Parameters<typeof importSPKI>[0] | null = null;
+let cachedPublicKey: Awaited<ReturnType<typeof importSPKI>> | null = null;
 
 async function getPublicKey() {
   if (cachedPublicKey) return cachedPublicKey;

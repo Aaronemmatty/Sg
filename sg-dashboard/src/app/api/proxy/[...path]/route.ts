@@ -34,6 +34,14 @@ const BACKEND_PATH_MAP: Record<string, string> = {
   "portfolio/trades": "/api/v1/ledger/trades",
   "risk/metrics": "/api/v1/risk/metrics",
   "risk/events": "/api/v1/risk/events",
+  "risk/kill-switch/status": "/risk/kill-switch/status",
+  "broker/status": "/v1/broker/status",
+  "broker/account": "/v1/broker/account",
+  "broker/positions": "/v1/broker/positions",
+  "broker/orders": "/v1/broker/orders",
+  "broker/risk/status": "/v1/broker/risk/status",
+  "broker/kite/login-url": "/v1/broker/kite/login-url",
+  "broker/kite/session": "/v1/broker/kite/session",
   "regime/current": "/api/v1/regime/current",
   "ml/registry/champions": "/api/v1/registry/champions",
   "ml/registry/models": "/api/v1/registry/models",
@@ -106,7 +114,14 @@ function resolveBackend(path: string): { baseUrl: string; backendPath: string } 
   else if (path.startsWith("analyst/")) {
     backendPath = `/api/v1/${path.replace("analyst/", "")}`;
   }
-  // broker/* execution/*
+  // broker/*
+  else if (path.startsWith("broker/")) {
+    backendPath = `/v1/${path}`;
+  }
+  // execution/*
+  else if (path.startsWith("execution/")) {
+    backendPath = `/${path.replace("execution/", "")}`;
+  }
   else {
     backendPath = `/api/v1/${path}`;
   }

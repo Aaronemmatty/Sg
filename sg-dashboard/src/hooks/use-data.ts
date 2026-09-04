@@ -10,6 +10,7 @@ import type {
   TradeLedgerEntry,
   Position,
   RiskMetrics,
+  KillSwitchStatus,
   ModelVersion,
   TrainingJob,
   DriftReport,
@@ -23,6 +24,7 @@ import type {
   AnalystReport,
   Symbol,
   Candle,
+  BrokerStatus,
 } from "@/types";
 
 const DEFAULT_SWR: SWRConfiguration = {
@@ -82,6 +84,22 @@ export function useRiskMetrics() {
     "risk/metrics",
     () => clientFetch("risk/metrics"),
     FAST_SWR
+  );
+}
+
+export function useKillSwitchStatus() {
+  return useSWR<KillSwitchStatus>(
+    "risk/kill-switch/status",
+    () => clientFetch("risk/kill-switch/status"),
+    { refreshInterval: 5_000, revalidateOnFocus: true }
+  );
+}
+
+export function useBrokerStatus() {
+  return useSWR<BrokerStatus>(
+    "broker/status",
+    () => clientFetch("broker/status"),
+    { refreshInterval: 5_000, revalidateOnFocus: true }
   );
 }
 

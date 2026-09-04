@@ -25,7 +25,7 @@ env_vals = dotenv_values(ENV_PATH)
 
 DATABASE_URL = env_vals.get(
     "DATABASE_URL",
-    "postgresql://sg_user:sg_password@localhost:5432/sg_db"
+    "postgresql://sg_user:JB!SXsNin5SLjiBWOIZFS1pZLOP1*DnA@localhost:5432/sg_db"
 ).replace("+asyncpg", "")
 REDIS_URL = env_vals.get("REDIS_URL", "redis://localhost:6379/0")
 

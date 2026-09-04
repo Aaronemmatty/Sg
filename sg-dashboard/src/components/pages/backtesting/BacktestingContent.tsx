@@ -191,14 +191,14 @@ function BacktestResultPanel({ run }: { run: BacktestRun }) {
           </div>
           <div className="p-5 grid grid-cols-4 lg:grid-cols-8 gap-4">
             {[
-              { label: "Total Return", value: formatPct(metrics.total_return_pct, 2, true), pos: metrics.total_return_pct > 0 },
-              { label: "Ann. Return", value: formatPct(metrics.annualised_return_pct, 2, true), pos: metrics.annualised_return_pct > 0 },
-              { label: "Sharpe", value: metrics.sharpe_ratio.toFixed(2), pos: metrics.sharpe_ratio > 1 },
-              { label: "Sortino", value: metrics.sortino_ratio.toFixed(2), pos: metrics.sortino_ratio > 1 },
-              { label: "Max DD", value: formatPct(metrics.max_drawdown_pct), pos: false, bear: true },
-              { label: "Win Rate", value: formatPct(metrics.win_rate_pct), pos: metrics.win_rate_pct > 50 },
-              { label: "vs Benchmark", value: formatPct(metrics.total_return_pct - metrics.benchmark_return_pct, 2, true), pos: metrics.total_return_pct > metrics.benchmark_return_pct },
-              { label: "Trades", value: String(metrics.total_trades), pos: true },
+              { label: "Total Return", value: metrics.total_return_pct != null ? formatPct(metrics.total_return_pct, 2, true) : "—", pos: (metrics.total_return_pct ?? 0) > 0 },
+              { label: "Ann. Return", value: metrics.annualised_return_pct != null ? formatPct(metrics.annualised_return_pct, 2, true) : "—", pos: (metrics.annualised_return_pct ?? 0) > 0 },
+              { label: "Sharpe", value: metrics.sharpe_ratio != null ? metrics.sharpe_ratio.toFixed(2) : "—", pos: (metrics.sharpe_ratio ?? 0) > 1 },
+              { label: "Sortino", value: metrics.sortino_ratio != null ? metrics.sortino_ratio.toFixed(2) : "—", pos: (metrics.sortino_ratio ?? 0) > 1 },
+              { label: "Max DD", value: metrics.max_drawdown_pct != null ? formatPct(metrics.max_drawdown_pct) : "—", pos: false, bear: true },
+              { label: "Win Rate", value: metrics.win_rate_pct != null ? formatPct(metrics.win_rate_pct) : "—", pos: (metrics.win_rate_pct ?? 0) > 50 },
+              { label: "vs Benchmark", value: (metrics.total_return_pct != null && metrics.benchmark_return_pct != null) ? formatPct(metrics.total_return_pct - metrics.benchmark_return_pct, 2, true) : "—", pos: (metrics.total_return_pct ?? 0) > (metrics.benchmark_return_pct ?? 0) },
+              { label: "Trades", value: metrics.total_trades != null ? String(metrics.total_trades) : "0", pos: true },
             ].map((m) => (
               <div key={m.label} className="text-center">
                 <div className="text-2xs text-text-muted uppercase tracking-wider mb-1">{m.label}</div>

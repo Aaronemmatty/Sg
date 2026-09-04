@@ -136,6 +136,19 @@ class Settings(BaseSettings):
     RECALC_INTERVAL_SECONDS: int = 300  # 5-minute watchdog cadence
     STALE_AFTER_SECONDS: int = 600
 
+    # --- Pre-trade transaction cost gate ---------------------------------------
+    COST_GATE_ENABLED: bool = True
+    COST_GATE_COMMISSION_BPS: float = 3.0           # 3 bps per leg (matches TransactionCostConfig)
+    COST_GATE_SLIPPAGE_BPS: float = 5.0             # 5 bps per leg (matches TransactionCostConfig)
+    COST_GATE_STT_RATE: float = 0.00025             # 0.025% sell-side (Zerodha equity intraday)
+    COST_GATE_EXCHANGE_TXN_RATE: float = 0.0000345  # 0.00345% NSE turnover (both legs)
+    COST_GATE_STAMP_DUTY_RATE: float = 0.00015      # 0.015% buy-side
+    COST_GATE_GST_RATE: float = 0.18                # 18% on (brokerage + exchange charges)
+    COST_GATE_ACCOUNT_CAPITAL_INR: float = 9000.0   # Platform retail account capital
+    COST_GATE_POSITION_SIZE_PCT: float = 0.20       # 20% position sizing from risk engine
+    COST_GATE_MAX_COST_TO_MOVE_RATIO: float = 0.3333 # Max 33.3% friction (expected move >= 3x cost)
+    COST_GATE_DEFAULT_EXPECTED_MOVE_PCT: float = 0.02 # 2% default when signal omits explicit target
+
     # --- Weight cache ----------------------------------------------------------
     WEIGHT_CACHE_TTL_SECONDS: int = 60
 

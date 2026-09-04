@@ -60,6 +60,18 @@ class Settings(BaseSettings):
     # Benchmark
     benchmark_symbol: str = Field(default="NIFTY50", alias="BENCHMARK_SYMBOL")
 
+    # Upstream Broker & Risk Engine Services
+    broker_service_url: str = Field(default="http://localhost:8003", alias="BROKER_SERVICE_URL")
+    broker_timeout_seconds: float = Field(default=5.0, alias="BROKER_TIMEOUT_SECONDS")
+    risk_engine_service_url: str = Field(default="http://localhost:8007", alias="RISK_ENGINE_SERVICE_URL")
+    risk_timeout_seconds: float = Field(default=5.0, alias="RISK_TIMEOUT_SECONDS")
+
+    # Position reconciliation
+    position_reconciliation_enabled: bool = Field(default=True, alias="POSITION_RECONCILIATION_ENABLED")
+    position_reconciliation_poll_interval_seconds: float = Field(
+        default=30.0, alias="POSITION_RECONCILIATION_POLL_INTERVAL_SECONDS"
+    )
+
     # Observability
     otel_exporter_otlp_endpoint: str = Field(
         default="http://otel-collector:4317", alias="OTEL_EXPORTER_OTLP_ENDPOINT"

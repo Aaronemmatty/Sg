@@ -19,7 +19,7 @@
 
 param (
     [Parameter(Position=0)]
-    [ValidateSet("start", "up", "stop", "down", "restart", "health", "status", "ps", "secrets", "db", "redis", "backup", "mlflow", "help")]
+    [ValidateSet("start", "up", "stop", "down", "restart", "health", "status", "ps", "secrets", "admin", "db", "redis", "backup", "mlflow", "help")]
     [string]$Command = "help"
 )
 
@@ -41,6 +41,7 @@ Commands:
   health           Run comprehensive health check across all endpoints and latency
   status | ps      Check which service ports are active and listening
   secrets          Generate and patch local encryption & JWT secrets into .env
+  admin            Provision or reset platform admin credentials (scripts/create_admin.py)
   db               Open native psql shell connected to localhost:5432 (sg_db)
   redis            Open WSL2 redis-cli connected to localhost:6379
   mlflow           Start standalone MLflow tracking server on http://localhost:5000
@@ -95,6 +96,15 @@ switch ($Command) {
             & $PythonExe "$RepoRoot\scripts\generate_secrets.py" --patch-env
         } else {
             python "$RepoRoot\scripts\generate_secrets.py" --patch-env
+        }
+    }
+
+    "admin" {
+        Write-Host "Provisioning or resetting admin user..." -ForegroundColor Cyan
+        if (Test-Path $PythonExe) {
+            & $PythonExe "$RepoRoot\scripts\create_admin.py"
+        } else {
+            python "$RepoRoot\scripts\create_admin.py"
         }
     }
 

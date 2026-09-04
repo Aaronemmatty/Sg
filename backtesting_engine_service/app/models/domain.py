@@ -131,7 +131,11 @@ class BacktestConfig(BaseModel):
     additional_timeframes: list[Timeframe] = Field(default_factory=list)
     start_date: date
     end_date: date
-    initial_capital_inr: float = Field(default=1_000_000.0, gt=0)
+    initial_capital_inr: float | None = Field(default=None, gt=0)
+    capital_source: str | None = Field(
+        default=None,
+        description="Source of starting capital: live-fetched | static-fallback | user-override",
+    )
     strategy: StrategyRef
     costs: TransactionCostConfig = Field(default_factory=TransactionCostConfig)
     benchmark_symbol: str | None = "NIFTY50"

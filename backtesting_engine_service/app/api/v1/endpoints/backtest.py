@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.api.deps import get_job_manager, get_repository
 from app.auth import get_current_user
@@ -15,6 +15,7 @@ from app.models.domain import (
     BacktestRunRequest,
     SimulatedTrade,
 )
+from app.services.capital_provider import resolve_initial_capital
 from app.services.job_manager import JobManager
 from app.services.result_bundle import build_result_bundle
 
@@ -24,6 +25,7 @@ router = APIRouter(prefix="/backtest", tags=["backtest"])
 @router.post("/run", status_code=status.HTTP_202_ACCEPTED)
 async def run_backtest(
     request: BacktestRunRequest,
+    raw_req: Request,
     job_manager: JobManager = Depends(get_job_manager),
     user: dict[str, Any] = Depends(get_current_user),
 ) -> dict:
@@ -38,8 +40,16 @@ async def run_backtest(
             detail="monte_carlo config is required when mode=monte_carlo",
         )
 
-    run_id = await job_manager.submit(request)
-    return {"id": str(run_id), "status": "PENDING"}
+    auth_header = raw_req.headers.get("Authorization")
+    await resolve_initial_capital(request.config, auth_header=auth_header)
+
+    run_id = await job_manager.submit(request, auth_header=auth_header)
+    return {
+        "id": str(run_id),
+        "status": "PENDING",
+        "initial_capital_inr": request.config.initial_capital_inr,
+        "capital_source": request.config.capital_source,
+    }
 
 
 @router.get("")

@@ -64,9 +64,19 @@ class InstrumentRegistry:
         self._loaded = True
 
     async def _fetch_from_kite(self) -> Optional[str]:
+        import redis.asyncio as redis_lib
+        access_token = settings.KITE_ACCESS_TOKEN
+        try:
+            r_b2 = redis_lib.from_url("redis://127.0.0.1:6379/2")
+            cached_token = await r_b2.get("sg:kite:access_token")
+            if cached_token:
+                access_token = cached_token.decode() if isinstance(cached_token, bytes) else str(cached_token)
+            await r_b2.aclose()
+        except Exception:
+            pass
         headers = {
             "X-Kite-Version": "3",
-            "Authorization": f"token {settings.KITE_API_KEY}:{settings.KITE_ACCESS_TOKEN}",
+            "Authorization": f"token {settings.KITE_API_KEY}:{access_token}",
         }
         async for attempt in AsyncRetrying(
             stop=stop_after_attempt(3),

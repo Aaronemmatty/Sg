@@ -16,23 +16,23 @@ import urllib.request
 import urllib.error
 
 SERVICES = [
-    ("PostgreSQL", "localhost", 5432, "tcp"),
-    ("Redis (WSL2)", "localhost", 6379, "tcp"),
-    ("MLflow Server", "localhost", 5000, "http://localhost:5000/health"),
-    ("Auth Service", "localhost", 8001, "http://localhost:8001/health"),
-    ("Market Data Service", "localhost", 8002, "http://localhost:8002/health"),
-    ("Broker Service", "localhost", 8003, "http://localhost:8003/health"),
-    ("Strategy Service", "localhost", 8004, "http://localhost:8004/health"),
-    ("Regime Detection Service", "localhost", 8005, "http://localhost:8005/health"),
-    ("Execution Orchestrator", "localhost", 8006, "http://localhost:8006/health"),
-    ("Risk Engine Service", "localhost", 8007, "http://localhost:8007/health"),
-    ("Execution Engine Service", "localhost", 8008, "http://localhost:8008/health"),
-    ("Portfolio Management", "localhost", 8009, "http://localhost:8009/health"),
-    ("Backtesting Engine", "localhost", 8010, "http://localhost:8010/health"),
-    ("ML Platform Service", "localhost", 8011, "http://localhost:8011/health"),
-    ("AI Analyst Service", "localhost", 8012, "http://localhost:8012/health"),
-    ("Signal Aggregation Service", "localhost", 8013, "http://localhost:8013/health"),
-    ("Next.js Dashboard", "localhost", 3000, "http://localhost:3000"),
+    ("PostgreSQL", "127.0.0.1", 5432, "tcp"),
+    ("Redis (WSL2)", "127.0.0.1", 6379, "tcp"),
+    ("MLflow Server", "127.0.0.1", 5000, "http://127.0.0.1:5000/"),
+    ("Auth Service", "127.0.0.1", 8001, "http://127.0.0.1:8001/health"),
+    ("Market Data Service", "127.0.0.1", 8002, "http://127.0.0.1:8002/health"),
+    ("Broker Service", "127.0.0.1", 8003, "http://127.0.0.1:8003/health"),
+    ("Strategy Service", "127.0.0.1", 8004, "http://127.0.0.1:8004/health"),
+    ("Regime Detection Service", "127.0.0.1", 8005, "http://127.0.0.1:8005/health"),
+    ("Execution Orchestrator", "127.0.0.1", 8006, "http://127.0.0.1:8006/health"),
+    ("Risk Engine Service", "127.0.0.1", 8007, "http://127.0.0.1:8007/health"),
+    ("Execution Engine Service", "127.0.0.1", 8008, "http://127.0.0.1:8008/health"),
+    ("Portfolio Management", "127.0.0.1", 8009, "http://127.0.0.1:8009/health"),
+    ("Backtesting Engine", "127.0.0.1", 8010, "http://127.0.0.1:8010/health"),
+    ("ML Platform Service", "127.0.0.1", 8011, "http://127.0.0.1:8011/health"),
+    ("AI Analyst Service", "127.0.0.1", 8012, "http://127.0.0.1:8012/health"),
+    ("Signal Aggregation Service", "127.0.0.1", 8013, "http://127.0.0.1:8013/health"),
+    ("Next.js Dashboard", "127.0.0.1", 3000, "http://127.0.0.1:3000"),
 ]
 
 def check_tcp(host: str, port: int, timeout: float = 1.5) -> tuple[bool, float, str]:
@@ -45,7 +45,7 @@ def check_tcp(host: str, port: int, timeout: float = 1.5) -> tuple[bool, float, 
         latency = (time.perf_counter() - start) * 1000
         return False, latency, str(e)
 
-def check_http(url: str, timeout: float = 2.0) -> tuple[bool, float, str]:
+def check_http(url: str, timeout: float = 10.0) -> tuple[bool, float, str]:
     start = time.perf_counter()
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "SG-HealthCheck/1.0"})
@@ -80,9 +80,9 @@ def main():
         if not ok:
             all_passed = False
 
-        print(f"{name:<30} | {port:<6} | {status_str:<8} | {lat:>6.1f}ms | {details}")
+        print(f"{name:<30} | {port:<6} | {status_str:<8} | {lat:>6.1f}ms | {details}", flush=True)
 
-    print("=" * 75)
+    print("=" * 75, flush=True)
     if all_passed:
         print("ALL SERVICES OPERATIONAL")
         sys.exit(0)

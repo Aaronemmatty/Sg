@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { clientFetch } from "@/lib/api/client";
+import { useBrokerStatus } from "@/hooks/use-data";
 import { cn } from "@/lib/utils/cn";
 import toast from "react-hot-toast";
-import { Settings, Key, Bell, Shield, Zap, Save } from "lucide-react";
+import Link from "next/link";
+import { Settings, Key, Bell, Shield, Zap, Save, AlertTriangle, ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react";
 
 function Section({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
@@ -50,12 +52,8 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export function SettingsContent() {
-  const [broker, setBroker] = useState({
-    mode: "paper",
-    kite_api_key: "",
-    kite_api_secret: "",
-    max_order_value_inr: "500000",
-  });
+  const { data: brokerStatus, isLoading: brokerLoading } = useBrokerStatus();
+  const isLive = brokerStatus?.mode === "live";
 
   const [riskLimits, setRiskLimits] = useState({
     daily_loss_limit_inr: "50000",
@@ -90,69 +88,65 @@ export function SettingsContent() {
 
   return (
     <div className="max-w-3xl space-y-5 animate-fade-in">
-      {/* Broker */}
-      <Section title="Broker Configuration" icon={Zap}>
-        <Field label="Trading Mode" hint="Paper mode uses simulated fills, never real orders">
-          <div className="flex gap-2">
-            {["paper", "live"].map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setBroker({ ...broker, mode })}
-                className={cn(
-                  "flex-1 py-2 rounded text-sm font-medium transition-colors capitalize",
-                  broker.mode === mode
-                    ? mode === "live"
-                      ? "bg-bear/10 text-bear border border-bear/30"
-                      : "bg-accent/10 text-accent border border-accent/30"
-                    : "bg-surface-2 text-text-muted border border-border hover:border-border-strong"
+      {/* Broker Configuration & Mode Notice */}
+      <Section title="Broker & Execution Mode" icon={Zap}>
+        <div className="flex items-center justify-between p-4 rounded-lg bg-surface-2 border border-border">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "w-10 h-10 rounded-lg flex items-center justify-center border shrink-0",
+              isLive
+                ? "bg-bear/15 text-bear border-bear/30"
+                : "bg-bull/15 text-bull border-bull/30"
+            )}>
+              {isLive ? <ShieldAlert className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-text-muted uppercase">Active Broker Mode</span>
+                <span className={cn(
+                  "px-2 py-0.5 rounded text-2xs font-bold uppercase tracking-wider border",
+                  isLive
+                    ? "bg-bear/20 text-bear border-bear/40"
+                    : "bg-bull/20 text-bull border-bull/40"
+                )}>
+                  {brokerLoading ? "CHECKING..." : isLive ? "LIVE REAL-MONEY TRADING" : "PAPER SIMULATION"}
+                </span>
+              </div>
+              <p className="text-xs text-text-secondary mt-0.5">
+                Broker: <span className="font-mono text-text-primary uppercase">{brokerStatus?.broker || (isLive ? "kite" : "paper")}</span>
+                {brokerStatus?.connected !== undefined && (
+                  <span className="ml-2 font-mono text-text-muted">
+                    ({brokerStatus.connected ? "Connected" : "Disconnected"})
+                  </span>
                 )}
-              >
-                {mode}
-              </button>
-            ))}
+              </p>
+            </div>
           </div>
-        </Field>
 
-        {broker.mode === "live" && (
-          <>
-            <Field label="Kite API Key" hint="From your Zerodha developer console">
-              <input
-                type="password"
-                className="input"
-                placeholder="api_key_…"
-                value={broker.kite_api_key}
-                onChange={(e) => setBroker({ ...broker, kite_api_key: e.target.value })}
-              />
-            </Field>
-            <Field label="Kite API Secret">
-              <input
-                type="password"
-                className="input"
-                placeholder="api_secret_…"
-                value={broker.kite_api_secret}
-                onChange={(e) => setBroker({ ...broker, kite_api_secret: e.target.value })}
-              />
-            </Field>
-          </>
-        )}
-
-        <Field label="Max Single Order Value" hint="Hard limit per order in INR">
-          <input
-            type="number"
-            className="input"
-            value={broker.max_order_value_inr}
-            onChange={(e) => setBroker({ ...broker, max_order_value_inr: e.target.value })}
-          />
-        </Field>
-
-        <div className="flex justify-end">
-          <button
-            onClick={() => saveSection("broker", broker)}
-            disabled={saving}
-            className="btn-primary gap-2"
+          <Link
+            href="/kite-auth"
+            className="btn-secondary text-xs flex items-center gap-1.5 py-1.5 px-3"
           >
-            <Save className="w-3.5 h-3.5" /> Save Broker Settings
-          </button>
+            <Key className="w-3.5 h-3.5" />
+            <span>Kite Auth Page</span>
+            <ExternalLink className="w-3 h-3 text-text-muted" />
+          </Link>
+        </div>
+
+        <div className="p-4 rounded-lg bg-surface-2/50 border border-border/80 space-y-2.5">
+          <div className="flex items-center gap-2 text-warning text-xs font-semibold">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>Trading Mode Configuration Notice</span>
+          </div>
+          <p className="text-xs text-text-secondary leading-relaxed">
+            Trading mode (Paper vs. Live) and broker API credentials are read once during service startup from service environment files. Runtime toggling while services are running is permanently disabled to eliminate accidental real-capital risk.
+          </p>
+          <div className="bg-background/80 rounded p-3 text-2xs font-mono text-text-muted space-y-1">
+            <div className="text-text-secondary font-semibold">To switch trading modes:</div>
+            <div>1. Stop platform: <span className="text-accent">.\sg.ps1 stop</span></div>
+            <div>2. Edit mode in: <span className="text-accent">broker_service/.env</span> (BROKER_MODE, ENABLE_REAL_MONEY_TRADING)</div>
+            <div>3. Launch platform: <span className="text-accent">.\sg.ps1 start</span> (runs startup pre-flight CONFIRM gate)</div>
+          </div>
         </div>
       </Section>
 

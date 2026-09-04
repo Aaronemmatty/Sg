@@ -16,8 +16,9 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
-from app.core.conflict import ConflictResolutionEngine
 from app.core.confidence import ConfidenceEngine
+from app.core.conflict import ConflictResolutionEngine
+from app.core.cost_gate import CostGateDecision, CostGateEngine
 from app.core.normalization import normalize_signal_allow_stale
 from app.core.weighting import WeightingEngine
 from app.models.domain import AggregatedSignalResult, SignalVote
@@ -44,6 +45,7 @@ class SignalAggregationEngine:
         self.weighting_engine = WeightingEngine(settings, override_provider=weight_store)
         self.confidence_engine = ConfidenceEngine(settings)
         self.conflict_engine = ConflictResolutionEngine(settings)
+        self.cost_gate = CostGateEngine(settings)
 
     async def aggregate(
         self, session: AsyncSession, symbol: str, timeframe: str | None = None
@@ -82,6 +84,16 @@ class SignalAggregationEngine:
         confidence = self.confidence_engine.final_confidence(report)
         contributors = self.conflict_engine.contributors(votes, final_signal)
 
+        # Pre-trade transaction cost gate:
+        # Evaluates round-trip costs (brokerage, slippage, STT, exchange txn, GST, stamp duty)
+        # against the strategy's expected move at the risk engine's 20% position allocation.
+        cost_decision = self.cost_gate.evaluate(
+            symbol=symbol,
+            final_signal=final_signal,
+            raw_signals=raw_signals,
+            contributors=contributors,
+        )
+
         votes_detail = {
             v.strategy: {
                 "action": v.raw_action.value,
@@ -103,6 +115,9 @@ class SignalAggregationEngine:
             votes=votes_detail,
             timestamp=now,
             weights_version="static_v1+db_overrides",
+            is_published=not cost_decision.suppressed,
+            cost_gate_passed=cost_decision.passed,
+            cost_gate_details=cost_decision.to_dict(),
         )
 
         if stale_count:
@@ -110,17 +125,37 @@ class SignalAggregationEngine:
                 "aggregated %s:%s — ignored %d stale signal(s)", symbol, timeframe, stale_count
             )
 
-        await self._persist_and_publish(session, result)
+        await self._persist_and_publish(session, result, cost_decision)
         return result
 
-    async def _persist_and_publish(self, session: AsyncSession, result: AggregatedSignalResult) -> None:
+    async def _persist_and_publish(
+        self,
+        session: AsyncSession,
+        result: AggregatedSignalResult,
+        cost_decision: CostGateDecision | None = None,
+    ) -> None:
         await self.redis.set_cached_result(result)
         await self._save_snapshot(session, result)
+
+        if cost_decision is not None and cost_decision.suppressed:
+            logger.warning(
+                "COST_GATE_SUPPRESSED %s:%s -> %s suppressed from publishing: %s",
+                result.symbol,
+                result.timeframe,
+                result.final_signal.value,
+                cost_decision.reason,
+            )
+            return
+
         await self.redis.publish_result(result)
         logger.info(
             "AGGREGATED %s:%s -> %s (confidence=%.2f, contributors=%s, regime=%s)",
-            result.symbol, result.timeframe, result.final_signal.value,
-            result.confidence, result.contributors, result.regime,
+            result.symbol,
+            result.timeframe,
+            result.final_signal.value,
+            result.confidence,
+            result.contributors,
+            result.regime,
         )
 
     async def _save_snapshot(self, session: AsyncSession, result: AggregatedSignalResult) -> None:

@@ -165,6 +165,10 @@ app = FastAPI(
 
 app.include_router(api_router)
 
+@app.get("/health", include_in_schema=False)
+async def health_check():
+    return {"status": "ok", "service": "ml_platform_service"}
+
 Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 try:

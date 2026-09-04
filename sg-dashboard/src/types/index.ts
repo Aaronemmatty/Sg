@@ -91,19 +91,19 @@ export type PerformanceWindow = "1d" | "7d" | "30d" | "90d" | "252d" | "inceptio
 
 export interface PerformanceMetrics {
   window: PerformanceWindow;
-  total_return_pct: number;
-  annualised_return_pct: number;
-  sharpe_ratio: number;
-  sortino_ratio: number;
-  max_drawdown_pct: number;
-  calmar_ratio: number;
-  alpha: number;
-  beta: number;
-  volatility_pct: number;
-  win_rate_pct: number;
-  profit_factor: number;
-  avg_win_inr: number;
-  avg_loss_inr: number;
+  total_return_pct?: number | null;
+  annualised_return_pct?: number | null;
+  sharpe_ratio?: number | null;
+  sortino_ratio?: number | null;
+  max_drawdown_pct?: number | null;
+  calmar_ratio?: number | null;
+  alpha?: number | null;
+  beta?: number | null;
+  volatility_pct?: number | null;
+  win_rate_pct?: number | null;
+  profit_factor?: number | null;
+  avg_win_inr?: number | null;
+  avg_loss_inr?: number | null;
 }
 
 // ─── Trades / Orders ─────────────────────────────────────────────────────────
@@ -172,7 +172,21 @@ export interface StrategySignal {
   emitted_at: string;
 }
 
-// ─── Risk ────────────────────────────────────────────────────────────────────
+export type KillSwitchState =
+  | "NORMAL"
+  | "HALTED_MANUAL"
+  | "HALTED_AUTO_DRAWDOWN"
+  | "HALTED_AUTO_DAILY_LOSS"
+  | "HALTED_AUTO_CIRCUIT_BREAKER"
+  | "EMERGENCY_STOP";
+
+export interface KillSwitchStatus {
+  state: KillSwitchState;
+  reason: string | null;
+  is_halted: boolean;
+  actor?: string | null;
+  updated_at?: string | null;
+}
 
 export interface RiskMetrics {
   var_95_inr: number;
@@ -381,3 +395,14 @@ export interface ApiError {
   detail: string;
   status: number;
 }
+
+// ─── Broker ──────────────────────────────────────────────────────────────────
+
+export interface BrokerStatus {
+  broker: string;
+  mode: "paper" | "live";
+  connected: boolean;
+  circuit_breaker?: Record<string, unknown> | null;
+  rate_limiter?: Record<string, unknown> | null;
+}
+

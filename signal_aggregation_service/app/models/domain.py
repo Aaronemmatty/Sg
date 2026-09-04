@@ -90,6 +90,9 @@ class AggregatedSignalResult(BaseModel):
     votes: dict[str, dict] = Field(default_factory=dict)  # strategy -> {action, confidence, weight}
     timestamp: datetime
     weights_version: Optional[str] = None
+    is_published: bool = True
+    cost_gate_passed: bool = True
+    cost_gate_details: Optional[dict] = None
 
     @field_validator("timestamp")
     @classmethod

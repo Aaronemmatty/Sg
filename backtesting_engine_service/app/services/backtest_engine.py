@@ -6,6 +6,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from app.core.config import settings
 from app.core.logging import log
 from app.core.metrics import BACKTEST_BARS_PROCESSED
 from app.models.domain import (
@@ -65,12 +66,13 @@ class BacktestEngine:
 
     def __init__(self, config: BacktestConfig) -> None:
         self.config = config
-        self.cash = config.initial_capital_inr
+        cap = config.initial_capital_inr if config.initial_capital_inr is not None else settings.default_initial_capital_inr
+        self.cash = cap
         self._open: dict[str, _OpenPosition] = {}
         self._last_close: dict[str, float] = {}
         self._trades: list[SimulatedTrade] = []
         self._equity_curve: list[EquityPoint] = []
-        self._peak_equity = config.initial_capital_inr
+        self._peak_equity = cap
         self._pending: dict[str, OrderAction] = {}
 
     def _equity(self) -> float:
@@ -219,8 +221,13 @@ class BacktestEngine:
             if ts in benchmark_lookup:
                 last_benchmark_close = benchmark_lookup[ts]
             if last_benchmark_close is not None and benchmark_start:
+                initial_cap = (
+                    self.config.initial_capital_inr
+                    if self.config.initial_capital_inr is not None
+                    else settings.default_initial_capital_inr
+                )
                 benchmark_equity = (
-                    self.config.initial_capital_inr * last_benchmark_close / benchmark_start
+                    initial_cap * last_benchmark_close / benchmark_start
                 )
 
             self._equity_curve.append(

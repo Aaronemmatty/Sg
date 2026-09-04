@@ -56,15 +56,49 @@ async def create_broker(mode: str | None = None) -> BrokerInterface:
         # Hard fail-closed safety guard
         verify_live_trading_guard(settings)
         from app.brokers.kite.broker import KiteBroker
-        broker = KiteBroker()
+        from app.brokers.interface import AuthenticationError
+        from app.core.redis import get_redis
+
+        redis_token = None
+        try:
+            r = await get_redis()
+            token = await r.get("sg:kite:access_token")
+            if token:
+                redis_token = token.decode() if isinstance(token, bytes) else str(token)
+        except Exception as e:
+            log.warning("kite_redis_token_lookup_failed", error=str(e))
+
+        login_url = f"https://kite.zerodha.com/connect/login?v=3&api_key={settings.KITE_API_KEY}"
+        if not redis_token and not settings.KITE_ACCESS_TOKEN:
+            log.warning(
+                "live_broker_missing_access_token_manual_auth_required",
+                reason="No active Kite access token in Redis ('sg:kite:access_token') or settings.",
+                login_url=login_url,
+                instructions=(
+                    "1. Visit the login_url in your browser and complete Zerodha login.\n"
+                    "2. Copy the 'request_token' from the callback redirect URL.\n"
+                    "3. Submit request_token via POST /v1/broker/kite/session to generate access token."
+                ),
+            )
+
+        broker = KiteBroker(access_token=redis_token)
+        try:
+            await broker.connect()
+        except AuthenticationError as exc:
+            log.error(
+                "kite_broker_connect_failed_auth_required",
+                error=str(exc),
+                login_url=login_url,
+                instructions="Visit login_url and submit request_token to POST /v1/broker/kite/session.",
+            )
     elif effective_mode == "paper":
         from app.brokers.paper.broker import PaperBroker
         broker = PaperBroker()
+        await broker.connect()
     else:
         raise ValueError(f"Unknown broker mode: '{effective_mode}'. Supported modes: 'paper', 'live'")
 
-    await broker.connect()
-    log.info("broker_created", broker=broker.broker_name, mode=effective_mode)
+    log.info("broker_created", broker=broker.broker_name, mode=effective_mode, connected=broker.is_connected)
     return broker
 
 

@@ -331,11 +331,15 @@ class PaperBroker(BrokerInterface):
             self._positions[key] = pos
 
     async def _get_market_price(self, symbol: str, exchange: str) -> Optional[float]:
-        """Read last price from Redis tick cache (published by market data service)."""
+        """Read last price from Redis tick cache (published by market data service on DB 1)."""
+        import redis.asyncio as redis_lib
         try:
-            r = await get_redis()
+            r = redis_lib.from_url("redis://127.0.0.1:6379/1")
             full_sym = f"{exchange}:{symbol}"
             raw = await r.get(f"tick:{full_sym}")
+            if not raw:
+                raw = await r.get(f"tick:{symbol}")
+            await r.aclose()
             if raw:
                 data = json.loads(raw)
                 return float(data.get("last_price", 0)) or None

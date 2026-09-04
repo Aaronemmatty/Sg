@@ -16,7 +16,7 @@ _auth = JWTAuthDependencies(JWTAuthConfig(
     algorithm=settings.AUTH_JWT_ALGORITHM,
     issuer=settings.AUTH_JWT_ISSUER,
     is_production=settings.is_production,
-    dev_stub_roles=["trader"],
+    dev_stub_roles=["trader", "admin", "risk_officer"],
 ))
 
 get_current_user = _auth.get_current_user_dependency

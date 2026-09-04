@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     MAX_ORDER_VALUE_PCT: float = 0.20     # 20% of live available cash per order
     MAX_POSITION_VALUE_PCT: float = 0.20  # 20% of live available cash per position
     MAX_DAILY_LOSS_PCT: float = 0.02      # 2% of live available cash as daily kill-switch
-    MAX_ORDERS_PER_SYMBOL_PER_DAY: int = 50
+    MAX_ORDERS_PER_SYMBOL_PER_DAY: int = 6  # Retail guardrail: 3 round trips (or entry + scale-outs) to prevent churn & fee bleed on ~9k capital
     ALLOWED_EXCHANGES: list[str] = ["NSE", "BSE"]
     ALLOWED_PRODUCTS: list[str] = ["CNC", "MIS", "NRML"]
 
@@ -68,8 +68,9 @@ class Settings(BaseSettings):
     DATABASE_URL: PostgresDsn = Field(...)
     REDIS_URL: RedisDsn = Field(...)
 
-    # ── Market data service (for paper broker fills) ──────────────────────────
-    MARKET_DATA_SERVICE_URL: str = "http://market-data:8002"
+    # ── Services ──────────────────────────────────────────────────────────────
+    MARKET_DATA_SERVICE_URL: str = "http://localhost:8002"
+    RISK_ENGINE_SERVICE_URL: str = "http://localhost:8007"
 
     # ── Observability ─────────────────────────────────────────────────────────
     PROMETHEUS_ENABLED: bool = True
