@@ -15,3 +15,5 @@ logs/
 mlflow.db
 mlruns/
 .next/
+shared_secrets/
+*.pem

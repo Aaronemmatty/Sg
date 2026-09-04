@@ -25,6 +25,7 @@ import type {
   Symbol,
   Candle,
   BrokerStatus,
+  User,
 } from "@/types";
 
 const DEFAULT_SWR: SWRConfiguration = {
@@ -34,6 +35,20 @@ const DEFAULT_SWR: SWRConfiguration = {
 
 const FAST_SWR: SWRConfiguration = { refreshInterval: 2_000 };
 const SLOW_SWR: SWRConfiguration = { refreshInterval: 60_000 };
+
+// ─── Current User ─────────────────────────────────────────────────────────────
+
+export function useCurrentUser() {
+  return useSWR<{ user: User | null }>(
+    "/api/auth/me",
+    async () => {
+      const res = await fetch("/api/auth/me");
+      if (!res.ok) return { user: null };
+      return res.json();
+    },
+    { revalidateOnFocus: true }
+  );
+}
 
 // ─── Portfolio ────────────────────────────────────────────────────────────────
 
