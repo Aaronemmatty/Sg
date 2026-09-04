@@ -14,8 +14,9 @@ pool: asyncpg.Pool | None = None
 
 async def init_pool() -> asyncpg.Pool:
     global pool
+    clean_dsn = settings.database_url.replace("postgresql+asyncpg://", "postgresql://")
     pool = await asyncpg.create_pool(
-        dsn=settings.database_url,
+        dsn=clean_dsn,
         min_size=settings.db_pool_min_size,
         max_size=settings.db_pool_max_size,
     )

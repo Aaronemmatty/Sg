@@ -28,11 +28,12 @@ SERVICES = [
     ("Risk Engine Service", "127.0.0.1", 8007, "http://127.0.0.1:8007/health"),
     ("Execution Engine Service", "127.0.0.1", 8008, "http://127.0.0.1:8008/health"),
     ("Portfolio Management", "127.0.0.1", 8009, "http://127.0.0.1:8009/health"),
-    ("Backtesting Engine", "127.0.0.1", 8010, "http://127.0.0.1:8010/health"),
+    ("Backtesting Engine", "127.0.0.1", 8010, "http://127.0.0.1:8010/api/v1/health"),
     ("ML Platform Service", "127.0.0.1", 8011, "http://127.0.0.1:8011/health"),
-    ("AI Analyst Service", "127.0.0.1", 8012, "http://127.0.0.1:8012/health"),
+    ("AI Analyst Service", "127.0.0.1", 8012, "http://127.0.0.1:8012/api/v1/health"),
     ("Signal Aggregation Service", "127.0.0.1", 8013, "http://127.0.0.1:8013/health"),
-    ("Next.js Dashboard", "127.0.0.1", 3000, "http://127.0.0.1:3000"),
+    ("Notification Service", "127.0.0.1", 8014, "http://127.0.0.1:8014/health"),
+    ("Next.js Dashboard", "127.0.0.1", 3000, "tcp"),
 ]
 
 def check_tcp(host: str, port: int, timeout: float = 1.5) -> tuple[bool, float, str]:
